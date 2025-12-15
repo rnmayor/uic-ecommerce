@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    // ---------------------------------------------------------
+    // Module & Target Configuration
+    // ---------------------------------------------------------
+    "target": "es2022", // Controls the JS language features the Typescript is allowed to emit (outputs modern JS)
+    "module": "esnext", // Module format Typescript emits (Required for Next.js, ESM bundlers, Tree-shaking, Dynamic imports)
+    "moduleResolution": "bundler", // Controls how Typescript resolves import during type-checking
+    "esModuleInterop": true, // Controls compatibility between CommonJS and ES Modules
+
+    // ---------------------------------------------------------
+    // Language & Type Checking
+    // ---------------------------------------------------------
+    "strict": true, // Enables all stricty type-checking rules
+    "skipLibCheck": true, // Skips type-checking of .d.ts in node_modules
+    "forceConsistentCasingInFileNames": true, // Enforces exact file name casing in imports
+    "isolatedModules": true, // Ensures every file compiled independently (Next.js compiles each file in isolation using SWC)
+    "resolveJsonModule": true, // Allows importing JSON files
+
+    // ---------------------------------------------------------
+    // React / JSX
+    // ---------------------------------------------------------
+    "jsx": "react-jsx", // Uses new JSX transform (React 17+)
+
+    // ---------------------------------------------------------
+    // Build Performance / Behavior
+    // ---------------------------------------------------------
+    "noEmit": true // Don't emit JS (Next.js handles the build, `tsc --build is only for type-checking`)
+  }
+}

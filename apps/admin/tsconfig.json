@@ -1,0 +1,33 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // ---------------------------------------------------------
+    // Module & Target Configuration
+    // ---------------------------------------------------------
+    "lib": ["dom", "dom.iterable", "esnext"], // Ensure DOM + Modern ES features
+    // ---------------------------------------------------------
+    // Next.js
+    // ---------------------------------------------------------
+    "plugins": [
+      {
+        "name": "next" // Next.js plugin - enables Next.js specific type checking
+      }
+    ],
+    // ---------------------------------------------------------
+    // Path Aliases
+    // ---------------------------------------------------------
+    "baseUrl": ".", // Root directory for module resolution
+    "paths": {
+      "@features/*": ["./features/*"],
+      "@shared/*": ["./shared/*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts", // Next.js type definitions
+    "**/*.ts", // App TS files
+    "**/*.tsx", // App TSX files
+    ".next/types/**/*.ts", // Generated Next.js types (for App router and pages)
+    ".next/dev/types/" // Generated Next.js types (development-only)
+  ],
+  "exclude": ["node_modules"]
+}

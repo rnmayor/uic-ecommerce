@@ -1,0 +1,25 @@
+{
+  "name": "uic-ecommerce",
+  "version": "1.0.0",
+  "author": "Ronel Mayor",
+  "description": "ecommerce monorepo",
+  "private": true,
+  "packageManager": "pnpm@10.24.0",
+  "scripts": {
+    "dev": "pnpm -r --parallel --filter \"./apps/*\" dev",
+    "lint": "eslint \"{apps,packages}/*/**/*.{ts,tsx}\" --max-warnings=0 && echo \"ESLint: No issues found.\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.26",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.1",
+    "eslint-config-next": "16.0.8",
+    "eslint-config-prettier": "^10.1.8",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}

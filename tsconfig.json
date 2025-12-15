@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@ecommerce/core/*": ["packages/core/src/*"],
+      "@ecommerce/ui/*": ["packages/ui/src/*"],
+      "@ecommerce/db/*": ["packages/db/src/*"]
+    }
+  }
+}
