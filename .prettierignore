@@ -1,0 +1,37 @@
+# Node / build artifacts
+node_modules
+.next
+dist
+build
+out
+coverage
+
+# Typescript
+**/*.tsbuildinfo
+
+# Next.js
+.next/types
+
+# Prisma
+prisma/migrations
+packages/db/src/generated/**
+
+# Logs
+*.log
+
+# Environment
+.env
+.env*.local
+
+# yarn / pnpm / npm lockfiles
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Misc
+*.csv
+
+# Caches
+.eslintcache
+.turbo
+.cache
