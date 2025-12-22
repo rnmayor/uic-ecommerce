@@ -2,5 +2,13 @@
   "name": "@ecommerce/ui",
   "private": true,
   "version": "0.0.0",
-  "type": "module"
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./globals.css": "./src/styles/globals.css"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
+    "tailwindcss": "^4.1.18"
+  }
 }
