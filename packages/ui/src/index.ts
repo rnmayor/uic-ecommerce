@@ -1,2 +1,2 @@
 // Main public entry
-export {};
+export * from './components';
