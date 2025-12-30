@@ -1,4 +1,4 @@
-import { Button } from '@ecommerce/ui';
+import { Button, ThemeToggler } from '@ecommerce/ui';
 
 export default function Home() {
   return (
@@ -6,6 +6,7 @@ export default function Home() {
       <div className="mt-10 bg-primary text-3xl font-bold">Marketplace app</div>
       <div className="bg-red-500">TEST</div>
       <div className="flex flex-col items-center justify-center">
+        <ThemeToggler />
         <Button variant="default">Shadcn Button from ui package - default</Button>
         <Button variant="destructive">Shadcn Button from ui package - destructive</Button>
         <Button variant="outline">Shadcn Button from ui package - outline</Button>

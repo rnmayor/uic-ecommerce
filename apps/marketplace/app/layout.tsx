@@ -1,7 +1,7 @@
+import { ThemeProvider } from '@ecommerce/ui';
 import { Geist, Geist_Mono } from 'next/font/google';
 
 import type { Metadata } from 'next';
-
 import '@ecommerce/ui/globals.css';
 
 const geistSans = Geist({
@@ -25,8 +25,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-      <body>{children}</body>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+    >
+      <body>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
