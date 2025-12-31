@@ -16,11 +16,11 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "@types/node": "^20.19.26",
+    "@types/node": "^24.10.4",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "eslint": "^9.39.1",
-    "eslint-config-next": "16.0.8",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "16.1.1",
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
     "prettier": "^3.7.4",
