@@ -4,7 +4,7 @@ import { Half2Icon, MoonIcon, SunIcon } from '@radix-ui/react-icons';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 
-import { Button } from './button';
+import { Button } from '../ui/button';
 
 export const ThemeToggler = () => {
   const { theme, setTheme } = useTheme();
