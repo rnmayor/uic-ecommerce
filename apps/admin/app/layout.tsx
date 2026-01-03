@@ -1,5 +1,5 @@
 import { ClerkProvider } from '@clerk/nextjs';
-import { ThemeProvider } from '@ecommerce/ui';
+import { ModalProvider, ThemeProvider } from '@ecommerce/ui';
 import { Geist, Geist_Mono } from 'next/font/google';
 
 import type { Metadata } from 'next';
@@ -39,6 +39,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <ModalProvider />
             {children}
           </ThemeProvider>
         </body>
