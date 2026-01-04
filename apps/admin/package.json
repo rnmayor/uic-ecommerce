@@ -9,9 +9,11 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.5",
+    "@ecommerce/core": "workspace:*",
     "@ecommerce/ui": "workspace:*",
     "next": "16.1.1",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "zustand": "^5.0.9"
   }
 }

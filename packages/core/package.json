@@ -2,5 +2,11 @@
   "name": "@ecommerce/core",
   "private": true,
   "version": "0.0.0",
-  "type": "module"
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "zustand": "^5.0.9"
+  }
 }

@@ -1,7 +1,13 @@
+'use client';
+
 import { SignedIn, UserButton } from '@clerk/nextjs';
 import { Button, ThemeToggler } from '@ecommerce/ui';
 
+import { useModalState } from '@shared/state/use-modal-state';
+
 export default function Home() {
+  // TODO: Sample only, remove later and the 'use client' directive
+  const { openModal } = useModalState('store');
   return (
     <>
       <div className="mt-10 bg-primary text-3xl font-bold">Admin app</div>
@@ -11,6 +17,7 @@ export default function Home() {
           <UserButton />
         </SignedIn>
         <ThemeToggler />
+        <Button onClick={openModal}>Open Store Modal</Button>
         <Button variant="default">Shadcn Button from ui package - default</Button>
         <Button variant="destructive">Shadcn Button from ui package - destructive</Button>
         <Button variant="outline">Shadcn Button from ui package - outline</Button>

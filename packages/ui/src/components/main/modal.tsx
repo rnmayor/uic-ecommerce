@@ -19,14 +19,8 @@ interface ModalProps {
 }
 
 export const Modal = ({ title, description, isOpen, onClose, children, footer }: ModalProps) => {
-  const onChange = () => {
-    if (!open) {
-      onClose();
-    }
-  };
-
   return (
-    <Dialog open={isOpen} onOpenChange={onChange}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>

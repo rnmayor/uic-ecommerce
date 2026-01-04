@@ -1,19 +1,14 @@
 'use client';
 
+import { useMounted } from '@ecommerce/core';
 import { Half2Icon, MoonIcon, SunIcon } from '@radix-ui/react-icons';
 import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
 
 import { Button } from '../ui';
 
 export const ThemeToggler = () => {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-  }, []);
+  const mounted = useMounted();
 
   if (!mounted) {
     return (

@@ -1,6 +1,8 @@
 import { ClerkProvider } from '@clerk/nextjs';
-import { ModalProvider, ThemeProvider } from '@ecommerce/ui';
+import { ThemeProvider } from '@ecommerce/ui';
 import { Geist, Geist_Mono } from 'next/font/google';
+
+import { ModalProvider } from '@shared/providers/modal-provider';
 
 import type { Metadata } from 'next';
 import '@ecommerce/ui/globals.css';
