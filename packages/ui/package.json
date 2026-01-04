@@ -7,6 +7,9 @@
     ".": "./src/index.ts",
     "./globals.css": "./src/styles/globals.css"
   },
+  "scripts": {
+    "type-check": "tsc --build"
+  },
   "dependencies": {
     "@ecommerce/core": "workspace:*",
     "@radix-ui/react-dialog": "^1.1.15",

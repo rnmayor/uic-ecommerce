@@ -48,3 +48,6 @@ next-env.d.ts
 .eslintcache
 .turbo
 .turbo/*
+
+# prisma
+packages/db/src/generated
