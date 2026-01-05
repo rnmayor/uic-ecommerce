@@ -1,1 +1,1 @@
-export * from './modal';
+export { createModalState, type ModalState } from './modal';
