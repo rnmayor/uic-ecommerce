@@ -1,23 +1,30 @@
-'use client';
-
 import { SignedIn, UserButton } from '@clerk/nextjs';
+import { db } from '@ecommerce/db';
 import { Button, ThemeToggler } from '@ecommerce/ui';
+import { redirect } from 'next/navigation';
 
-import { useModalState } from '@shared/state/use-modal-state';
+export default async function DashboardPage({ params }: { params: Promise<{ storeId: string }> }) {
+  const { storeId } = await params;
+  const store = await db.store.findFirst({
+    where: {
+      id: storeId,
+    },
+  });
 
-export default function Home() {
-  // TODO: Sample only, remove later and the 'use client' directive
-  const { openModal } = useModalState('store');
+  if (!store) {
+    // fallback if invalid storeId in URL
+    redirect('/');
+  }
+
   return (
     <>
-      <div className="mt-10 bg-primary text-3xl font-bold">Admin app</div>
-      <div className="bg-red-500">TEST</div>
+      <h1>Dashboard Page</h1>
+      <h2>Active Store: {store.name}</h2>
       <div className="flex flex-col items-center justify-center">
         <SignedIn>
           <UserButton />
         </SignedIn>
         <ThemeToggler />
-        <Button onClick={openModal}>Open Store Modal</Button>
         <Button variant="default">Shadcn Button from ui package - default</Button>
         <Button variant="destructive">Shadcn Button from ui package - destructive</Button>
         <Button variant="outline">Shadcn Button from ui package - outline</Button>
