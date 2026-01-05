@@ -11,3 +11,5 @@ export {
   DialogTitle,
   DialogTrigger,
 } from './dialog';
+export { Label } from './label';
+export { Separator } from './separator';
