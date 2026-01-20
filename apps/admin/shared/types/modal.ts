@@ -1,1 +1,1 @@
-export type AdminModal = 'store';
+export type AdminModal = 'tenant';

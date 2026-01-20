@@ -4,8 +4,8 @@ import { useEffect } from 'react';
 
 import { useModalState } from '@shared/state/use-modal-state';
 
-export const NoStoreHandler = () => {
-  const { isOpen, openModal } = useModalState('store');
+export const NoTenantHandler = () => {
+  const { isOpen, openModal } = useModalState('tenant');
   useEffect(() => {
     if (!isOpen) {
       openModal();

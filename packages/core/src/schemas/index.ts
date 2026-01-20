@@ -1,1 +1,1 @@
-export { createStoreSchema, updateStoreSchema } from './store';
+export { createTenantSchema, updateTenantSchema } from './tenant';

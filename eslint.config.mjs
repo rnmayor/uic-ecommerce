@@ -42,8 +42,6 @@ export default defineConfig([
     '**/.env.*',
     '**/*.log',
     '**/next-env.d.ts',
-
-    'packages/db/src/generated/**', // prisma
   ]),
 
   ...nextCoreWebVitals,

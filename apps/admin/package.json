@@ -10,7 +10,6 @@
   "dependencies": {
     "@clerk/nextjs": "^6.36.5",
     "@ecommerce/core": "workspace:*",
-    "@ecommerce/db": "workspace:*",
     "@ecommerce/ui": "workspace:*",
     "@hookform/resolvers": "^5.2.2",
     "next": "16.1.1",

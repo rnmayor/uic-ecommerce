@@ -12,10 +12,6 @@ coverage
 # Next.js
 .next/types
 
-# Prisma
-prisma/migrations
-packages/db/src/generated/**
-
 # Logs
 *.log
 

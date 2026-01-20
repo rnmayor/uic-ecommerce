@@ -14,8 +14,7 @@
     "test": "echo \"Error: no test configured\"",
     "prepare": "husky",
     "format": "prettier --write .",
-    "type-check": "pnpm -r --filter \"./packages/*\" type-check",
-    "vercel-build": "pnpm -r --filter \"./packages/db\" vercel-build && pnpm build"
+    "type-check": "pnpm -r --filter \"./packages/*\" type-check"
   },
   "devDependencies": {
     "@types/node": "^24.10.4",

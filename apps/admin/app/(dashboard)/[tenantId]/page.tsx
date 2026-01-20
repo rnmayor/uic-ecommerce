@@ -1,25 +1,11 @@
 import { SignedIn, UserButton } from '@clerk/nextjs';
-import { db } from '@ecommerce/db';
 import { Button, ThemeToggler } from '@ecommerce/ui';
-import { redirect } from 'next/navigation';
 
-export default async function DashboardPage({ params }: { params: Promise<{ storeId: string }> }) {
-  const { storeId } = await params;
-  const store = await db.store.findFirst({
-    where: {
-      id: storeId,
-    },
-  });
-
-  if (!store) {
-    // fallback if invalid storeId in URL
-    redirect('/');
-  }
-
+export default async function DashboardPage() {
+  // TODO: Tenand and store stuff ongoing via .net api
   return (
     <>
       <h1>Dashboard Page</h1>
-      <h2>Active Store: {store.name}</h2>
       <div className="flex flex-col items-center justify-center">
         <SignedIn>
           <UserButton />

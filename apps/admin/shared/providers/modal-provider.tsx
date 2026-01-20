@@ -2,14 +2,14 @@
 
 import { useMounted } from '@ecommerce/core';
 
-import { StoreModal } from '@features/store/components/store-modal';
+import { TenantModal } from '@features/tenant/components/tenant-modal';
 import { useAppState } from '@shared/state/use-app-state';
 
 import type { AdminModal } from '@shared/types/modal';
 
 // Import all modals that might appear
 const modalMap: Record<AdminModal, React.ComponentType> = {
-  store: StoreModal,
+  tenant: TenantModal,
 };
 
 export function ModalProvider() {
