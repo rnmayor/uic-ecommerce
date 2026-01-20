@@ -43,8 +43,24 @@ next-env.d.ts
 # IDE / Editor
 .vscode
 .idea
+**/.vs/
 
 # Tooling / Caches
 .eslintcache
 .turbo
 .turbo/*
+
+# .Net / C#
+**/bin/
+**/obj/
+**/*.user
+**/*.suo
+**/*.userosscache
+**/*.sln.docstates
+**/*.dbmdl
+**/*.jfm
+**/*.rsuser
+
+# EF Core
+**/Migrations/*.Designer.cs
+**/Migrations/*.resx
