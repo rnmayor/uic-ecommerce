@@ -1,3 +1,5 @@
+using Ecommerce.Api.Middleware;
+using Ecommerce.Application.Common.Tenancy;
 using Ecommerce.Infrastructure;
 
 // Bootstrap the entire application host and setup configuration, loggind, DI, environment detection
@@ -5,13 +7,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container. Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 
-// Call extension method registered in IServiceCollection defined in Ecommerce.Infrastructure.DependencyInjection
+// Register all infrastracture services (DbContext, repositories, EF Core, etc.) via options pattern
 builder.Services.AddInfrastracture(builder.Configuration);
-// Enables MVC Controllers for REST APIs
+// Register request-scoped tenant context to hold current tenant information
+// Ensures each HTTP request has its own tenant instance, isolated from other requests
+builder.Services.AddScoped<ITenantContext, TenantContext>();
+// Enables MVC Controllers for REST API endpoints
 builder.Services.AddControllers();
-// Scans controllers and endpoints and produces metadata for Swagger/OpenAPI
+// Register endpoint metadata for Swagger/OpenAPI documentation generation
 builder.Services.AddEndpointsApiExplorer();
-// Register Swagger generator, builds OpenAPI JSON
+// Register Swagger/OpenAPI generator to produce API documentation and UI
 builder.Services.AddSwaggerGen();
 
 // Finalize the DI container, locks configuration, and builds the middleware pipeline host
@@ -26,12 +31,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Redirect HTTP to HTTPS for security
+// Redirect all incoming HTTP requests to HTTPS to ensure secure communication
 app.UseHttpsRedirection();
-// Enable authorization middleware, enforces [Authorize], Policies, Roles/claims
+// Authenticate incoming requests using configured authentication schemes (JWT via Clerk)
+app.UseAuthentication();
+// Custom middleware to resolve current tenant based on authenticated user
+app.UseMiddleware<TenantResolutionMiddleware>();
+// Enforces access control and policies based on authenticated user's claims and roles
 app.UseAuthorization();
-// Register all controller routes
+// Map all API controller routes
 app.MapControllers();
 
-// Starts the web server and end of the pipeline
+// Starts the web server and process incoming HTTP requests
 app.Run();
