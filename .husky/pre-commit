@@ -1,1 +1,6 @@
-pnpm lint && pnpm type-check
+# Frontend
+pnpm lint
+pnpm type-check
+
+# Backend
+dotnet format ./backend/ecommerce-api

@@ -7,11 +7,11 @@ namespace Ecommerce.Infrastructure;
 
 public static class DependencyInjection
 {
-  public static IServiceCollection AddInfrastracture(this IServiceCollection services, IConfiguration configuration)
-  {
-    var connectionString = configuration.GetConnectionString("Database");
-    services.AddDbContext<EcommerceDbContext>(options => options.UseNpgsql(connectionString));
+    public static IServiceCollection AddInfrastracture(this IServiceCollection services, IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("Database");
+        services.AddDbContext<EcommerceDbContext>(options => options.UseNpgsql(connectionString));
 
-    return services;
-  }
+        return services;
+    }
 }
