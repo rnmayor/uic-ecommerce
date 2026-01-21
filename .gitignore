@@ -29,6 +29,7 @@ pnpm-debug.log*
 
 # Local env files
 .env*
+**/appsettings.Development.json
 
 # clerk configuration
 /.clerk/
