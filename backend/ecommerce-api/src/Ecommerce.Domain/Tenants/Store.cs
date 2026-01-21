@@ -2,9 +2,8 @@ using Ecommerce.Domain.Common;
 
 namespace Ecommerce.Domain.Tenants;
 
-public class Store : Entity
+public class Store : TenantEntity
 {
-    public Guid TenantId { get; private set; }
     public string Name { get; private set; } = default!;
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
