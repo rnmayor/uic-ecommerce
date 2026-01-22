@@ -1,7 +1,11 @@
 using Ecommerce.Api.Middleware;
+using Ecommerce.Api.Security;
 using Ecommerce.Application.Common.Authentication;
+using Ecommerce.Application.Common.Identity;
 using Ecommerce.Application.Common.Tenancy;
 using Ecommerce.Infrastructure;
+using Ecommerce.Infrastructure.Identity;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -46,12 +50,17 @@ builder.Services
         };
     });
 
-
 // Register all infrastracture services (DbContext, repositories, EF Core, etc.) via options pattern
 builder.Services.AddInfrastracture(builder.Configuration);
 // Register request-scoped tenant context to hold current tenant information
 // Ensures each HTTP request has its own tenant instance, isolated from other requests
 builder.Services.AddScoped<ITenantContext, TenantContext>();
+// Register the service to resolves application's internal User ID from Clerk's user ID
+// Ensures mapping the authenticated Clerk user to a local User entity in the database
+builder.Services.AddScoped<IUserResolver, UserResolver>();
+// Register a claims transformation service for additional claims (user_id) to the authenticated user.
+// Allows downstream services, middleware, and authorization policies to rely on enriched claims.
+builder.Services.AddScoped<IClaimsTransformation, UserClaimsTransformation>();
 // Enables MVC Controllers for REST API endpoints
 builder.Services.AddControllers();
 // Register endpoint metadata for Swagger/OpenAPI documentation generation
