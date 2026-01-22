@@ -1,6 +1,7 @@
 using Ecommerce.Api.Middleware;
 using Ecommerce.Api.Security;
 using Ecommerce.Application.Common.Authentication;
+using Ecommerce.Application.Common.Authorization;
 using Ecommerce.Application.Common.Identity;
 using Ecommerce.Application.Common.Tenancy;
 using Ecommerce.Infrastructure;
@@ -14,6 +15,8 @@ using System.IdentityModel.Tokens.Jwt;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container. Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// Register all infrastracture services (DbContext, repositories, EF Core, etc.) via options pattern
+builder.Services.AddInfrastracture(builder.Configuration);
 
 // Register JWT Authentication
 var clerkSection = builder.Configuration.GetSection("Authentication:Clerk");
@@ -49,18 +52,21 @@ builder.Services
             }
         };
     });
-
-// Register all infrastracture services (DbContext, repositories, EF Core, etc.) via options pattern
-builder.Services.AddInfrastracture(builder.Configuration);
 // Register request-scoped tenant context to hold current tenant information
 // Ensures each HTTP request has its own tenant instance, isolated from other requests
 builder.Services.AddScoped<ITenantContext, TenantContext>();
 // Register the service to resolves application's internal User ID from Clerk's user ID
 // Ensures mapping the authenticated Clerk user to a local User entity in the database
 builder.Services.AddScoped<IUserResolver, UserResolver>();
-// Register a claims transformation service for additional claims (user_id) to the authenticated user.
-// Allows downstream services, middleware, and authorization policies to rely on enriched claims.
+// Register a claims transformation service for additional claims (user_id) to the authenticated user
+// Allows downstream services, middleware, and authorization policies to rely on enriched claims
 builder.Services.AddScoped<IClaimsTransformation, UserClaimsTransformation>();
+// Register authorization policy "TenantAdmin" that allow users who are members of the current tenant with "Owner" or "Admin" role
+// Enforced via TenantMemberAuthorizationHandler
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("TenantAdmin", policy => policy.Requirements.Add(new TenantMemberRequirement("Owner", "Admin")));
+});
 // Enables MVC Controllers for REST API endpoints
 builder.Services.AddControllers();
 // Register endpoint metadata for Swagger/OpenAPI documentation generation
