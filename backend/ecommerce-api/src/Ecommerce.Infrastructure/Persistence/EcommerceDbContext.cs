@@ -17,6 +17,7 @@ public class EcommerceDbContext : DbContext
     public DbSet<Tenant> Tenants => Set<Tenant>();
     public DbSet<Store> Stores => Set<Store>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<TenantUser> TenantUsers => Set<TenantUser>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Ecommerce.Infrastructure.Persistence.Configurations;
 
-public class StoreConfiguration : IEntityTypeConfiguration<Store>
+internal sealed class StoreConfiguration : IEntityTypeConfiguration<Store>
 {
     public void Configure(EntityTypeBuilder<Store> builder)
     {

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Ecommerce.Infrastructure.Persistence.Configurations;
 
-public class TenantConfiguration : IEntityTypeConfiguration<Tenant>
+internal sealed class TenantConfiguration : IEntityTypeConfiguration<Tenant>
 {
     public void Configure(EntityTypeBuilder<Tenant> builder)
     {
