@@ -1,11 +1,51 @@
 using Ecommerce.Api.Middleware;
+using Ecommerce.Application.Common.Authentication;
 using Ecommerce.Application.Common.Tenancy;
 using Ecommerce.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 
 // Bootstrap the entire application host and setup configuration, loggind, DI, environment detection
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container. Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+// Register JWT Authentication
+var clerkSection = builder.Configuration.GetSection("Authentication:Clerk");
+builder.Services.Configure<ClerkAuthOptions>(clerkSection);
+
+var clerkOptions = clerkSection.Get<ClerkAuthOptions>()!;
+// Prevent claim type remapping
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = clerkOptions.Issuer;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = clerkOptions.Issuer,
+
+            ValidateAudience = false, // Clerk does not require Audience
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+
+            NameClaimType = "sub"
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return Task.CompletedTask;
+            }
+        };
+    });
+
 
 // Register all infrastracture services (DbContext, repositories, EF Core, etc.) via options pattern
 builder.Services.AddInfrastracture(builder.Configuration);
