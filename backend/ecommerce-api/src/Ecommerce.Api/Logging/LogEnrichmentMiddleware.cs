@@ -18,8 +18,8 @@ public sealed class LogEnrichmentMiddleware
         var clerkUserId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
         var tenantId = tenantContext.TenantId.ToString();
 
-        using (LogContext.PushProperty("UserId", userId)) ;
-        using (LogContext.PushProperty("ClerkUserId", clerkUserId)) ;
+        using (LogContext.PushProperty("UserId", userId))
+        using (LogContext.PushProperty("ClerkUserId", clerkUserId))
         using (LogContext.PushProperty("TenantId", tenantId))
         using (LogContext.PushProperty("TraceId", context.TraceIdentifier))
         {

@@ -1,3 +1,4 @@
+using Ecommerce.Api.Extensions;
 using Ecommerce.Api.Logging;
 using Ecommerce.Api.Middleware;
 using Ecommerce.Api.Security;
@@ -112,6 +113,8 @@ app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<TenantResolutionMiddleware>();
 // Custom middleware for logging
 app.UseMiddleware<LogEnrichmentMiddleware>();
+// Custom middleware for global error handling
+app.UseGlobalExceptionHandling();
 // Enforces access control and policies based on authenticated user's claims and roles
 app.UseAuthorization();
 // Map all API controller routes
