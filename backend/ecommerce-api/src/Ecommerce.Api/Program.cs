@@ -106,6 +106,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 // Authenticate incoming requests using configured authentication schemes (JWT via Clerk)
 app.UseAuthentication();
+// Custom middleware to attach a unique identifer that travels with a request and shared across logs, errors, and downstream calls
+app.UseMiddleware<CorrelationIdMiddleware>();
 // Custom middleware to resolve current tenant based on authenticated user
 app.UseMiddleware<TenantResolutionMiddleware>();
 // Custom middleware for logging
