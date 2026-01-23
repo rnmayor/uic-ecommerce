@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 
-namespace Ecommerce.Application.Common.Authorization;
+namespace Ecommerce.Application.Common.Authorization.Requirements;
 
 public sealed class TenantMemberRequirement : IAuthorizationRequirement
 {

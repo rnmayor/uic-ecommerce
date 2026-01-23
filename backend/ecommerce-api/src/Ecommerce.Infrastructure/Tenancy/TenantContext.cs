@@ -1,4 +1,6 @@
-namespace Ecommerce.Application.Common.Tenancy;
+using Ecommerce.Application.Common.Interfaces;
+
+namespace Ecommerce.Infrastructure.Tenancy;
 
 public sealed class TenantContext : ITenantContext
 {

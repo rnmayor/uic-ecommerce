@@ -1,4 +1,4 @@
-using Ecommerce.Application.Common.Identity;
+using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Domain.Users;
 using Ecommerce.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;

@@ -1,4 +1,4 @@
-using Ecommerce.Application.Common.Tenancy;
+using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Domain.Common;
 using Ecommerce.Domain.Tenants;
 using Ecommerce.Domain.Users;

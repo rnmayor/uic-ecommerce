@@ -1,13 +1,12 @@
 using Ecommerce.Api.Extensions;
-using Ecommerce.Api.Logging;
 using Ecommerce.Api.Middleware;
 using Ecommerce.Api.Security;
 using Ecommerce.Application.Common.Authentication;
-using Ecommerce.Application.Common.Authorization;
-using Ecommerce.Application.Common.Identity;
-using Ecommerce.Application.Common.Tenancy;
+using Ecommerce.Application.Common.Authorization.Policies;
+using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Infrastructure;
 using Ecommerce.Infrastructure.Identity;
+using Ecommerce.Infrastructure.Tenancy;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -29,8 +28,8 @@ builder.Host.UseSerilog((context, services, configuration) =>
 });
 
 // Add services to the container
-// Register all infrastracture services (DbContext, repositories, EF Core, etc.) via options pattern
-builder.Services.AddInfrastracture(builder.Configuration);
+// Register all infrastructure services (DbContext, repositories, EF Core, etc.) via options pattern
+builder.Services.AddInfrastructure(builder.Configuration);
 
 // Register JWT Authentication
 var clerkSection = builder.Configuration.GetSection("Authentication:Clerk");
@@ -67,21 +66,15 @@ builder.Services
         };
     });
 
-// Register request-scoped tenant context to hold current tenant information
-// Ensures each HTTP request has its own tenant instance, isolated from other requests
-builder.Services.AddScoped<ITenantContext, TenantContext>();
-// Register the service to resolves application's internal User ID from Clerk's user ID
-// Ensures mapping the authenticated Clerk user to a local User entity in the database
-builder.Services.AddScoped<IUserResolver, UserResolver>();
-// Register a claims transformation service for additional claims (user_id) to the authenticated user
-// Allows downstream services, middleware, and authorization policies to rely on enriched claims
-builder.Services.AddScoped<IClaimsTransformation, UserClaimsTransformation>();
+
+builder.Services.AddTenantServices();
+builder.Services.AddUserServices();
 
 // Register authorization policy "TenantAdmin" that allow users who are members of the current tenant with "Owner" or "Admin" role
 // Enforced via TenantMemberAuthorizationHandler
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("TenantAdmin", policy => policy.Requirements.Add(new TenantMemberRequirement("Owner", "Admin")));
+    AuthorizationPolicies.AddPolicies(options);
 });
 
 // Enables MVC Controllers for REST API endpoints
@@ -103,18 +96,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Redirect all incoming HTTP requests to HTTPS to ensure secure communication
 app.UseHttpsRedirection();
-// Authenticate incoming requests using configured authentication schemes (JWT via Clerk)
 app.UseAuthentication();
-// Custom middleware to attach a unique identifer that travels with a request and shared across logs, errors, and downstream calls
-app.UseMiddleware<CorrelationIdMiddleware>();
-// Custom middleware to resolve current tenant based on authenticated user
-app.UseMiddleware<TenantResolutionMiddleware>();
-// Custom middleware for logging
-app.UseMiddleware<LogEnrichmentMiddleware>();
-// Custom middleware for global error handling
+
+app.UseCorrelationId();
+app.UseTenantResolution();
+app.UseLogEnrichment();
 app.UseGlobalExceptionHandling();
+
 // Enforces access control and policies based on authenticated user's claims and roles
 app.UseAuthorization();
 // Map all API controller routes

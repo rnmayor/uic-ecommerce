@@ -1,13 +1,13 @@
-using Ecommerce.Application.Common.Authorization;
+using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Infrastructure.Authorization;
 
-public sealed class TenantAuthorizationService : ITenantAuthorizationService
+public sealed class TenantMemberAuthorizationService : ITenantMemberAuthorizationService
 {
     private readonly EcommerceDbContext _context;
-    public TenantAuthorizationService(EcommerceDbContext context)
+    public TenantMemberAuthorizationService(EcommerceDbContext context)
     {
         _context = context;
     }

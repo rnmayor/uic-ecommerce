@@ -1,8 +1,8 @@
 using System.Security.Claims;
-using Ecommerce.Application.Common.Tenancy;
+using Ecommerce.Application.Common.Interfaces;
 using Serilog.Context;
 
-namespace Ecommerce.Api.Logging;
+namespace Ecommerce.Api.Middleware;
 
 public sealed class LogEnrichmentMiddleware
 {

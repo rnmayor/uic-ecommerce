@@ -1,4 +1,4 @@
-namespace Ecommerce.Application.Common.Tenancy;
+namespace Ecommerce.Application.Common.Interfaces;
 
 public interface ITenantContext
 {

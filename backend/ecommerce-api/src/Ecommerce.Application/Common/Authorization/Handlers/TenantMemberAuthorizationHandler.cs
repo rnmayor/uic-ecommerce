@@ -1,16 +1,17 @@
 using System.Security.Claims;
-using Ecommerce.Application.Common.Tenancy;
+using Ecommerce.Application.Common.Authorization.Requirements;
+using Ecommerce.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 
-namespace Ecommerce.Application.Common.Authorization;
+namespace Ecommerce.Application.Common.Authorization.Handlers;
 
 public sealed class TenantMemberAuthorizationHandler : AuthorizationHandler<TenantMemberRequirement>
 {
     private readonly ITenantContext _tenantContext;
-    private readonly ITenantAuthorizationService _authService;
+    private readonly ITenantMemberAuthorizationService _authService;
     public TenantMemberAuthorizationHandler(
       ITenantContext tenantContext,
-      ITenantAuthorizationService authService
+      ITenantMemberAuthorizationService authService
     )
     {
         _tenantContext = tenantContext;

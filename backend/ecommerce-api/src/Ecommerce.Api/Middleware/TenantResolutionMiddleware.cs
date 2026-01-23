@@ -1,4 +1,4 @@
-using Ecommerce.Application.Common.Tenancy;
+using Ecommerce.Application.Common.Interfaces;
 
 namespace Ecommerce.Api.Middleware;
 

@@ -1,4 +1,4 @@
-namespace Ecommerce.Application.Common.Identity;
+namespace Ecommerce.Application.Common.Interfaces;
 
 public interface IUserResolver
 {

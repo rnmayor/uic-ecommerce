@@ -1,13 +1,13 @@
 using System.Security.Claims;
-using Ecommerce.Application.Common.Identity;
+using Ecommerce.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 
 namespace Ecommerce.Api.Security;
 
-public sealed class UserClaimsTransformation : IClaimsTransformation
+public sealed class ClaimsTransformation : IClaimsTransformation
 {
     private readonly IUserResolver _userResolver;
-    public UserClaimsTransformation(IUserResolver userResolver)
+    public ClaimsTransformation(IUserResolver userResolver)
     {
         _userResolver = userResolver;
     }

@@ -1,6 +1,6 @@
-namespace Ecommerce.Application.Common.Authorization;
+namespace Ecommerce.Application.Common.Interfaces;
 
-public interface ITenantAuthorizationService
+public interface ITenantMemberAuthorizationService
 {
     Task<bool> IsTenantMemberAsync(
       Guid tenantId,
