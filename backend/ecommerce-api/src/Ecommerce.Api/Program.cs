@@ -1,3 +1,4 @@
+using Ecommerce.Api.Logging;
 using Ecommerce.Api.Middleware;
 using Ecommerce.Api.Security;
 using Ecommerce.Application.Common.Authentication;
@@ -9,12 +10,24 @@ using Ecommerce.Infrastructure.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using System.IdentityModel.Tokens.Jwt;
 
-// Bootstrap the entire application host and setup configuration, loggind, DI, environment detection
+// Bootstrap the entire application host and setup configuration, logging, DI, environment detection
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container. Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// Replace default logging
+builder.Host.UseSerilog((context, services, configuration) =>
+{
+    configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext()
+        .Enrich.WithEnvironmentName()
+        .Enrich.WithThreadId();
+});
+
+// Add services to the container
 // Register all infrastracture services (DbContext, repositories, EF Core, etc.) via options pattern
 builder.Services.AddInfrastracture(builder.Configuration);
 
@@ -52,6 +65,7 @@ builder.Services
             }
         };
     });
+
 // Register request-scoped tenant context to hold current tenant information
 // Ensures each HTTP request has its own tenant instance, isolated from other requests
 builder.Services.AddScoped<ITenantContext, TenantContext>();
@@ -61,12 +75,14 @@ builder.Services.AddScoped<IUserResolver, UserResolver>();
 // Register a claims transformation service for additional claims (user_id) to the authenticated user
 // Allows downstream services, middleware, and authorization policies to rely on enriched claims
 builder.Services.AddScoped<IClaimsTransformation, UserClaimsTransformation>();
+
 // Register authorization policy "TenantAdmin" that allow users who are members of the current tenant with "Owner" or "Admin" role
 // Enforced via TenantMemberAuthorizationHandler
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("TenantAdmin", policy => policy.Requirements.Add(new TenantMemberRequirement("Owner", "Admin")));
 });
+
 // Enables MVC Controllers for REST API endpoints
 builder.Services.AddControllers();
 // Register endpoint metadata for Swagger/OpenAPI documentation generation
@@ -92,6 +108,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 // Custom middleware to resolve current tenant based on authenticated user
 app.UseMiddleware<TenantResolutionMiddleware>();
+// Custom middleware for logging
+app.UseMiddleware<LogEnrichmentMiddleware>();
 // Enforces access control and policies based on authenticated user's claims and roles
 app.UseAuthorization();
 // Map all API controller routes
