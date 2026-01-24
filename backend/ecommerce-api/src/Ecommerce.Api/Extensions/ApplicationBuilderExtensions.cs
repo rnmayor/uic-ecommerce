@@ -5,7 +5,7 @@ namespace Ecommerce.Api.Extensions;
 public static class ApplicationBuilderExtensions
 {
     /// <summary>
-    /// CorrelationIdMiddleware: Attaches a unique identifer that travels with a request and shared across logs, errors, and downstream calls.
+    /// CorrelationIdMiddleware: Sets trace identifier that travels with a request and shared across logs, errors, and downstream calls.
     /// </summary>
     public static IApplicationBuilder UseCorrelationId(
       this IApplicationBuilder app) => app.UseMiddleware<CorrelationIdMiddleware>();
@@ -24,7 +24,7 @@ public static class ApplicationBuilderExtensions
       this IApplicationBuilder app) => app.UseMiddleware<LogEnrichmentMiddleware>();
 
     /// <summary>
-    /// GlobalExceptionMiddleware: Handles unhandled exception globally.
+    /// GlobalExceptionMiddleware: Catches exceptions from all downstream middleware.
     /// Returns consistent JSON problem responses with correlation IDs for traceability.
     /// </summary>
     public static IApplicationBuilder UseGlobalExceptionHandling(

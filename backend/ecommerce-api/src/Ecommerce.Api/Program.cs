@@ -1,6 +1,7 @@
 using Ecommerce.Api.Extensions;
 using Ecommerce.Application.Common.Authorization.Policies;
 using Ecommerce.Infrastructure;
+using Ecommerce.Infrastructure.Persistence;
 using Serilog;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -40,6 +41,10 @@ builder.Services.AddAuthorization(options =>
     AuthorizationPolicies.AddPolicies(options);
 });
 
+// Health checks - for monitoring apps and DB connectivity
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<EcommerceDbContext>();
+
 // MVC and API
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -57,18 +62,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Transport / protocol
 app.UseHttpsRedirection();
-app.UseAuthentication();
 
-// Custom Middlewares
 app.UseCorrelationId();
-app.UseTenantResolution();
-app.UseLogEnrichment();
 app.UseGlobalExceptionHandling();
 
-// Enforces access control and policies based on authenticated user's claims and roles
+app.UseAuthentication();
+app.UseTenantResolution();
 app.UseAuthorization();
-// Map all API controller routes
+app.UseLogEnrichment();
+
+// Endpoints / API controller routes
+app.MapHealthChecks("/health");
 app.MapControllers();
 
 // Starts the web server and process incoming HTTP requests
