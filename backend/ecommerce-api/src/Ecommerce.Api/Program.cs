@@ -1,15 +1,6 @@
 using Ecommerce.Api.Extensions;
-using Ecommerce.Api.Middleware;
-using Ecommerce.Api.Security;
-using Ecommerce.Application.Common.Authentication;
 using Ecommerce.Application.Common.Authorization.Policies;
-using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Infrastructure;
-using Ecommerce.Infrastructure.Identity;
-using Ecommerce.Infrastructure.Tenancy;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -27,61 +18,31 @@ builder.Host.UseSerilog((context, services, configuration) =>
         .Enrich.WithThreadId();
 });
 
-// Add services to the container
-// Register all infrastructure services (DbContext, repositories, EF Core, etc.) via options pattern
-builder.Services.AddInfrastructure(builder.Configuration);
+// ---------- Add services to the container ---------- //
 
-// Register JWT Authentication
-var clerkSection = builder.Configuration.GetSection("Authentication:Clerk");
-builder.Services.Configure<ClerkAuthOptions>(clerkSection);
+// Database configuration
+builder.Services.AddDatabaseOptions(builder.Configuration);
 
-var clerkOptions = clerkSection.Get<ClerkAuthOptions>()!;
-// Prevent claim type remapping
+// Global JWT behavior - execute once at startup. Disable all automatic claim remapping made by ASP.Net Core.
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
-builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.Authority = clerkOptions.Issuer;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = clerkOptions.Issuer,
+// Authentication
+builder.Services.AddAuthenticationServices(builder.Configuration);
 
-            ValidateAudience = false, // Clerk does not require Audience
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-
-            NameClaimType = "sub"
-        };
-
-        options.Events = new JwtBearerEvents
-        {
-            OnAuthenticationFailed = context =>
-            {
-                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                return Task.CompletedTask;
-            }
-        };
-    });
-
-
+// Infrastructure and application services
+builder.Services.AddInfrastructure();
 builder.Services.AddTenantServices();
 builder.Services.AddUserServices();
 
-// Register authorization policy "TenantAdmin" that allow users who are members of the current tenant with "Owner" or "Admin" role
-// Enforced via TenantMemberAuthorizationHandler
+// Authorization
 builder.Services.AddAuthorization(options =>
 {
     AuthorizationPolicies.AddPolicies(options);
 });
 
-// Enables MVC Controllers for REST API endpoints
+// MVC and API
 builder.Services.AddControllers();
-// Register endpoint metadata for Swagger/OpenAPI documentation generation
 builder.Services.AddEndpointsApiExplorer();
-// Register Swagger/OpenAPI generator to produce API documentation and UI
 builder.Services.AddSwaggerGen();
 
 // Finalize the DI container, locks configuration, and builds the middleware pipeline host
@@ -99,6 +60,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 
+// Custom Middlewares
 app.UseCorrelationId();
 app.UseTenantResolution();
 app.UseLogEnrichment();

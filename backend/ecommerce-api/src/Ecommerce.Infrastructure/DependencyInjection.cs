@@ -1,16 +1,24 @@
+using Ecommerce.Application.Common.Options;
 using Ecommerce.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Ecommerce.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    /// <summary>
+    /// Register infrastructure services such as DbContext and repositories.
+    /// Consumes strongly-typed options configured by the API layer.
+    /// </summary>
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
-        var connectionString = configuration.GetConnectionString("Database");
-        services.AddDbContext<EcommerceDbContext>(options => options.UseNpgsql(connectionString));
+        services.AddDbContext<EcommerceDbContext>((sp, options) =>
+        {
+            var dbOptions = sp.GetRequiredService<IOptions<DatabaseOptions>>().Value;
+            options.UseNpgsql(dbOptions.ConnectionString);
+        });
 
         return services;
     }
