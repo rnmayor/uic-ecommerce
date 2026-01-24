@@ -47,8 +47,7 @@ builder.Services.AddHealthChecks()
 
 // MVC and API
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerDocumentation();
 
 // Finalize the DI container, locks configuration, and builds the middleware pipeline host
 var app = builder.Build();
