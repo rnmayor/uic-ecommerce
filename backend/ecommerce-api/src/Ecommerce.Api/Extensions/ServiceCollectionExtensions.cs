@@ -1,5 +1,5 @@
 using Ecommerce.Api.Configurations;
-using Ecommerce.Api.Security;
+using Ecommerce.Api.Identity;
 using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Application.Common.Options;
 using Ecommerce.Infrastructure.Authorization;
@@ -35,14 +35,14 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Registers authentication services:
+    /// Registers authentication infrastructure:
     /// <list type="bullet">
-    /// <item>Clerk configuration via options pattern</item>
-    /// <item>JwtBearerOptions configuration using Clerk settings</item>
-    /// <item>JWT Bearer authentication handler</item>
+    /// <item>External identity provider (Clerk) configuration via options pattern.</item>
+    /// <item>JWT bearer authentication configuration and token validation behavior.</item>
+    /// <item>ASP.Net Core authentication pipeline integration.</item>
     /// </list>
     /// </summary>
-    public static IServiceCollection AddAuthenticationServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddOptions<ClerkAuthOptions>()
             .Bind(configuration.GetSection(ClerkAuthOptions.SectionName))
@@ -55,13 +55,13 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Registers tenant-related services:
+    /// Registers tenancy-related infrastructure and cross-cutting support components:
     /// <list type="bullet">
-    /// <item><c>ITenantContext</c>: Holds the current tenant for the HTTP request, ensuring isolation between requests.</item>
-    /// <item><c>ITenantMemberAuthorizationService</c>: Checks if the current user is a member of the tenant with the allowed roles (Authorization Policy).</item>
+    /// <item><c>ITenantContext</c>: Holds the current tenant for the HTTP request, ensuring request isolation.</item>
+    /// <item><c>ITenantMemberAuthorizationService</c>: Performs tenant membership and role checks for authorization policies.</item>
     /// </list>
     /// </summary>
-    public static IServiceCollection AddTenantServices(this IServiceCollection services)
+    public static IServiceCollection AddTenancyInfrastructure(this IServiceCollection services)
     {
         services.AddScoped<ITenantContext, TenantContext>();
         services.AddScoped<ITenantMemberAuthorizationService, TenantMemberAuthorizationService>();
@@ -70,13 +70,13 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Registers user-related services:
+    /// Registers identity infrastructure components:
     /// <list type="bullet">
-    /// <item><c>IUserResolver:</c> Resolves the application's internal user ID from Clerk's user ID and maps it to local User entity.</item>
-    /// <item><c>IClaimsTransformation:</c> Add claims (like user_id) to the authenticated user for downstream services and policies.</item>
+    /// <item><c>IUserResolver:</c> Resolves the application's internal user identity from external authentication claims.</item>
+    /// <item><c>IClaimsTransformation:</c> Enriches authenticated principals with application-specific claims.</item>
     /// </list>
     /// </summary>
-    public static IServiceCollection AddUserServices(this IServiceCollection services)
+    public static IServiceCollection AddIdentityInfrastructure(this IServiceCollection services)
     {
         services.AddScoped<IUserResolver, UserResolver>();
         services.AddScoped<IClaimsTransformation, ClaimsTransformation>();

@@ -1,4 +1,5 @@
 using Ecommerce.Application.Common.Authorization.Requirements;
+using Ecommerce.Domain.Tenants;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Ecommerce.Application.Common.Authorization.Policies;
@@ -23,7 +24,7 @@ public static class AuthorizationPolicies
     public static void AddPolicies(AuthorizationOptions options)
     {
         options.AddPolicy(TenantAdmin, policy =>
-          policy.Requirements.Add(new TenantMemberRequirement("Owner", "Admin")));
+            policy.Requirements.Add(new TenantMemberRequirement(TenantRoles.Owner, TenantRoles.Admin)));
     }
 
 }

@@ -28,12 +28,12 @@ builder.Services.AddDatabaseOptions(builder.Configuration);
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
 // Authentication
-builder.Services.AddAuthenticationServices(builder.Configuration);
+builder.Services.AddAuthentication(builder.Configuration);
 
-// Infrastructure and application services
+// Infrastructure
 builder.Services.AddInfrastructure();
-builder.Services.AddTenantServices();
-builder.Services.AddUserServices();
+builder.Services.AddTenancyInfrastructure();
+builder.Services.AddIdentityInfrastructure();
 
 // Authorization
 builder.Services.AddAuthorization(options =>

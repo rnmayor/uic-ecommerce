@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Ecommerce.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 
-namespace Ecommerce.Api.Security;
+namespace Ecommerce.Api.Identity;
 
 public sealed class ClaimsTransformation : IClaimsTransformation
 {
