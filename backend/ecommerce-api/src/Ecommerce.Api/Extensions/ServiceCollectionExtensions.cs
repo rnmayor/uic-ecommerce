@@ -1,9 +1,11 @@
 using Ecommerce.Api.Configurations;
 using Ecommerce.Api.Identity;
+using Ecommerce.Application.Admin.Tenants.Onboarding;
 using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Application.Common.Options;
 using Ecommerce.Infrastructure.Authorization;
 using Ecommerce.Infrastructure.Identity;
+using Ecommerce.Infrastructure.Persistence.Onboarding;
 using Ecommerce.Infrastructure.Tenancy;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -80,6 +82,21 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IUserResolver, UserResolver>();
         services.AddScoped<IClaimsTransformation, ClaimsTransformation>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers application-layer services that implement business use-cases and infrastracture abstractions required by those use-cases.
+    /// <list type="bullet">
+    /// <item><c>ITenantOnboardingRepository: </c> Provides persistence abstraction for atomically storing the entities created during tenant onboarding.</item>
+    /// <item><c>ICreateTenantService: </c> Orchestrates the tenant onboarding use-case. Coordinate the creation of Tenant, initial Store, and the owning TenantUser.</item>
+    /// </list>
+    /// </summary>
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    {
+        services.AddScoped<ITenantOnboardingRepository, TenantOnboardingRepository>();
+        services.AddScoped<ICreateTenantService, CreateTenantService>();
 
         return services;
     }

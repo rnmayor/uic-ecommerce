@@ -41,6 +41,9 @@ builder.Services.AddAuthorization(options =>
     AuthorizationPolicies.AddPolicies(options);
 });
 
+// Application Services
+builder.Services.AddApplicationServices();
+
 // Health checks - for monitoring apps and DB connectivity
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<EcommerceDbContext>();
