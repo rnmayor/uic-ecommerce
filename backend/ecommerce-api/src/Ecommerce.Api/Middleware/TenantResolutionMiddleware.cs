@@ -1,4 +1,5 @@
 using Ecommerce.Application.Common.Interfaces;
+using Ecommerce.Application.Common.Tenancy;
 
 namespace Ecommerce.Api.Middleware;
 
@@ -16,6 +17,14 @@ public sealed class TenantResolutionMiddleware
     {
         // Skip unauthenticated requests (Swagger, health checks, etc)
         if (!context.User.Identity?.IsAuthenticated ?? true)
+        {
+            await _next(context);
+            return;
+        }
+
+        var endpoint = context.GetEndpoint();
+        // Skip if endpoint explicitly opts out
+        if (endpoint?.Metadata.GetMetadata<SkipTenantResolutionAttribute>() is not null)
         {
             await _next(context);
             return;
