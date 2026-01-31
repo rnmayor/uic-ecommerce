@@ -1,11 +1,14 @@
 using Ecommerce.Domain.Common;
+using Ecommerce.Domain.Users;
 
 namespace Ecommerce.Domain.Tenants;
 
 public class TenantUser : Entity
 {
     public Guid TenantId { get; private set; }
+    public Tenant Tenant { get; private set; } = default!;
     public Guid UserId { get; private set; }
+    public User User { get; private set; } = default!;
     public string Role { get; private set; } = default!;
     public DateTime CreatedAt { get; private set; }
 
@@ -24,6 +27,10 @@ public class TenantUser : Entity
         if (string.IsNullOrWhiteSpace(role))
         {
             throw new DomainException("Role is required.");
+        }
+        if (!TenantRoles.All.Contains(role))
+        {
+            throw new DomainException($"Invalid tenant role: {role}");
         }
 
         Id = Guid.NewGuid();

@@ -1,10 +1,12 @@
 using Ecommerce.Api.Configurations;
 using Ecommerce.Api.Identity;
+using Ecommerce.Application.Admin.Tenants.Membership;
 using Ecommerce.Application.Admin.Tenants.Onboarding;
 using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Application.Common.Options;
 using Ecommerce.Infrastructure.Authorization;
 using Ecommerce.Infrastructure.Identity;
+using Ecommerce.Infrastructure.Persistence.Membership;
 using Ecommerce.Infrastructure.Persistence.Onboarding;
 using Ecommerce.Infrastructure.Tenancy;
 using Microsoft.AspNetCore.Authentication;
@@ -87,16 +89,20 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Registers application-layer services that implement business use-cases and infrastracture abstractions required by those use-cases.
+    /// Registers application-layer services that implement business use-cases and persistence abstractions required by those use-cases.
     /// <list type="bullet">
     /// <item><c>ITenantOnboardingRepository: </c> Provides persistence abstraction for atomically storing the entities created during tenant onboarding.</item>
-    /// <item><c>ICreateTenantService: </c> Orchestrates the tenant onboarding use-case. Coordinate the creation of Tenant, initial Store, and the owning TenantUser.</item>
+    /// <item><c>ICreateTenantService: </c> Orchestrates the tenant onboarding use-case,  coordinating the creation of a Tenant, its initial Store, and the owning TenantUser.</item>
+    /// <item><c>ITenantMembershipReadRepository: </c> Provides read-only persistence abstraction for querying tenant memberships for a given user, including role-based projections required by application-level queries.</item>
+    /// <item><c>IMyTenantService: </c> Implements the "View my Tenants" use-case, returning the list of tenants the current user belongs to along with relevant membership details.</item>
     /// </list>
     /// </summary>
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddScoped<ITenantOnboardingRepository, TenantOnboardingRepository>();
         services.AddScoped<ICreateTenantService, CreateTenantService>();
+        services.AddScoped<ITenantMembershipReadRepository, TenantMembershipReadRepository>();
+        services.AddScoped<IMyTenantService, MyTenantService>();
 
         return services;
     }

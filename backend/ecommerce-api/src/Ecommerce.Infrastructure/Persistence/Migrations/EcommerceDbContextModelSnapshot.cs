@@ -135,17 +135,21 @@ namespace Ecommerce.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Ecommerce.Domain.Tenants.TenantUser", b =>
                 {
-                    b.HasOne("Ecommerce.Domain.Tenants.Tenant", null)
+                    b.HasOne("Ecommerce.Domain.Tenants.Tenant", "Tenant")
                         .WithMany()
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Ecommerce.Domain.Users.User", null)
+                    b.HasOne("Ecommerce.Domain.Users.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Tenant");
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }
