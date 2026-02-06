@@ -41,7 +41,10 @@ builder.Services.AddAuthorization(options =>
     AuthorizationPolicies.AddPolicies(options);
 });
 
-// Application Services
+// Mapping
+builder.Services.AddAutoMapper();
+
+// Application Services (business logic)
 builder.Services.AddApplicationServices();
 
 // Health checks - for monitoring apps and DB connectivity

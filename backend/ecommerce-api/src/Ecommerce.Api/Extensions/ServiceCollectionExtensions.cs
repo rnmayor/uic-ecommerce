@@ -3,6 +3,7 @@ using Ecommerce.Api.Identity;
 using Ecommerce.Application.Admin.Tenants.Membership;
 using Ecommerce.Application.Admin.Tenants.Onboarding;
 using Ecommerce.Application.Common.Interfaces;
+using Ecommerce.Application.Common.Mapping;
 using Ecommerce.Application.Common.Options;
 using Ecommerce.Infrastructure.Authorization;
 using Ecommerce.Infrastructure.Identity;
@@ -103,6 +104,27 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICreateTenantService, CreateTenantService>();
         services.AddScoped<ITenantMembershipReadRepository, TenantMembershipReadRepository>();
         services.AddScoped<IMyTenantService, MyTenantService>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers AutoMapper for the application.
+    ///
+    /// AutoMapper is used to map between domain models, read models,
+    /// and API-facing DTOs. Mapping configuration is intentionally
+    /// strict (field mapping disabled) to avoid implicit or accidental
+    /// projections and to keep API contracts explicit.
+    ///
+    /// Mapping profiles live in the Application layer and are added
+    /// incrementally per feature.
+    /// </summary>
+    public static IServiceCollection AddAutoMapper(this IServiceCollection services)
+    {
+        services.AddAutoMapper(cfg =>
+        {
+            cfg.ShouldMapField = _ => false;
+        }, typeof(ApplicationMappingProfile));
 
         return services;
     }

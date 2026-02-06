@@ -1,4 +1,4 @@
-namespace Ecommerce.Application.Common.Tenancy;
+namespace Ecommerce.Application.Common.Attributes;
 
 /// <summary>
 /// Marks an endpoint as not requiring tenant resolution.

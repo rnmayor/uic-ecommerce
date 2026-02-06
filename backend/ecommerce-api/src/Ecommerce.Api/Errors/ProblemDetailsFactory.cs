@@ -6,10 +6,10 @@ namespace Ecommerce.Api.Errors;
 internal static class ProblemDetailsFactory
 {
     public static ProblemDetails Create(
-      HttpStatusCode status,
-      string title,
-      string detail,
-      string traceId)
+        HttpStatusCode status,
+        string title,
+        string detail,
+        string traceId)
     {
         return new ProblemDetails
         {
@@ -17,9 +17,9 @@ internal static class ProblemDetailsFactory
             Title = title,
             Detail = detail,
             Extensions =
-      {
-        ["traceId"] = traceId
-      }
+            {
+                ["traceId"] = traceId
+            }
         };
     }
 }
