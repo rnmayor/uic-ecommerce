@@ -10,6 +10,8 @@ using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.Persistence.Membership;
 using Ecommerce.Infrastructure.Persistence.Onboarding;
 using Ecommerce.Infrastructure.Tenancy;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
@@ -125,6 +127,25 @@ public static class ServiceCollectionExtensions
         {
             cfg.ShouldMapField = _ => false;
         }, typeof(ApplicationMappingProfile));
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers API controller services and configures
+    /// cross-cutting API concerns such as request validation
+    /// and model binding behavior.
+    /// </summary>
+    public static IServiceCollection AddApiControllers(this IServiceCollection services)
+    {
+        services.AddControllers();
+        // Fluent validation
+        services.AddFluentValidationAutoValidation(config =>
+        {
+            config.DisableDataAnnotationsValidation = true;
+        });
+        // Register all validators in API assembly
+        services.AddValidatorsFromAssemblyContaining<Program>();
 
         return services;
     }
