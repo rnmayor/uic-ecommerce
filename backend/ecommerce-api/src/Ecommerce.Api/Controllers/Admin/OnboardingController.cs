@@ -1,6 +1,6 @@
 using Ecommerce.Api.Extensions;
 using Ecommerce.Application.Admin.Tenants.Onboarding;
-using Ecommerce.Application.Common.Tenancy;
+using Ecommerce.Application.Common.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
