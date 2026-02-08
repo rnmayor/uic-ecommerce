@@ -14,7 +14,7 @@ public sealed class MyTenantServiceTests
     }
 
     [Fact]
-    public async Task GetMyTenantsAsync_ReturnsTenants_WhenUserHasMemberships()
+    public async Task GetMyTenantsAsync_ReturnsTenantList_WhenUserHasMemberships()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -47,10 +47,9 @@ public sealed class MyTenantServiceTests
         Assert.True(response.HasTenant);
         Assert.Same(tenants, response.Tenants);
 
-        _repositoryMock.Verify(r =>
-            r.GetTenantsForUserAsync(userId, It.IsAny<CancellationToken>()),
-            Times.Once
-        );
+        _repositoryMock.Verify(r => r.GetTenantsForUserAsync(
+            userId, It.IsAny<CancellationToken>()
+        ), Times.Once);
     }
 
     [Fact]
@@ -70,10 +69,9 @@ public sealed class MyTenantServiceTests
         Assert.Empty(response.Tenants);
         Assert.False(response.HasTenant);
 
-        _repositoryMock.Verify(r =>
-            r.GetTenantsForUserAsync(userId, It.IsAny<CancellationToken>()),
-            Times.Once
-        );
+        _repositoryMock.Verify(r => r.GetTenantsForUserAsync(
+            userId, It.IsAny<CancellationToken>()
+        ), Times.Once);
     }
 
     [Fact]
@@ -90,9 +88,8 @@ public sealed class MyTenantServiceTests
         await _service.GetMyTenantsAsync(userId, CancellationToken.None);
 
         // Assert
-        _repositoryMock.Verify(r =>
-            r.GetTenantsForUserAsync(userId, It.IsAny<CancellationToken>()),
-            Times.Once
-        );
+        _repositoryMock.Verify(r => r.GetTenantsForUserAsync(
+            userId, It.IsAny<CancellationToken>()
+        ), Times.Once);
     }
 }
