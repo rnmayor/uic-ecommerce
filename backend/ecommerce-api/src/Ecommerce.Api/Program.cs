@@ -1,4 +1,5 @@
 using Ecommerce.Api.Extensions;
+using Ecommerce.Application;
 using Ecommerce.Application.Common.Authorization.Policies;
 using Ecommerce.Infrastructure;
 using Ecommerce.Infrastructure.Persistence;
@@ -30,10 +31,12 @@ JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 // Authentication
 builder.Services.AddAuthentication(builder.Configuration);
 
-// Infrastructure
+// Identity & Tenancy context
+builder.Services.AddIdentity();
+builder.Services.AddTenancy();
+
+// Infrastructure (DB, repositories, authorization helpers)
 builder.Services.AddInfrastructure();
-builder.Services.AddTenancyInfrastructure();
-builder.Services.AddIdentityInfrastructure();
 
 // Authorization
 builder.Services.AddAuthorization(options =>
@@ -44,14 +47,14 @@ builder.Services.AddAuthorization(options =>
 // Mapping
 builder.Services.AddAutoMapper();
 
-// Application Services (business logic)
+// Application services (business logic)
 builder.Services.AddApplicationServices();
 
 // Health checks - for monitoring apps and DB connectivity
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<EcommerceDbContext>();
 
-// MVC and API
+// API surface
 builder.Services.AddApiControllers();
 builder.Services.AddSwaggerDocumentation();
 

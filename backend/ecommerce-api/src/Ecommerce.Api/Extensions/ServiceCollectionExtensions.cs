@@ -1,20 +1,15 @@
 using Ecommerce.Api.Configurations;
 using Ecommerce.Api.Identity;
-using Ecommerce.Application.Admin.Tenants.Membership;
-using Ecommerce.Application.Admin.Tenants.Onboarding;
 using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Application.Common.Mapping;
 using Ecommerce.Application.Common.Options;
-using Ecommerce.Infrastructure.Authorization;
-using Ecommerce.Infrastructure.Identity;
-using Ecommerce.Infrastructure.Persistence.Membership;
-using Ecommerce.Infrastructure.Persistence.Onboarding;
 using Ecommerce.Infrastructure.Tenancy;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi;
 
 namespace Ecommerce.Api.Extensions;
 
@@ -30,10 +25,10 @@ public static class ServiceCollectionExtensions
             .Configure(options =>
             {
                 options.ConnectionString =
-                     configuration.GetConnectionString("Database")
-                     ?? throw new InvalidOperationException(
-                         "Database connection string is missing."
-                     );
+                    configuration.GetConnectionString("Database")
+                    ?? throw new InvalidOperationException(
+                        "Database connection string is missing."
+                    );
             })
             .ValidateDataAnnotations()
             .ValidateOnStart();
@@ -42,7 +37,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Registers authentication infrastructure:
+    /// Registers authentication:
     /// <list type="bullet">
     /// <item>External identity provider (Clerk) configuration via options pattern.</item>
     /// <item>JWT bearer authentication configuration and token validation behavior.</item>
@@ -62,50 +57,27 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Registers tenancy-related infrastructure and cross-cutting support components:
+    /// Registers identity components:
     /// <list type="bullet">
-    /// <item><c>ITenantContext</c>: Holds the current tenant for the HTTP request, ensuring request isolation.</item>
-    /// <item><c>ITenantMemberAuthorizationService</c>: Performs tenant membership and role checks for authorization policies.</item>
-    /// </list>
-    /// </summary>
-    public static IServiceCollection AddTenancyInfrastructure(this IServiceCollection services)
-    {
-        services.AddScoped<ITenantContext, TenantContext>();
-        services.AddScoped<ITenantMemberAuthorizationService, TenantMemberAuthorizationService>();
-
-        return services;
-    }
-
-    /// <summary>
-    /// Registers identity infrastructure components:
-    /// <list type="bullet">
-    /// <item><c>IUserResolver:</c> Resolves the application's internal user identity from external authentication claims.</item>
     /// <item><c>IClaimsTransformation:</c> Enriches authenticated principals with application-specific claims.</item>
     /// </list>
     /// </summary>
-    public static IServiceCollection AddIdentityInfrastructure(this IServiceCollection services)
+    public static IServiceCollection AddIdentity(this IServiceCollection services)
     {
-        services.AddScoped<IUserResolver, UserResolver>();
         services.AddScoped<IClaimsTransformation, ClaimsTransformation>();
 
         return services;
     }
 
     /// <summary>
-    /// Registers application-layer services that implement business use-cases and persistence abstractions required by those use-cases.
+    /// Registers tenancy-related information:
     /// <list type="bullet">
-    /// <item><c>ITenantOnboardingRepository: </c> Provides persistence abstraction for atomically storing the entities created during tenant onboarding.</item>
-    /// <item><c>ICreateTenantService: </c> Orchestrates the tenant onboarding use-case,  coordinating the creation of a Tenant, its initial Store, and the owning TenantUser.</item>
-    /// <item><c>ITenantMembershipReadRepository: </c> Provides read-only persistence abstraction for querying tenant memberships for a given user, including role-based projections required by application-level queries.</item>
-    /// <item><c>IMyTenantService: </c> Implements the "View my Tenants" use-case, returning the list of tenants the current user belongs to along with relevant membership details.</item>
+    /// <item><c>ITenantContext</c>: Holds the current tenant for the HTTP request, ensuring request isolation.</item>
     /// </list>
     /// </summary>
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static IServiceCollection AddTenancy(this IServiceCollection services)
     {
-        services.AddScoped<ITenantOnboardingRepository, TenantOnboardingRepository>();
-        services.AddScoped<ICreateTenantService, CreateTenantService>();
-        services.AddScoped<ITenantMembershipReadRepository, TenantMembershipReadRepository>();
-        services.AddScoped<IMyTenantService, MyTenantService>();
+        services.AddScoped<ITenantContext, TenantContext>();
 
         return services;
     }
@@ -146,6 +118,36 @@ public static class ServiceCollectionExtensions
         });
         // Register all validators in API assembly
         services.AddValidatorsFromAssemblyContaining<Program>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers Swagger/OpenAPI generator with JWT bearer security.
+    /// </summary>
+    public static IServiceCollection AddSwaggerDocumentation(this IServiceCollection services)
+    {
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = "Ecommerce API",
+                Version = "v1"
+            });
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "JWT Authorization Header"
+            });
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+            {
+                { new OpenApiSecuritySchemeReference("Bearer", document), new List<string>() }
+            });
+        });
 
         return services;
     }
