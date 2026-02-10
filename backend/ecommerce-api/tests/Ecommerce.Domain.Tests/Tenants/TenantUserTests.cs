@@ -27,7 +27,7 @@ public sealed class TenantUserTests
         var ex = Assert.Throws<DomainException>(() =>
             new TenantUser(Guid.Empty, userId, TenantRoles.Owner));
 
-        Assert.Contains("TenantId", ex.Message);
+        Assert.Contains("TenantId is required", ex.Message);
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public sealed class TenantUserTests
         var ex = Assert.Throws<DomainException>(() =>
             new TenantUser(tenantId, Guid.Empty, TenantRoles.Owner));
 
-        Assert.Contains("UserId", ex.Message);
+        Assert.Contains("UserId is required", ex.Message);
     }
 
     [Theory]

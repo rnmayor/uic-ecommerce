@@ -3,9 +3,8 @@ using Ecommerce.Domain.Users;
 
 namespace Ecommerce.Domain.Tenants;
 
-public class TenantUser : Entity
+public class TenantUser : TenantEntity
 {
-    public Guid TenantId { get; private set; }
     public Tenant Tenant { get; private set; } = default!;
     public Guid UserId { get; private set; }
     public User User { get; private set; } = default!;
@@ -36,7 +35,7 @@ public class TenantUser : Entity
         Id = Guid.NewGuid();
         TenantId = tenantId;
         UserId = userId;
-        Role = role;
+        Role = role.Trim();
         CreatedAt = DateTime.UtcNow;
     }
 }

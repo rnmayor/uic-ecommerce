@@ -8,6 +8,5 @@ public sealed class CreateTenantRequestValidator : AbstractValidator<CreateTenan
     public CreateTenantRequestValidator()
     {
         RuleFor(x => x.TenantName).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.StoreName).NotEmpty().MaximumLength(100);
     }
 }

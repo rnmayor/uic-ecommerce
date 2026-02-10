@@ -22,7 +22,7 @@ namespace Ecommerce.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Ecommerce.Domain.Tenants.Store", b =>
+            modelBuilder.Entity("Ecommerce.Domain.Stores.StoreBrand", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -36,6 +36,39 @@ namespace Ecommerce.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique();
+
+                    b.ToTable("store_brands", (string)null);
+                });
+
+            modelBuilder.Entity("Ecommerce.Domain.Stores.StoreInstance", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("StoreBrandId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
 
@@ -44,9 +77,14 @@ namespace Ecommerce.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("StoreBrandId");
+
                     b.HasIndex("TenantId");
 
-                    b.ToTable("stores", (string)null);
+                    b.HasIndex("TenantId", "DisplayName")
+                        .IsUnique();
+
+                    b.ToTable("store_instances", (string)null);
                 });
 
             modelBuilder.Entity("Ecommerce.Domain.Tenants.Tenant", b =>
@@ -63,10 +101,8 @@ namespace Ecommerce.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<string>("OwnerUserId")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                    b.Property<Guid>("OwnerUserId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -102,6 +138,8 @@ namespace Ecommerce.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
+                    b.HasIndex("TenantId", "Role");
+
                     b.HasIndex("TenantId", "UserId")
                         .IsUnique();
 
@@ -133,6 +171,17 @@ namespace Ecommerce.Infrastructure.Persistence.Migrations
                     b.ToTable("users", (string)null);
                 });
 
+            modelBuilder.Entity("Ecommerce.Domain.Stores.StoreInstance", b =>
+                {
+                    b.HasOne("Ecommerce.Domain.Stores.StoreBrand", "StoreBrand")
+                        .WithMany("StoreInstances")
+                        .HasForeignKey("StoreBrandId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("StoreBrand");
+                });
+
             modelBuilder.Entity("Ecommerce.Domain.Tenants.TenantUser", b =>
                 {
                     b.HasOne("Ecommerce.Domain.Tenants.Tenant", "Tenant")
@@ -150,6 +199,11 @@ namespace Ecommerce.Infrastructure.Persistence.Migrations
                     b.Navigation("Tenant");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Ecommerce.Domain.Stores.StoreBrand", b =>
+                {
+                    b.Navigation("StoreInstances");
                 });
 #pragma warning restore 612, 618
         }

@@ -5,21 +5,21 @@ namespace Ecommerce.Domain.Tenants;
 public class Tenant : Entity
 {
     public string Name { get; private set; } = default!;
-    public string OwnerUserId { get; private set; } = default!;
+    public Guid OwnerUserId { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
     private Tenant() { } // For EF
 
-    public Tenant(string name, string ownerUserId)
+    public Tenant(string name, Guid ownerUserId)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
             throw new DomainException("Tenant name is required.");
         }
-        if (string.IsNullOrWhiteSpace(ownerUserId))
+        if (ownerUserId == Guid.Empty)
         {
-            throw new DomainException("Owner user id is required");
+            throw new DomainException("OwnerUserId is required");
         }
 
         Id = Guid.NewGuid();

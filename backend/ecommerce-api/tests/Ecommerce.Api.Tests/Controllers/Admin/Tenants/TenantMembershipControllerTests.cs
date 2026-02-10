@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using Ecommerce.Api.Tests.Extensions;
 using Ecommerce.Api.Tests.Fixtures;
 using Ecommerce.Application.Admin.Tenants.Membership;
+using Ecommerce.Domain.Tenants;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -38,13 +39,15 @@ public sealed class TenantMembershipControllerTests : IClassFixture<ApiWebApplic
                 {
                     TenantId = Guid.NewGuid(),
                     Name = "Tenant A",
-                    IsOwner = true
+                    IsOwner = true,
+                    Role = TenantRoles.Owner
                 },
                 new MyTenantDto
                 {
                     TenantId = Guid.NewGuid(),
                     Name = "Tenant B",
-                    IsOwner = false
+                    IsOwner = false,
+                    Role = TenantRoles.Admin
                 }
             ]
         };

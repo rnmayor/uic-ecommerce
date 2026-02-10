@@ -27,7 +27,7 @@ public sealed class OnboardingController : ControllerBase
         var userId = User.GetUserId();
         var result = await _service.CreateAsync(userId, request, ct);
 
-        return CreatedAtAction(nameof(CreateTenant), result);
+        return Created(string.Empty, result);
     }
 
     [HttpGet("ping")]

@@ -12,10 +12,10 @@ internal sealed class TenantConfiguration : IEntityTypeConfiguration<Tenant>
         builder.HasKey(t => t.Id);
 
         builder.Property(t => t.Name).IsRequired().HasMaxLength(200);
-        builder.Property(t => t.OwnerUserId).IsRequired().HasMaxLength(100);
+        builder.Property(t => t.OwnerUserId).IsRequired();
         builder.Property(t => t.CreatedAt).IsRequired();
         builder.Property(t => t.UpdatedAt).IsRequired();
 
-        builder.HasIndex(t => t.OwnerUserId);
+        builder.HasIndex(t => t.OwnerUserId).IsUnique();
     }
 }

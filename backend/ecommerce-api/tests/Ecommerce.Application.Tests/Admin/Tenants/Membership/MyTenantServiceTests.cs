@@ -1,4 +1,5 @@
 using Ecommerce.Application.Admin.Tenants.Membership;
+using Ecommerce.Domain.Tenants;
 
 namespace Ecommerce.Application.Tests.Admin.Tenants.Membership;
 
@@ -24,13 +25,15 @@ public sealed class MyTenantServiceTests
             {
                 TenantId = Guid.NewGuid(),
                 Name = "Tenant A",
-                IsOwner = true
+                IsOwner = true,
+                Role = TenantRoles.Owner
             },
             new()
             {
                 TenantId = Guid.NewGuid(),
                 Name = "Tenant B",
-                IsOwner = false
+                IsOwner = false,
+                Role = TenantRoles.Admin
             }
         };
 
@@ -91,5 +94,55 @@ public sealed class MyTenantServiceTests
         _repositoryMock.Verify(r => r.GetTenantsForUserAsync(
             userId, It.IsAny<CancellationToken>()
         ), Times.Once);
+    }
+
+    [Theory]
+    [InlineData(TenantRoles.Admin)]
+    [InlineData(TenantRoles.Manager)]
+    [InlineData(TenantRoles.Staff)]
+    [InlineData(TenantRoles.Customer)]
+    public async Task GetMyTenantsAsync_IsOwnerIsFalse_ForNonOwnerRoles(string role)
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var tenants = new List<MyTenantDto>
+        {
+            new()
+            {
+                TenantId = Guid.NewGuid(),
+                Name = "Tenant",
+                Role = role,
+                IsOwner = false
+            }
+        };
+
+        _repositoryMock
+            .Setup(r => r.GetTenantsForUserAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenants);
+
+        // Act
+        var response = await _service.GetMyTenantsAsync(userId, CancellationToken.None);
+
+        // Assert
+        Assert.False(response.Tenants.Single().IsOwner);
+
+        _repositoryMock.Verify(r => r.GetTenantsForUserAsync(
+            userId, It.IsAny<CancellationToken>()
+        ), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetMyTenantsAsync_PassesCancellationToken()
+    {
+        var userId = Guid.NewGuid();
+        using var cts = new CancellationTokenSource();
+
+        _repositoryMock
+            .Setup(r => r.GetTenantsForUserAsync(userId, cts.Token))
+            .ReturnsAsync(new List<MyTenantDto>());
+
+        await _service.GetMyTenantsAsync(userId, cts.Token);
+
+        _repositoryMock.Verify(r => r.GetTenantsForUserAsync(userId, cts.Token), Times.Once);
     }
 }

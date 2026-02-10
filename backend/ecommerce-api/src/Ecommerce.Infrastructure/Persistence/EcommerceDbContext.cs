@@ -1,5 +1,6 @@
 using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Domain.Common;
+using Ecommerce.Domain.Stores;
 using Ecommerce.Domain.Tenants;
 using Ecommerce.Domain.Users;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,8 @@ public class EcommerceDbContext : DbContext
     }
 
     public DbSet<Tenant> Tenants => Set<Tenant>();
-    public DbSet<Store> Stores => Set<Store>();
+    public DbSet<StoreBrand> StoreBrands => Set<StoreBrand>();
+    public DbSet<StoreInstance> StoreInstances => Set<StoreInstance>();
     public DbSet<User> Users => Set<User>();
     public DbSet<TenantUser> TenantUsers => Set<TenantUser>();
 
@@ -47,6 +49,9 @@ public class EcommerceDbContext : DbContext
         ITenantContext tenantContext
     ) where TEntity : TenantEntity
     {
-        modelBuilder.Entity<TEntity>().HasQueryFilter(e => e.TenantId == tenantContext.TenantId);
+        if (tenantContext.IsResolved)
+        {
+            modelBuilder.Entity<TEntity>().HasQueryFilter(e => e.TenantId == tenantContext.TenantId);
+        }
     }
 }

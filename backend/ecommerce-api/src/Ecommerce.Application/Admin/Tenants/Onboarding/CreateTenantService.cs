@@ -18,16 +18,14 @@ public sealed class CreateTenantService : ICreateTenantService
             throw new DomainException("User already owns a tenant.");
         }
 
-        var tenant = new Tenant(request.TenantName, ownerUserId: userId.ToString());
+        var tenant = new Tenant(request.TenantName, ownerUserId: userId);
         var tenantUser = new TenantUser(tenant.Id, userId, TenantRoles.Owner);
-        var store = new Store(tenant.Id, request.StoreName);
 
-        await _repository.CreateTenantAsync(tenant, tenantUser, store, ct);
+        await _repository.CreateTenantAsync(tenant, tenantUser, ct);
 
         return new CreateTenantResponse
         {
             TenantId = tenant.Id,
-            StoreId = store.Id
         };
     }
 }

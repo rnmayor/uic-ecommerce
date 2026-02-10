@@ -16,14 +16,13 @@ public sealed class CreateTenantServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_CreatesTenantStoreAndOwner_WhenUserDoesNotOwnTenant()
+    public async Task CreateAsync_CreatesTenantAndOwner_WhenUserDoesNotOwnTenant()
     {
         // Arrange
         var userId = Guid.NewGuid();
         var request = new CreateTenantRequest
         {
             TenantName = "My Tenant",
-            StoreName = "My Store"
         };
 
         _repositoryMock
@@ -35,21 +34,16 @@ public sealed class CreateTenantServiceTests
 
         // Assert
         Assert.NotEqual(Guid.Empty, response.TenantId);
-        Assert.NotEqual(Guid.Empty, response.StoreId);
 
         _repositoryMock.Verify(r => r.CreateTenantAsync(
             It.Is<Tenant>(t =>
                 t.Name == request.TenantName &&
-                t.OwnerUserId == userId.ToString()
+                t.OwnerUserId == userId
             ),
             It.Is<TenantUser>(tu =>
                 tu.TenantId == response.TenantId &&
                 tu.UserId == userId &&
                 tu.Role == TenantRoles.Owner
-            ),
-            It.Is<Store>(s =>
-                s.TenantId == response.TenantId &&
-                s.Name == request.StoreName
             ),
             It.IsAny<CancellationToken>()
         ), Times.Once);
@@ -63,7 +57,6 @@ public sealed class CreateTenantServiceTests
         var request = new CreateTenantRequest
         {
             TenantName = "My Tenant",
-            StoreName = "My Store"
         };
 
         _repositoryMock
@@ -81,7 +74,6 @@ public sealed class CreateTenantServiceTests
         _repositoryMock.Verify(r => r.CreateTenantAsync(
             It.IsAny<Tenant>(),
             It.IsAny<TenantUser>(),
-            It.IsAny<Store>(),
             It.IsAny<CancellationToken>()
         ), Times.Never);
     }
@@ -94,7 +86,6 @@ public sealed class CreateTenantServiceTests
         var request = new CreateTenantRequest
         {
             TenantName = "My Tenant",
-            StoreName = "My Store"
         };
 
         _repositoryMock
@@ -107,6 +98,38 @@ public sealed class CreateTenantServiceTests
         // Assert
         _repositoryMock.Verify(r => r.UserOwnsTenantAsync(
             userId, It.IsAny<CancellationToken>()
+        ), Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateTenantAsync_PassesCancellationToken()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var request = new CreateTenantRequest
+        {
+            TenantName = "My Tenant",
+        };
+        using var cts = new CancellationTokenSource();
+
+        _repositoryMock
+            .Setup(r => r.UserOwnsTenantAsync(userId, cts.Token))
+            .ReturnsAsync(false);
+
+        // Act
+        var response = await _service.CreateAsync(userId, request, cts.Token);
+
+        _repositoryMock.Verify(r => r.CreateTenantAsync(
+            It.Is<Tenant>(t =>
+                t.Name == request.TenantName &&
+                t.OwnerUserId == userId
+            ),
+            It.Is<TenantUser>(tu =>
+                tu.TenantId == response.TenantId &&
+                tu.UserId == userId &&
+                tu.Role == TenantRoles.Owner
+            ),
+            cts.Token
         ), Times.Once);
     }
 }

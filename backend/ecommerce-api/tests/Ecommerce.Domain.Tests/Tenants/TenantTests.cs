@@ -9,7 +9,7 @@ public sealed class TenantTests
     public void CreatesTenant_WhenValid()
     {
         var name = "My Tenant";
-        var ownerUserId = "123";
+        var ownerUserId = Guid.NewGuid();
 
         var tenant = new Tenant(name, ownerUserId);
 
@@ -24,30 +24,28 @@ public sealed class TenantTests
     [InlineData(" ")]
     public void Throws_WhenTenantIsNullOrWhiteSpace(string name)
     {
-        var ownerUserId = "123";
+        var ownerUserId = Guid.NewGuid();
         var ex = Assert.Throws<DomainException>(() =>
             new Tenant(name, ownerUserId));
 
         Assert.Contains("Tenant name is required", ex.Message);
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData(" ")]
-    public void Throws_WhenOwnerUserIdIsNullOrWhiteSpace(string ownerUserId)
+    [Fact]
+    public void Throws_WhenOwnerUserIdIsEmpty()
     {
         var name = "My Tenant";
         var ex = Assert.Throws<DomainException>(() =>
-            new Tenant(name, ownerUserId));
+            new Tenant(name, Guid.Empty));
 
-        Assert.Contains("Owner user id is required", ex.Message);
+        Assert.Contains("OwnerUserId is required", ex.Message);
     }
 
     [Fact]
     public void TrimsName_OnCreation()
     {
         var name = "   My Tenant   ";
-        var ownerUserId = "123";
+        var ownerUserId = Guid.NewGuid();
         var tenant = new Tenant(name, ownerUserId);
 
         Assert.Equal("My Tenant", tenant.Name);
@@ -57,7 +55,7 @@ public sealed class TenantTests
     public void SetsCreatedAtToUtcNow()
     {
         var name = "My Tenant";
-        var ownerUserId = "123";
+        var ownerUserId = Guid.NewGuid();
 
         var before = DateTime.UtcNow;
         var tenant = new Tenant(name, ownerUserId);

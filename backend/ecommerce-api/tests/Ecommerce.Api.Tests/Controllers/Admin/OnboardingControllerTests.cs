@@ -34,14 +34,12 @@ public sealed class OnboardingControllerTests : IClassFixture<ApiWebApplicationF
 
         var request = new CreateTenantRequest
         {
-            TenantName = "My Tenant",
-            StoreName = "My Store"
+            TenantName = "My Tenant"
         };
 
         var response = new CreateTenantResponse
         {
-            TenantId = Guid.NewGuid(),
-            StoreId = Guid.NewGuid()
+            TenantId = Guid.NewGuid()
         };
 
         _serviceMock
@@ -64,7 +62,6 @@ public sealed class OnboardingControllerTests : IClassFixture<ApiWebApplicationF
 
         Assert.NotNull(body);
         Assert.Equal(response.TenantId, body.TenantId);
-        Assert.Equal(response.StoreId, body.StoreId);
 
         _serviceMock.Verify(s => s.CreateAsync(
             It.IsAny<Guid>(),
@@ -81,8 +78,7 @@ public sealed class OnboardingControllerTests : IClassFixture<ApiWebApplicationF
 
         var request = new CreateTenantRequest
         {
-            TenantName = "",
-            StoreName = ""
+            TenantName = ""
         };
 
         // Act
@@ -109,8 +105,7 @@ public sealed class OnboardingControllerTests : IClassFixture<ApiWebApplicationF
 
         var request = new CreateTenantRequest
         {
-            TenantName = "My Tenant",
-            StoreName = "My Store"
+            TenantName = "My Tenant"
         };
 
         // Act

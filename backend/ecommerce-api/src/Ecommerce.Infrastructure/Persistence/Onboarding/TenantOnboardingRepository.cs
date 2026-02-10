@@ -12,17 +12,21 @@ public sealed class TenantOnboardingRepository : ITenantOnboardingRepository
         _context = context;
     }
 
-    public async Task CreateTenantAsync(Tenant tenant, TenantUser owner, Store store, CancellationToken ct = default)
+    public async Task CreateTenantAsync(Tenant tenant, TenantUser owner, CancellationToken ct = default)
     {
+        using var tx = await _context.Database.BeginTransactionAsync(ct);
+
         _context.Tenants.Add(tenant);
         _context.TenantUsers.Add(owner);
-        _context.Stores.Add(store);
 
         await _context.SaveChangesAsync(ct);
+        await tx.CommitAsync(ct);
     }
 
     public async Task<bool> UserOwnsTenantAsync(Guid userId, CancellationToken ct = default)
     {
-        return await _context.Tenants.AnyAsync(t => t.OwnerUserId == userId.ToString(), ct);
+        return await _context.Tenants
+            .IgnoreQueryFilters()
+            .AnyAsync(t => t.OwnerUserId == userId, ct);
     }
 }

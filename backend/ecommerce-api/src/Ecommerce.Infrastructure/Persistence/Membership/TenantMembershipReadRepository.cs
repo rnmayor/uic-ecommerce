@@ -14,12 +14,15 @@ public sealed class TenantMembershipReadRepository : ITenantMembershipReadReposi
     public async Task<List<MyTenantDto>> GetTenantsForUserAsync(Guid userId, CancellationToken ct = default)
     {
         return await _context.TenantUsers
+            .IgnoreQueryFilters()
+            .AsNoTracking()
             .Where(tu => tu.UserId == userId)
             .Select(tu => new MyTenantDto
             {
-                TenantId = tu.Tenant.Id,
+                TenantId = tu.TenantId,
                 Name = tu.Tenant.Name,
-                IsOwner = tu.Role == TenantRoles.Owner
+                IsOwner = tu.Role == TenantRoles.Owner,
+                Role = tu.Role
             })
             .ToListAsync(ct);
     }

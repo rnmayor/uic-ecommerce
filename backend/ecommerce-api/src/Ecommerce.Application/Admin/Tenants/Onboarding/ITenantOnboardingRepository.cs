@@ -8,7 +8,6 @@ public interface ITenantOnboardingRepository
     Task CreateTenantAsync(
       Tenant tenant,
       TenantUser owner,
-      Store store,
       CancellationToken ct
     );
 }
