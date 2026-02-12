@@ -1,3 +1,4 @@
+using Ecommerce.Application.Admin.Stores.Brands;
 using Ecommerce.Application.Admin.Tenants.Membership;
 using Ecommerce.Application.Admin.Tenants.Onboarding;
 using Ecommerce.Application.Common.Interfaces;
@@ -7,6 +8,7 @@ using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.Persistence;
 using Ecommerce.Infrastructure.Persistence.Membership;
 using Ecommerce.Infrastructure.Persistence.Onboarding;
+using Ecommerce.Infrastructure.Persistence.Repositories.Stores;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -42,6 +44,7 @@ public static class DependencyInjection
         // Repositories
         services.AddScoped<ITenantOnboardingRepository, TenantOnboardingRepository>();
         services.AddScoped<ITenantMembershipReadRepository, TenantMembershipReadRepository>();
+        services.AddScoped<IStoreBrandReadRepository, StoreBrandReadRepository>();
 
         return services;
     }

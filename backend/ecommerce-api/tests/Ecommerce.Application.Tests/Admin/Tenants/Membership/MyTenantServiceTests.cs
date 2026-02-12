@@ -77,25 +77,6 @@ public sealed class MyTenantServiceTests
         ), Times.Once);
     }
 
-    [Fact]
-    public async Task GetMyTenantsAsync_AlwaysCallsRepository()
-    {
-        // Arrange
-        var userId = Guid.NewGuid();
-
-        _repositoryMock
-            .Setup(r => r.GetTenantsForUserAsync(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<MyTenantDto>());
-
-        // Act
-        await _service.GetMyTenantsAsync(userId, CancellationToken.None);
-
-        // Assert
-        _repositoryMock.Verify(r => r.GetTenantsForUserAsync(
-            userId, It.IsAny<CancellationToken>()
-        ), Times.Once);
-    }
-
     [Theory]
     [InlineData(TenantRoles.Admin)]
     [InlineData(TenantRoles.Manager)]

@@ -8,7 +8,7 @@ public class StoreBrand : Entity
     public string NormalizedName { get; private set; } = default!;
     public DateTime CreatedAt { get; private set; }
 
-    private readonly List<StoreInstance> _storeInstances = new();
+    private readonly List<StoreInstance> _storeInstances = [];
     public IReadOnlyCollection<StoreInstance> StoreInstances => _storeInstances.AsReadOnly();
 
     private StoreBrand() { } // EF

@@ -99,6 +99,11 @@ public sealed class TenantMembershipControllerTests : IClassFixture<ApiWebApplic
         Assert.NotNull(body);
         Assert.Empty(body.Tenants);
         Assert.False(body.HasTenant);
+
+        _serviceMock.Verify(s => s.GetMyTenantsAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<CancellationToken>()
+        ), Times.Once);
     }
 
     [Fact]

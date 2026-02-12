@@ -5,6 +5,6 @@ public interface ICreateTenantService
     Task<CreateTenantResponse> CreateAsync(
       Guid userId,
       CreateTenantRequest request,
-      CancellationToken ct
+      CancellationToken ct = default
     );
 }
