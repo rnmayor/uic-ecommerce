@@ -117,7 +117,7 @@ public static class ServiceCollectionExtensions
             config.DisableDataAnnotationsValidation = true;
         });
         // Register all validators in API assembly
-        services.AddValidatorsFromAssemblyContaining<Program>();
+        services.AddValidatorsFromAssemblyContaining<IApplicationMarker>();
 
         return services;
     }

@@ -1,17 +1,19 @@
-using Ecommerce.Application.Admin.Stores.Brands;
-using Ecommerce.Application.Admin.Tenants.Membership;
-using Ecommerce.Application.Admin.Tenants.Onboarding;
+using Ecommerce.Application.Common.Persistence;
+using Ecommerce.Application.Admin.Stores.Brands.GetAll;
+using Ecommerce.Application.Admin.Tenants.Membership.GetMyTenants;
 using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Application.Common.Options;
 using Ecommerce.Infrastructure.Authorization;
 using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.Persistence;
-using Ecommerce.Infrastructure.Persistence.Membership;
-using Ecommerce.Infrastructure.Persistence.Onboarding;
-using Ecommerce.Infrastructure.Persistence.Repositories.Stores;
+using Ecommerce.Infrastructure.Persistence.Repositories.Stores.Brands.GetAll;
+using Ecommerce.Infrastructure.Persistence.Repositories.Tenants;
+using Ecommerce.Infrastructure.Persistence.Repositories.Tenants.Membership.GetMyTenants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Ecommerce.Application.Admin.Tenants.Onboarding;
+using Ecommerce.Infrastructure.Persistence.Repositories.Tenants.Onboarding;
 
 namespace Ecommerce.Infrastructure;
 
@@ -24,7 +26,8 @@ public static class DependencyInjection
     /// <item><c>ITenantMemberAuthorizationService</c>: Performs tenant membership and role checks for authorization policies.</item>
     /// <item><c>IUserResolver:</c> Resolves the application's internal user identity from external authentication claims.</item>
     /// <item><c>ITenantOnboardingRepository: </c> Provides persistence abstraction for atomically storing the entities created during tenant onboarding.</item>
-    /// <item><c>ITenantMembershipReadRepository: </c> Provides read-only persistence abstraction for querying tenant memberships for a given user, including role-based projections required by application-level queries.</item>
+    /// <item><c>IGetMyTenantsRepository: </c> Provides read-only persistence abstraction for querying tenant memberships for a given user, including role-based projections required by application-level queries.</item>
+    /// <item><c>IGetAllStoreBrandsRepository: </c> Provides read-only persistence abstraction for querying store brands.</item>
     /// </summary>
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
@@ -41,10 +44,13 @@ public static class DependencyInjection
         // Identity
         services.AddScoped<IUserResolver, UserResolver>();
 
-        // Repositories
-        services.AddScoped<ITenantOnboardingRepository, TenantOnboardingRepository>();
-        services.AddScoped<ITenantMembershipReadRepository, TenantMembershipReadRepository>();
-        services.AddScoped<IStoreBrandReadRepository, StoreBrandReadRepository>();
+        // Use-case specific repositories
+        services.AddScoped<IOnboardingRepository, OnboardingRepository>();
+        services.AddScoped<IGetMyTenantsRepository, GetMyTenantsRepository>();
+        services.AddScoped<IGetAllStoreBrandsRepository, GetAllStoreBrandsRepository>();
+
+        // Aggregrate repositories
+        services.AddScoped<ITenantRepository, TenantRepository>();
 
         return services;
     }
