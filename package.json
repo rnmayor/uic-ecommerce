@@ -7,8 +7,7 @@
   "packageManager": "pnpm@10.24.0",
   "scripts": {
     "dev": "pnpm -r --parallel --filter \"./apps/*\" dev",
-    "build": "pnpm build:packages && pnpm build:apps",
-    "build:packages": "pnpm -r --filter \"./packages/*\" build",
+    "build": "pnpm build:apps",
     "build:apps": "pnpm -r --filter \"./apps/*\" build",
     "lint": "eslint . --max-warnings=0 && echo \"ESLint: No issues found.\"",
     "test": "echo \"Error: no test configured\"",
