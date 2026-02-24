@@ -43,9 +43,6 @@ namespace Ecommerce.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
-
                     b.HasIndex("NormalizedName")
                         .IsUnique();
 
@@ -135,6 +132,10 @@ namespace Ecommerce.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TenantId")
+                        .IsUnique()
+                        .HasFilter("\"Role\" = 'Owner'");
 
                     b.HasIndex("UserId");
 
