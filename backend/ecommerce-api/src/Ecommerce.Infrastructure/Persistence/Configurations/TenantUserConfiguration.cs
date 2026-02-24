@@ -17,6 +17,8 @@ internal sealed class TenantUserConfiguration : IEntityTypeConfiguration<TenantU
         builder.HasIndex(x => new { x.TenantId, x.Role });
         // Composite uniqueness: A user can belong to a tenant only once
         builder.HasIndex(x => new { x.TenantId, x.UserId }).IsUnique();
+        // Composite uniqueness: A user with role=Owner can belong to a tenant only once
+        builder.HasIndex(x => x.TenantId).HasFilter("\"Role\" = 'Owner'").IsUnique();
 
         // Navigation: many-to-one with Tenant
         builder.HasOne(x => x.Tenant)

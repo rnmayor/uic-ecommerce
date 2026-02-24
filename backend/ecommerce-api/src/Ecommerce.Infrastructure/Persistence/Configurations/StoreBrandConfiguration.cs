@@ -15,7 +15,6 @@ internal sealed class StoreBrandConfiguration : IEntityTypeConfiguration<StoreBr
         builder.Property(x => x.NormalizedName).IsRequired().HasMaxLength(200);
         builder.Property(x => x.CreatedAt).IsRequired();
 
-        builder.HasIndex(x => x.Name).IsUnique();
         builder.HasIndex(x => x.NormalizedName).IsUnique();
 
         // Navigation: one-to-many with StoreInstances

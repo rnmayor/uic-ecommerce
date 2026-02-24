@@ -16,6 +16,6 @@ internal sealed class TenantConfiguration : IEntityTypeConfiguration<Tenant>
         builder.Property(t => t.CreatedAt).IsRequired();
         builder.Property(t => t.UpdatedAt).IsRequired();
 
-        builder.HasIndex(t => t.OwnerUserId).IsUnique();
+        builder.HasIndex(t => t.OwnerUserId);
     }
 }
