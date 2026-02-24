@@ -1,0 +1,79 @@
+name: Quality Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect changed paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            frontend:
+              - 'apps/**'
+              - 'packages/**'
+              - '.github/workflows/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'tsconfig*.json'
+              - '*config.mjs'
+              - '.prettier*'
+              - '.gitignore'
+            backend:
+              - 'backend/**'
+
+  frontend:
+    name: Frontend Gate
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_cmVsZXZhbnQtYm94ZXItNDguY2xlcmsuYWNjb3VudHMuZGV2JA
+      CLERK_SECRET_KEY: sk_test_dummy_key_123
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.24.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.12
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm type-check
+      # - run: pnpm test:run
+      - run: pnpm build
+
+  backend:
+    name: Backend Gate
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    env:
+      ConnectionStrings__Database: 'Server=localhost;Database=TestDb;User Id=sa;Password=Password123;'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - run: dotnet restore backend/ecommerce-api/Ecommerce.slnx
+      - run: dotnet build backend/ecommerce-api/Ecommerce.slnx --no-restore --configuration Release
+      - run: dotnet test backend/ecommerce-api/Ecommerce.slnx --no-build --configuration Release
