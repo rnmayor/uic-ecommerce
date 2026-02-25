@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Ecommerce.Application.Admin.Tenants.Onboarding;
 using Ecommerce.Infrastructure.Persistence.Repositories.Tenants.Onboarding;
+using Ecommerce.Infrastructure.Persistence.Repositories.Stores.Brands;
 
 namespace Ecommerce.Infrastructure;
 
@@ -28,6 +29,8 @@ public static class DependencyInjection
     /// <item><c>ITenantOnboardingRepository: </c> Provides persistence abstraction for atomically storing the entities created during tenant onboarding.</item>
     /// <item><c>IGetMyTenantsRepository: </c> Provides read-only persistence abstraction for querying tenant memberships for a given user, including role-based projections required by application-level queries.</item>
     /// <item><c>IGetAllStoreBrandsRepository: </c> Provides read-only persistence abstraction for querying store brands.</item>
+    /// <item><c>ITenantRepository: </c> Provides persistence abstraction for storing tenant.</item>
+    /// <item><c>IStoreBrandRepository: </c> Provides persistence abstraction for storing store brand.</item>
     /// </summary>
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
@@ -51,6 +54,7 @@ public static class DependencyInjection
 
         // Aggregrate repositories
         services.AddScoped<ITenantRepository, TenantRepository>();
+        services.AddScoped<IStoreBrandRepository, StoreBrandRepository>();
 
         return services;
     }

@@ -67,9 +67,24 @@ We adopt `Vertical Slice Architecture` combined with `DDD aggregates` modeling:
 
 4. API layer
 
-- Controllers are feature-scoped and ideally follow the "One Controller Per Feature" pattern (Controllers/Admin/Tenants/OnboardTenantController.cs)
+- Controllers can be feature-scoped or aggregrate-root scoped.
+- Feature-scoped:
+  - Ideally follow the "One Controller Per Feature" pattern (Controllers/Admin/Tenants/OnboardTenantController.cs)
+  - Naming: All entry-point methods in controllers are named HandleAsync. The HTTP Verb ([HttpGet], [HttpPost], etc) provides the context of the action.
+- Aggregrate-root scoped:
+  - Each aggregrate root has its own controller that exposes its public API surface.
+  - Naming: Standard CRUD naming is used (GetByIdAsync, CreateAsync, UpdateAsync, DeleteAsync) that represents each HTTP verbs, respectively.
+- Rule of Thumb: Use Aggregrate-root scoped controllers for standard CRUD operations. Transition to Feature-scoped controlers when a feature involves multiple aggregrates, complex validation, or specific business workflows.
+
+```
+<!-- Controllers/Admin/Tenants/StoreBrandController.cs -->
+[HttpPost] - CreateAsync
+[HttpGet("{id:guid}")] - GetByIdAsync
+[HttpPut("{id:guid}")] - UpdateAsync
+[HttpDelete("{id:guid}")] - DeleteAsync
+```
+
 - Validation, middleware, and extensions are organized for cross-cutting concerns.
-- Naming: All entry-point methods in controllers are named HandleAsync. The HTTP Verb ([HttpGet], [HttpPost], etc) provides the context of the action.
 
 5. Testing
 

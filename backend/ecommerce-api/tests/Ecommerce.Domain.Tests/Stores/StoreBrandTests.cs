@@ -13,7 +13,7 @@ public sealed class StoreBrandTests
 
         Assert.NotEqual(Guid.Empty, storeBrand.Id);
         Assert.Equal(name, storeBrand.Name);
-        Assert.Equal(name.Trim().ToLowerInvariant(), storeBrand.NormalizedName);
+        Assert.Equal(StoreBrand.Normalize(name), storeBrand.NormalizedName);
     }
 
     [Theory]
