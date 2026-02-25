@@ -26,8 +26,8 @@ public class StoreBrand : Entity
         CreatedAt = DateTime.UtcNow;
     }
 
-    private static string Normalize(string name)
+    public static string Normalize(string name)
     {
-        return name.Trim().ToLowerInvariant();
+        return name.Trim().ToUpperInvariant();
     }
 }
