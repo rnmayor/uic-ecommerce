@@ -1,6 +1,6 @@
 namespace Ecommerce.Application.Admin.Stores.Brands.Create;
 
-public interface ICreateStorBrandService
+public interface ICreateStoreBrandService
 {
     Task<CreateStoreBrandResponse> ExecuteAsync(CreateStoreBrandRequest request, CancellationToken ct = default);
 }

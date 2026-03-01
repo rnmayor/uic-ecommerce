@@ -4,7 +4,7 @@ using Ecommerce.Domain.Stores;
 
 namespace Ecommerce.Application.Admin.Stores.Brands.Create;
 
-public sealed class CreateStoreBrandService : ICreateStorBrandService
+public sealed class CreateStoreBrandService : ICreateStoreBrandService
 {
     private readonly IStoreBrandRepository _repository;
     public CreateStoreBrandService(IStoreBrandRepository repository)

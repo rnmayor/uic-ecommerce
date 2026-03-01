@@ -6,6 +6,6 @@ public sealed class OnboardingRequestValidator : AbstractValidator<OnboardingReq
 {
     public OnboardingRequestValidator()
     {
-        RuleFor(x => x.TenantName).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.TenantName).NotEmpty().MaximumLength(200);
     }
 }
