@@ -11,8 +11,8 @@ namespace Ecommerce.Api.Controllers.Admin.Stores.Brands;
 [SkipTenantResolution]
 public sealed class StoreBrandController : ControllerBase
 {
-    private readonly ICreateStorBrandService _service;
-    public StoreBrandController(ICreateStorBrandService service)
+    private readonly ICreateStoreBrandService _service;
+    public StoreBrandController(ICreateStoreBrandService service)
     {
         _service = service;
     }

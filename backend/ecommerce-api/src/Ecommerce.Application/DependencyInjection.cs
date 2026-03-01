@@ -22,7 +22,7 @@ public static class DependencyInjection
         services.AddScoped<IOnboardingService, OnboardingService>();
         services.AddScoped<IGetMyTenantsService, GetMyTenantsService>();
         services.AddScoped<IGetAllStoreBrandsService, GetAllStoreBrandsService>();
-        services.AddScoped<ICreateStorBrandService, CreateStoreBrandService>();
+        services.AddScoped<ICreateStoreBrandService, CreateStoreBrandService>();
 
         return services;
     }
