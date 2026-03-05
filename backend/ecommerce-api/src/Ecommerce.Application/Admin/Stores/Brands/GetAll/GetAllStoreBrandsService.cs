@@ -2,7 +2,7 @@ namespace Ecommerce.Application.Admin.Stores.Brands.GetAll;
 
 public interface IGetAllStoreBrandsRepository
 {
-    Task<IReadOnlyList<StoreBrandDto>> GetAllAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<StoreBrandDTO>> GetAllAsync(CancellationToken ct = default);
 }
 
 public sealed class GetAllStoreBrandsService : IGetAllStoreBrandsService

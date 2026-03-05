@@ -11,12 +11,12 @@ public sealed class GetAllStoreBrandsRepository : IGetAllStoreBrandsRepository
         _context = context;
 
     }
-    public async Task<IReadOnlyList<StoreBrandDto>> GetAllAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<StoreBrandDTO>> GetAllAsync(CancellationToken ct = default)
     {
         return await _context.StoreBrands
             .IgnoreQueryFilters()
             .AsNoTracking()
-            .Select(b => new StoreBrandDto
+            .Select(b => new StoreBrandDTO
             {
                 BrandId = b.Id,
                 Name = b.Name

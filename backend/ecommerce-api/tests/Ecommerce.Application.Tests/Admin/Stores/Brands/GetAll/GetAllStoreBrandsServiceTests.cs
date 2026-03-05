@@ -12,7 +12,7 @@ public sealed class GetAllStoreBrandsServiceTests
         GetAllStoreBrandsService service)
     {
         // Arrange
-        var storeBrands = new List<StoreBrandDto>
+        var storeBrands = new List<StoreBrandDTO>
         {
             new() { BrandId = Guid.NewGuid(), Name = "Brand A" },
             new() { BrandId = Guid.NewGuid(), Name = "Brand B" }
@@ -44,7 +44,7 @@ public sealed class GetAllStoreBrandsServiceTests
         // Arrange
         repositoryMock
             .Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<StoreBrandDto>());
+            .ReturnsAsync(new List<StoreBrandDTO>());
 
         // Act
         var response = await service.HandleAsync(CancellationToken.None);
@@ -68,7 +68,7 @@ public sealed class GetAllStoreBrandsServiceTests
 
         repositoryMock
             .Setup(r => r.GetAllAsync(cts.Token))
-            .ReturnsAsync(new List<StoreBrandDto>());
+            .ReturnsAsync(new List<StoreBrandDTO>());
 
         await service.HandleAsync(cts.Token);
 

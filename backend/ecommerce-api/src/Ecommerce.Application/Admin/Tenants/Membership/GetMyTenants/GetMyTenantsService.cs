@@ -2,7 +2,7 @@ namespace Ecommerce.Application.Admin.Tenants.Membership.GetMyTenants;
 
 public interface IGetMyTenantsRepository
 {
-    Task<IReadOnlyList<MyTenantDto>> GetTenantsForUserAsync(Guid userId, CancellationToken ct = default);
+    Task<IReadOnlyList<MyTenantDTO>> GetTenantsForUserAsync(Guid userId, CancellationToken ct = default);
 }
 
 public sealed class GetMyTenantsService : IGetMyTenantsService

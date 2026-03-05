@@ -35,7 +35,7 @@ We adopt `Vertical Slice Architecture` combined with `DDD aggregates` modeling:
                   └── 📁GetAll
                       ├── GetAllStoreBrandsService.cs
                       ├── IGetAllStoreBrandService.cs
-                      ├── StoreBrandDto.cs
+                      ├── StoreBrandDTO.cs
                       ├── StoreBrandsResponse.cs
   ```
 

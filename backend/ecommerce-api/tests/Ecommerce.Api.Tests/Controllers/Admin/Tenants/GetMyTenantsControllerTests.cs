@@ -35,14 +35,14 @@ public sealed class GetMyTenantsControllerTests : IClassFixture<ApiWebApplicatio
         var response = new MyTenantsResponse
         {
             Tenants = [
-                new MyTenantDto
+                new MyTenantDTO
                 {
                     TenantId = Guid.NewGuid(),
                     Name = "Tenant A",
                     IsOwner = true,
                     Role = TenantRoles.Owner
                 },
-                new MyTenantDto
+                new MyTenantDTO
                 {
                     TenantId = Guid.NewGuid(),
                     Name = "Tenant B",
