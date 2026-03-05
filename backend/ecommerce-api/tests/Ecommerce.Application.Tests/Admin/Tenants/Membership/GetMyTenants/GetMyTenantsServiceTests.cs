@@ -14,7 +14,7 @@ public sealed class GetMyTenantsServiceTests
         GetMyTenantsService service)
     {
         // Arrange
-        var tenants = new List<MyTenantDto>
+        var tenants = new List<MyTenantDTO>
         {
             new() { TenantId = Guid.NewGuid(), Name = "Tenant A", IsOwner = true, Role = TenantRoles.Owner },
             new() { TenantId = Guid.NewGuid(), Name = "Tenant B", IsOwner = false, Role = TenantRoles.Admin }
@@ -47,7 +47,7 @@ public sealed class GetMyTenantsServiceTests
         // Arrange
         repositoryMock
             .Setup(r => r.GetTenantsForUserAsync(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<MyTenantDto>());
+            .ReturnsAsync(new List<MyTenantDTO>());
 
         // Act
         var response = await service.HandleAsync(userId, CancellationToken.None);
@@ -74,7 +74,7 @@ public sealed class GetMyTenantsServiceTests
         GetMyTenantsService service)
     {
         // Arrange
-        var tenants = new List<MyTenantDto>
+        var tenants = new List<MyTenantDTO>
         {
             new() { TenantId = Guid.NewGuid(), Name = "Tenant", Role = role, IsOwner = false }
         };
@@ -104,7 +104,7 @@ public sealed class GetMyTenantsServiceTests
 
         repositoryMock
             .Setup(r => r.GetTenantsForUserAsync(userId, cts.Token))
-            .ReturnsAsync(new List<MyTenantDto>());
+            .ReturnsAsync(new List<MyTenantDTO>());
 
         await service.HandleAsync(userId, cts.Token);
 

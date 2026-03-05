@@ -34,12 +34,12 @@ public sealed class GetAllStoreBrandsControllerTests : IClassFixture<ApiWebAppli
         var response = new StoreBrandsResponse
         {
             Brands = [
-                new StoreBrandDto
+                new StoreBrandDTO
                 {
                     BrandId = Guid.NewGuid(),
                     Name = "Store Brand A"
                 },
-                new StoreBrandDto
+                new StoreBrandDTO
                 {
                     BrandId = Guid.NewGuid(),
                     Name = "Store Brand B"

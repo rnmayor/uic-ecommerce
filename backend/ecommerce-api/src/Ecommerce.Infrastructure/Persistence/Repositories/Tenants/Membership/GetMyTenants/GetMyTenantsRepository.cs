@@ -11,13 +11,13 @@ public sealed class GetMyTenantsRepository : IGetMyTenantsRepository
     {
         _context = context;
     }
-    public async Task<IReadOnlyList<MyTenantDto>> GetTenantsForUserAsync(Guid userId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<MyTenantDTO>> GetTenantsForUserAsync(Guid userId, CancellationToken ct = default)
     {
         return await _context.TenantUsers
             .IgnoreQueryFilters()
             .AsNoTracking()
             .Where(tu => tu.UserId == userId)
-            .Select(tu => new MyTenantDto
+            .Select(tu => new MyTenantDTO
             {
                 TenantId = tu.TenantId,
                 Name = tu.Tenant.Name,
