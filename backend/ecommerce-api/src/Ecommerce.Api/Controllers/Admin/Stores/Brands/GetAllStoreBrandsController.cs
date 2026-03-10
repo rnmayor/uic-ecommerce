@@ -18,9 +18,12 @@ public sealed class GetAllStoreBrandsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<StoreBrandsResponse>> HandleAsync(CancellationToken ct)
+    public async Task<ActionResult<StoreBrandsResponse>> HandleAsync(
+        [FromQuery] GetAllBrandsQuery query,
+        CancellationToken ct = default)
     {
-        return Ok(await _service.HandleAsync(ct));
+        var response = await _service.HandleAsync(query, ct);
+        return Ok(response);
     }
 
 }

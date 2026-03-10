@@ -44,16 +44,18 @@ public sealed class GetAllStoreBrandsControllerTests : IClassFixture<ApiWebAppli
                     BrandId = Guid.NewGuid(),
                     Name = "Store Brand B"
                 }
-            ]
+            ],
+            TotalCount = 100
         };
 
         _serviceMock
             .Setup(s => s.HandleAsync(
+                It.Is<GetAllBrandsQuery>(q => q.Skip == 5 && q.Limit == 10 && q.Search == "nike"),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         // Act
-        var httpResponse = await client.GetAsync("/api/admin/store-brands");
+        var httpResponse = await client.GetAsync("/api/admin/store-brands?skip=5&limit=10&search=nike");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, httpResponse.StatusCode);
@@ -62,8 +64,12 @@ public sealed class GetAllStoreBrandsControllerTests : IClassFixture<ApiWebAppli
 
         Assert.NotNull(body);
         Assert.Equal(2, body.Brands.Count);
+        Assert.Equal(100, body.TotalCount);
 
-        _serviceMock.Verify(s => s.HandleAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _serviceMock.Verify(s => s.HandleAsync(
+            It.Is<GetAllBrandsQuery>(q => q.Skip == 5),
+            It.IsAny<CancellationToken>()
+        ), Times.Once);
     }
 
     [Fact]
@@ -73,8 +79,8 @@ public sealed class GetAllStoreBrandsControllerTests : IClassFixture<ApiWebAppli
         var client = _factory.CreateAuthenticatedClient();
 
         _serviceMock
-            .Setup(s => s.HandleAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new StoreBrandsResponse());
+            .Setup(s => s.HandleAsync(It.IsAny<GetAllBrandsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new StoreBrandsResponse { Brands = [], TotalCount = 0 });
 
         // Act
         var response = await client.GetAsync("/api/admin/store-brands");
@@ -86,8 +92,12 @@ public sealed class GetAllStoreBrandsControllerTests : IClassFixture<ApiWebAppli
 
         Assert.NotNull(body);
         Assert.Empty(body.Brands);
+        Assert.Equal(0, body.TotalCount);
 
-        _serviceMock.Verify(s => s.HandleAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _serviceMock.Verify(s => s.HandleAsync(
+            It.IsAny<GetAllBrandsQuery>(),
+            It.IsAny<CancellationToken>()
+        ), Times.Once);
     }
 
     [Fact]
@@ -102,6 +112,9 @@ public sealed class GetAllStoreBrandsControllerTests : IClassFixture<ApiWebAppli
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 
-        _serviceMock.Verify(s => s.HandleAsync(It.IsAny<CancellationToken>()), Times.Never);
+        _serviceMock.Verify(s => s.HandleAsync(
+            It.IsAny<GetAllBrandsQuery>(),
+            It.IsAny<CancellationToken>()
+        ), Times.Never);
     }
 }

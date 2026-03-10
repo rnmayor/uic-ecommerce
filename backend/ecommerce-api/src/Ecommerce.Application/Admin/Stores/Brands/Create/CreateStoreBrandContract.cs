@@ -1,11 +1,11 @@
 namespace Ecommerce.Application.Admin.Stores.Brands.Create;
 
-public record CreateStoreBrandRequest
+public sealed record CreateStoreBrandRequest
 {
     public string StoreBrandName { get; init; } = default!;
 }
 
-public record CreateStoreBrandResponse
+public sealed record CreateStoreBrandResponse
 {
     public Guid StoreBrandId { get; init; }
 }

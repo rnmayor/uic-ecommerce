@@ -1,11 +1,11 @@
 namespace Ecommerce.Application.Admin.Tenants.Onboarding;
 
-public record OnboardingResponse
+public sealed record OnboardingResponse
 {
     public Guid TenantId { get; init; }
 }
 
-public record OnboardingRequest
+public sealed record OnboardingRequest
 {
     public string TenantName { get; init; } = default!;
 }

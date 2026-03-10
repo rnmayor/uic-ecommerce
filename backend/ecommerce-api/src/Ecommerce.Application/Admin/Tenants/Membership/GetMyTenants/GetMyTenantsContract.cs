@@ -1,6 +1,6 @@
 namespace Ecommerce.Application.Admin.Tenants.Membership.GetMyTenants;
 
-public record MyTenantDTO
+public sealed record MyTenantDTO
 {
     public Guid TenantId { get; init; }
     public string Name { get; init; } = default!;
@@ -8,7 +8,7 @@ public record MyTenantDTO
     public string Role { get; init; } = default!;
 }
 
-public record MyTenantsResponse
+public sealed record MyTenantsResponse
 {
     public IReadOnlyList<MyTenantDTO> Tenants { get; init; } = new List<MyTenantDTO>();
     public bool HasTenant => Tenants.Count > 0;
