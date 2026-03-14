@@ -1,4 +1,5 @@
 using Ecommerce.Application.Admin.Tenants.Membership.GetMyTenants;
+using Ecommerce.Domain.Common;
 using Ecommerce.Domain.Tenants;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +12,7 @@ namespace Ecommerce.Infrastructure.Persistence.Repositories.Tenants.Membership.G
         {
             _context = context;
         }
-        public async Task<IReadOnlyList<MyTenantDTO>> GetTenantsForUserAsync(Guid userId, CancellationToken ct = default)
+        public async Task<Result<IReadOnlyList<MyTenantDTO>>> GetTenantsForUserAsync(Guid userId, CancellationToken ct = default)
         {
             return await _context.TenantUsers
                 .IgnoreQueryFilters()

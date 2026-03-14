@@ -1,11 +1,13 @@
-using System.Net;
-using System.Net.Http.Json;
 using Ecommerce.Api.Tests.Extensions;
 using Ecommerce.Api.Tests.Fixtures;
 using Ecommerce.Application.Admin.Tenants.Membership.GetMyTenants;
+using Ecommerce.Domain.Common;
 using Ecommerce.Domain.Tenants;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
+using System.Net.Http.Json;
 
 namespace Ecommerce.Api.Tests.Controllers.Admin.Tenants
 {
@@ -56,7 +58,7 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Tenants
                 .Setup(s => s.HandleAsync(
                     It.IsAny<Guid>(),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response);
+                .ReturnsAsync(Result<MyTenantsResponse>.Success(response));
 
             // Act
             var httpResponse = await client.GetAsync("/api/admin/me/tenants");
@@ -86,7 +88,7 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Tenants
                 .Setup(s => s.HandleAsync(
                     It.IsAny<Guid>(),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new MyTenantsResponse());
+                .ReturnsAsync(Result<MyTenantsResponse>.Success(new MyTenantsResponse()));
 
             // Act
             var response = await client.GetAsync("/api/admin/me/tenants");
@@ -99,6 +101,36 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Tenants
             Assert.NotNull(body);
             Assert.Empty(body.Tenants);
             Assert.False(body.HasTenant);
+
+            _serviceMock.Verify(s => s.HandleAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()
+            ), Times.Once);
+        }
+
+        [Fact]
+        public async Task HandleAsync_WhenServiceFails_ReturnsProblemDetails()
+        {
+            // Arrange
+            var client = _factory.CreateAuthenticatedClient();
+            var expectedError = new Error("db.timeout", "Database timeout.", HttpStatusCode.ServiceUnavailable);
+
+            _serviceMock
+                .Setup(s => s.HandleAsync(
+                    It.IsAny<Guid>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedError);
+
+            // Act
+            var response = await client.GetAsync("/api/admin/me/tenants");
+
+            // Assert
+            Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+
+            var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+            Assert.NotNull(problem);
+            Assert.Equal("db.timeout", problem.Type);
+            Assert.Equal("DB TIMEOUT", problem.Title);
 
             _serviceMock.Verify(s => s.HandleAsync(
                 It.IsAny<Guid>(),

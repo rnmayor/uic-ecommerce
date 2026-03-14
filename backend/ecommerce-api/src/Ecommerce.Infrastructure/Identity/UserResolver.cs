@@ -22,11 +22,16 @@ namespace Ecommerce.Infrastructure.Identity
             }
 
             // Create user on first login (idempotent)
-            user = new User(clerkUserId);
-            _context.Users.Add(user);
+            var userResult = User.Create(clerkUserId);
+            if (userResult.IsFailure)
+            {
+                throw new InvalidOperationException($"Failed to create user: {clerkUserId}. Reason: {userResult.Error.Description}");
+            }
+
+            _context.Users.Add(userResult.Value);
             await _context.SaveChangesAsync();
 
-            return user.Id;
+            return userResult.Value.Id;
         }
     }
 }

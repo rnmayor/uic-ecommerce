@@ -1,24 +1,26 @@
-namespace Ecommerce.Application.Admin.Tenants.Membership.GetMyTenants;
+using Ecommerce.Domain.Common;
 
-public interface IGetMyTenantsRepository
+namespace Ecommerce.Application.Admin.Tenants.Membership.GetMyTenants
 {
-    Task<IReadOnlyList<MyTenantDTO>> GetTenantsForUserAsync(Guid userId, CancellationToken ct = default);
-}
-
-public sealed class GetMyTenantsService : IGetMyTenantsService
-{
-    private readonly IGetMyTenantsRepository _repository;
-    public GetMyTenantsService(IGetMyTenantsRepository repository)
+    public sealed class GetMyTenantsService : IGetMyTenantsService
     {
-        _repository = repository;
-    }
-    public async Task<MyTenantsResponse> HandleAsync(Guid userId, CancellationToken ct = default)
-    {
-        var tenants = await _repository.GetTenantsForUserAsync(userId, ct);
-
-        return new MyTenantsResponse
+        private readonly IGetMyTenantsRepository _repository;
+        public GetMyTenantsService(IGetMyTenantsRepository repository)
         {
-            Tenants = tenants
-        };
+            _repository = repository;
+        }
+        public async Task<Result<MyTenantsResponse>> HandleAsync(Guid userId, CancellationToken ct = default)
+        {
+            var result = await _repository.GetTenantsForUserAsync(userId, ct);
+            if (result.IsFailure)
+            {
+                return result.Error;
+            }
+
+            return new MyTenantsResponse
+            {
+                Tenants = result.Value
+            };
+        }
     }
 }

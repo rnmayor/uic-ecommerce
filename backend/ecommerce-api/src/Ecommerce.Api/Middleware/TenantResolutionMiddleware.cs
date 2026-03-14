@@ -1,5 +1,5 @@
-using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Application.Common.Attributes;
+using Ecommerce.Application.Common.Interfaces;
 
 namespace Ecommerce.Api.Middleware
 {

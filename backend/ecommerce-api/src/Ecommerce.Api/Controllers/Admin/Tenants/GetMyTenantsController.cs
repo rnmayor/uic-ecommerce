@@ -6,11 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Ecommerce.Api.Controllers.Admin.Tenants
 {
-    [ApiController]
     [Route("api/admin/me")]
     [Authorize]
     [SkipTenantResolution]
-    public sealed class GetMyTenantsController : ControllerBase
+    public sealed class GetMyTenantsController : ApiController
     {
         private readonly IGetMyTenantsService _service;
         public GetMyTenantsController(IGetMyTenantsService service)
@@ -24,9 +23,9 @@ namespace Ecommerce.Api.Controllers.Admin.Tenants
         )
         {
             var userId = User.GetUserId();
-            var response = await _service.HandleAsync(userId, ct);
+            var result = await _service.HandleAsync(userId, ct);
 
-            return Ok(response);
+            return HandleResult(result, myTenants => Ok(myTenants));
         }
     }
 }

@@ -1,6 +1,6 @@
-using System.Security.Claims;
 using Ecommerce.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 
 namespace Ecommerce.Api.Identity
 {

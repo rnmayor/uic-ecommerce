@@ -13,30 +13,35 @@ namespace Ecommerce.Domain.Tenants
 
         private TenantUser() { } // For EF
 
-        public TenantUser(Guid tenantId, Guid userId, string role)
+        public static Result<TenantUser> Create(Guid tenantId, Guid userId, string role)
         {
             if (tenantId == Guid.Empty)
             {
-                throw new DomainException("TenantId is required.");
+                return TenantUserErrors.TenantRequired;
             }
             if (userId == Guid.Empty)
             {
-                throw new DomainException("UserId is required.");
+                return TenantUserErrors.UserRequired;
             }
             if (string.IsNullOrWhiteSpace(role))
             {
-                throw new DomainException("Role is required.");
+                return TenantUserErrors.RoleRequired;
             }
             if (!TenantRoles.All.Contains(role))
             {
-                throw new DomainException($"Invalid tenant role: {role}");
+                return TenantUserErrors.TenantRoleInvalid;
             }
 
-            Id = Guid.NewGuid();
-            TenantId = tenantId;
-            UserId = userId;
-            Role = role.Trim();
-            CreatedAt = DateTime.UtcNow;
+            var tenantUser = new TenantUser
+            {
+                Id = Guid.NewGuid(),
+                TenantId = tenantId,
+                UserId = userId,
+                Role = role.Trim(),
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            return tenantUser;
         }
     }
 }

@@ -30,15 +30,19 @@ namespace Ecommerce.Application.Admin.Tenants.Onboarding
                 return TenantErrors.UserOwnsTenant;
             }
 
-            var tenant = Tenant.Created(request.TenantName, userId);
+            var tenant = Tenant.Create(request.TenantName, userId);
             if (tenant.IsFailure)
             {
                 return tenant.Error;
             }
 
-            var tenantUser = new TenantUser(tenant.Value.Id, userId, TenantRoles.Owner);
+            var tenantUser = TenantUser.Create(tenant.Value.Id, userId, TenantRoles.Owner);
+            if (tenantUser.IsFailure)
+            {
+                return tenantUser.Error;
+            }
 
-            await _tenantRepo.CreateAsync(tenant.Value, tenantUser, ct);
+            await _tenantRepo.CreateAsync(tenant.Value, tenantUser.Value, ct);
 
             return new OnboardingResponse
             {

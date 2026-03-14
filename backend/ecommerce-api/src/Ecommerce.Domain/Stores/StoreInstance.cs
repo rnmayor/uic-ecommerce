@@ -10,27 +10,33 @@ namespace Ecommerce.Domain.Stores
         public DateTime CreatedAt { get; private set; }
         public DateTime UpdatedAt { get; private set; }
         private StoreInstance() { } // For EF
-        public StoreInstance(Guid tenantId, Guid storeBrandId, string displayName)
+        public static Result<StoreInstance> Create(Guid tenantId, Guid storeBrandId, string displayName)
         {
             if (tenantId == Guid.Empty)
             {
-                throw new DomainException("TenantId is required.");
+                return StoreInstanceErrors.TenantRequired;
             }
             if (storeBrandId == Guid.Empty)
             {
-                throw new DomainException("StoreBrandId is required.");
+                return StoreInstanceErrors.StoreBrandRequired;
             }
             if (string.IsNullOrWhiteSpace(displayName))
             {
-                throw new DomainException("Store display name is required.");
+                return StoreInstanceErrors.NameRequired;
             }
 
-            Id = Guid.NewGuid();
-            TenantId = tenantId;
-            StoreBrandId = storeBrandId;
-            DisplayName = displayName.Trim();
-            CreatedAt = DateTime.UtcNow;
-            UpdatedAt = CreatedAt;
+            var now = DateTime.UtcNow;
+            var store = new StoreInstance
+            {
+                Id = Guid.NewGuid(),
+                TenantId = tenantId,
+                StoreBrandId = storeBrandId,
+                DisplayName = displayName.Trim(),
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+
+            return store;
         }
     }
 }

@@ -1,4 +1,5 @@
 using Ecommerce.Application.Admin.Stores.Brands.GetAll;
+using Ecommerce.Domain.Common;
 using Ecommerce.Domain.Stores;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +13,7 @@ namespace Ecommerce.Infrastructure.Persistence.Repositories.Stores.Brands.GetAll
             _context = context;
 
         }
-        public async Task<(IReadOnlyList<StoreBrandDTO> Items, int TotalCount)> GetAllAsync(GetAllBrandsQuery query, CancellationToken ct = default)
+        public async Task<Result<(IReadOnlyList<StoreBrandDTO> Items, int TotalCount)>> GetAllAsync(GetAllBrandsQuery query, CancellationToken ct = default)
         {
             var baseQuery = _context.StoreBrands
                 .IgnoreQueryFilters()
@@ -20,7 +21,8 @@ namespace Ecommerce.Infrastructure.Persistence.Repositories.Stores.Brands.GetAll
 
             if (!string.IsNullOrWhiteSpace(query.Search))
             {
-                baseQuery = baseQuery.Where(b => b.NormalizedName.Contains(StoreBrand.Normalize(query.Search)));
+                var searchNormalized = StoreBrand.Normalize(query.Search);
+                baseQuery = baseQuery.Where(b => b.NormalizedName.Contains(searchNormalized));
             }
 
             var totalCount = await baseQuery.CountAsync(ct);

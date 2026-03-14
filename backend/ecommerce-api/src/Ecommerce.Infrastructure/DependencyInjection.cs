@@ -1,20 +1,20 @@
-using Ecommerce.Application.Common.Persistence;
 using Ecommerce.Application.Admin.Stores.Brands.GetAll;
 using Ecommerce.Application.Admin.Tenants.Membership.GetMyTenants;
+using Ecommerce.Application.Admin.Tenants.Onboarding;
 using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Application.Common.Options;
+using Ecommerce.Application.Common.Persistence;
 using Ecommerce.Infrastructure.Authorization;
 using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.Persistence;
+using Ecommerce.Infrastructure.Persistence.Repositories.Stores.Brands;
 using Ecommerce.Infrastructure.Persistence.Repositories.Stores.Brands.GetAll;
 using Ecommerce.Infrastructure.Persistence.Repositories.Tenants;
 using Ecommerce.Infrastructure.Persistence.Repositories.Tenants.Membership.GetMyTenants;
+using Ecommerce.Infrastructure.Persistence.Repositories.Tenants.Onboarding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Ecommerce.Application.Admin.Tenants.Onboarding;
-using Ecommerce.Infrastructure.Persistence.Repositories.Tenants.Onboarding;
-using Ecommerce.Infrastructure.Persistence.Repositories.Stores.Brands;
 
 namespace Ecommerce.Infrastructure
 {

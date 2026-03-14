@@ -1,6 +1,6 @@
-using System.Security.Claims;
 using Ecommerce.Application.Common.Interfaces;
 using Serilog.Context;
+using System.Security.Claims;
 
 namespace Ecommerce.Api.Middleware
 {

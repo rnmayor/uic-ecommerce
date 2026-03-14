@@ -10,7 +10,7 @@ namespace Ecommerce.Domain.Tests.Tenants
             var name = "My Tenant";
             var ownerUserId = Guid.NewGuid();
 
-            var tenant = Tenant.Created(name, ownerUserId);
+            var tenant = Tenant.Create(name, ownerUserId);
 
             Assert.True(tenant.IsSuccess);
             Assert.NotEqual(Guid.Empty, tenant.Value.Id);
@@ -25,7 +25,7 @@ namespace Ecommerce.Domain.Tests.Tenants
         public void Throws_WhenTenantIsNullOrWhiteSpace(string name)
         {
             var ownerUserId = Guid.NewGuid();
-            var tenant = Tenant.Created(name, ownerUserId);
+            var tenant = Tenant.Create(name, ownerUserId);
 
             Assert.True(tenant.IsFailure);
             Assert.Equal(TenantErrors.NameRequired, tenant.Error);
@@ -35,7 +35,7 @@ namespace Ecommerce.Domain.Tests.Tenants
         public void Throws_WhenOwnerUserIdIsEmpty()
         {
             var name = "My Tenant";
-            var tenant = Tenant.Created(name, Guid.Empty);
+            var tenant = Tenant.Create(name, Guid.Empty);
 
             Assert.True(tenant.IsFailure);
             Assert.Equal(TenantErrors.OwnerRequired, tenant.Error);
@@ -46,7 +46,7 @@ namespace Ecommerce.Domain.Tests.Tenants
         {
             var name = "   My Tenant   ";
             var ownerUserId = Guid.NewGuid();
-            var tenant = Tenant.Created(name, ownerUserId);
+            var tenant = Tenant.Create(name, ownerUserId);
 
             Assert.True(tenant.IsSuccess);
             Assert.Equal("My Tenant", tenant.Value.Name);
@@ -59,7 +59,7 @@ namespace Ecommerce.Domain.Tests.Tenants
             var ownerUserId = Guid.NewGuid();
 
             var before = DateTime.UtcNow;
-            var tenant = Tenant.Created(name, ownerUserId);
+            var tenant = Tenant.Create(name, ownerUserId);
             var after = DateTime.UtcNow;
 
             Assert.True(tenant.IsSuccess);

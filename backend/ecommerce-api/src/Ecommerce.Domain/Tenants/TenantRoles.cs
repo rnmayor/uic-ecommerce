@@ -9,8 +9,8 @@ namespace Ecommerce.Domain.Tenants
         public const string Customer = "Customer";
 
         public static IReadOnlySet<string> All { get; } = new HashSet<string>
-    {
-        Owner, Admin, Manager, Staff, Customer
-    };
+        {
+            Owner, Admin, Manager, Staff, Customer
+        };
     }
 }

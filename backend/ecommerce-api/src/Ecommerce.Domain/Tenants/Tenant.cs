@@ -11,7 +11,7 @@ namespace Ecommerce.Domain.Tenants
 
         private Tenant() { } // For EF
 
-        public static Result<Tenant> Created(string name, Guid ownerUserId)
+        public static Result<Tenant> Create(string name, Guid ownerUserId)
         {
             if (string.IsNullOrWhiteSpace(name))
             {

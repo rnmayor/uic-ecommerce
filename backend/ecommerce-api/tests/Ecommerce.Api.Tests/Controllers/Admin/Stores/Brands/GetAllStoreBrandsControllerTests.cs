@@ -1,10 +1,12 @@
-using System.Net;
-using System.Net.Http.Json;
 using Ecommerce.Api.Tests.Extensions;
 using Ecommerce.Api.Tests.Fixtures;
 using Ecommerce.Application.Admin.Stores.Brands.GetAll;
+using Ecommerce.Domain.Common;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
+using System.Net.Http.Json;
 
 namespace Ecommerce.Api.Tests.Controllers.Admin.Stores.Brands
 {
@@ -52,7 +54,7 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Stores.Brands
                 .Setup(s => s.HandleAsync(
                     It.Is<GetAllBrandsQuery>(q => q.Skip == 5 && q.Limit == 10 && q.Search == "nike"),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response);
+                .ReturnsAsync(Result<StoreBrandsResponse>.Success(response));
 
             // Act
             var httpResponse = await client.GetAsync("/api/admin/store-brands?skip=5&limit=10&search=nike");
@@ -80,7 +82,7 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Stores.Brands
 
             _serviceMock
                 .Setup(s => s.HandleAsync(It.IsAny<GetAllBrandsQuery>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new StoreBrandsResponse { Brands = [], TotalCount = 0 });
+                .ReturnsAsync(Result<StoreBrandsResponse>.Success(new StoreBrandsResponse { Brands = [], TotalCount = 0 }));
 
             // Act
             var response = await client.GetAsync("/api/admin/store-brands");
@@ -93,6 +95,34 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Stores.Brands
             Assert.NotNull(body);
             Assert.Empty(body.Brands);
             Assert.Equal(0, body.TotalCount);
+
+            _serviceMock.Verify(s => s.HandleAsync(
+                It.IsAny<GetAllBrandsQuery>(),
+                It.IsAny<CancellationToken>()
+            ), Times.Once);
+        }
+
+        [Fact]
+        public async Task HandleAsync_WhenServiceFails_ReturnsProblemDetails()
+        {
+            // Arrange
+            var client = _factory.CreateAuthenticatedClient();
+            var expectedError = new Error("db.timeout", "Database timeout.", HttpStatusCode.ServiceUnavailable);
+
+            _serviceMock
+                .Setup(s => s.HandleAsync(It.IsAny<GetAllBrandsQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Result<StoreBrandsResponse>.Failure(expectedError));
+
+            // Act
+            var response = await client.GetAsync("/api/admin/store-brands");
+
+            // Assert
+            Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+
+            var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+            Assert.NotNull(problem);
+            Assert.Equal("db.timeout", problem.Type);
+            Assert.Equal("DB TIMEOUT", problem.Title);
 
             _serviceMock.Verify(s => s.HandleAsync(
                 It.IsAny<GetAllBrandsQuery>(),

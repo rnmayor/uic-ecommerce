@@ -1,9 +1,6 @@
-namespace Ecommerce.Application.Admin.Stores.Brands.GetAll;
+using Ecommerce.Domain.Common;
 
-public interface IGetAllStoreBrandsRepository
-{
-    Task<(IReadOnlyList<StoreBrandDTO> Items, int TotalCount)> GetAllAsync(GetAllBrandsQuery query, CancellationToken ct = default);
-}
+namespace Ecommerce.Application.Admin.Stores.Brands.GetAll;
 
 public sealed class GetAllStoreBrandsService : IGetAllStoreBrandsService
 {
@@ -16,20 +13,25 @@ public sealed class GetAllStoreBrandsService : IGetAllStoreBrandsService
         _repository = repository;
     }
 
-    public async Task<StoreBrandsResponse> HandleAsync(GetAllBrandsQuery query, CancellationToken ct = default)
+    public async Task<Result<StoreBrandsResponse>> HandleAsync(GetAllBrandsQuery query, CancellationToken ct = default)
     {
         var sanitizedQuery = query with
         {
             Skip = Math.Max(0, query.Skip),
-            Limit = query.Limit <= 0 ? DefaultLimit : Math.Min(query.Limit, MaxLimit)
+            Limit = query.Limit <= 0 ? DefaultLimit : Math.Min(query.Limit, MaxLimit),
+            Search = string.IsNullOrWhiteSpace(query.Search) ? null : query.Search.Trim()
         };
 
-        var (items, total) = await _repository.GetAllAsync(sanitizedQuery, ct);
+        var result = await _repository.GetAllAsync(sanitizedQuery, ct);
+        if (result.IsFailure)
+        {
+            return result.Error;
+        }
 
         return new StoreBrandsResponse
         {
-            Brands = items,
-            TotalCount = total
+            Brands = result.Value.Items,
+            TotalCount = result.Value.TotalCount
         };
     }
 }

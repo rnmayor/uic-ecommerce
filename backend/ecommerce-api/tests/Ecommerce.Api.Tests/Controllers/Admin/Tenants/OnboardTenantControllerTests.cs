@@ -1,5 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
 using Ecommerce.Api.Tests.Extensions;
 using Ecommerce.Api.Tests.Fixtures;
 using Ecommerce.Application.Admin.Tenants.Onboarding;
@@ -8,6 +6,8 @@ using Ecommerce.Domain.Tenants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
+using System.Net.Http.Json;
 
 namespace Ecommerce.Api.Tests.Controllers.Admin.Tenants
 {

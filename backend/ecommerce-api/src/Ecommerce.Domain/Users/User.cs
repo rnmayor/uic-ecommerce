@@ -8,17 +8,23 @@ namespace Ecommerce.Domain.Users
         public DateTime CreatedAt { get; private set; }
         public DateTime UpdatedAt { get; private set; }
         private User() { } // For EF
-        public User(string clerkUserId)
+        public static Result<User> Create(string clerkUserId)
         {
             if (string.IsNullOrWhiteSpace(clerkUserId))
             {
-                throw new DomainException("Clerk user id is required.");
+                return UserErrors.ClerkUserRequired;
             }
 
-            Id = Guid.NewGuid();
-            ClerkUserId = clerkUserId;
-            CreatedAt = DateTime.UtcNow;
-            UpdatedAt = CreatedAt;
+            var now = DateTime.UtcNow;
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                ClerkUserId = clerkUserId,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+
+            return user;
         }
     }
 }

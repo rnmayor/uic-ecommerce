@@ -1,3 +1,5 @@
+using Ecommerce.Domain.Common;
+
 namespace Ecommerce.Application.Admin.Stores.Brands.GetAll;
 
 public sealed record StoreBrandDTO
@@ -17,4 +19,14 @@ public sealed record GetAllBrandsQuery
     public int Skip { get; init; }
     public int Limit { get; init; }
     public string? Search { get; init; }
+}
+
+public interface IGetAllStoreBrandsService
+{
+    Task<Result<StoreBrandsResponse>> HandleAsync(GetAllBrandsQuery query, CancellationToken ct = default);
+}
+
+public interface IGetAllStoreBrandsRepository
+{
+    Task<Result<(IReadOnlyList<StoreBrandDTO> Items, int TotalCount)>> GetAllAsync(GetAllBrandsQuery query, CancellationToken ct = default);
 }

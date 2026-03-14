@@ -1,7 +1,7 @@
-using System.Security.Claims;
 using Ecommerce.Application.Common.Authorization.Requirements;
 using Ecommerce.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Ecommerce.Application.Common.Authorization.Handlers
 {

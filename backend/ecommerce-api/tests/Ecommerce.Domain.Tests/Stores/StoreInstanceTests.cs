@@ -1,4 +1,3 @@
-using Ecommerce.Domain.Common;
 using Ecommerce.Domain.Stores;
 
 namespace Ecommerce.Domain.Tests.Stores
@@ -12,13 +11,14 @@ namespace Ecommerce.Domain.Tests.Stores
             var storeBrandId = Guid.NewGuid();
             var displayName = "My Store";
 
-            var storeInstance = new StoreInstance(tenantId, storeBrandId, displayName);
+            var storeInstance = StoreInstance.Create(tenantId, storeBrandId, displayName);
 
-            Assert.NotEqual(Guid.Empty, storeInstance.Id);
-            Assert.Equal(tenantId, storeInstance.TenantId);
-            Assert.Equal(storeBrandId, storeInstance.StoreBrandId);
-            Assert.Equal(displayName, storeInstance.DisplayName);
-            Assert.Equal(storeInstance.CreatedAt, storeInstance.UpdatedAt);
+            Assert.True(storeInstance.IsSuccess);
+            Assert.NotEqual(Guid.Empty, storeInstance.Value.Id);
+            Assert.Equal(tenantId, storeInstance.Value.TenantId);
+            Assert.Equal(storeBrandId, storeInstance.Value.StoreBrandId);
+            Assert.Equal(displayName, storeInstance.Value.DisplayName);
+            Assert.Equal(storeInstance.Value.CreatedAt, storeInstance.Value.UpdatedAt);
         }
 
         [Fact]
@@ -28,10 +28,10 @@ namespace Ecommerce.Domain.Tests.Stores
             var storeBrandId = Guid.NewGuid();
             var displayName = "My Store";
 
-            var ex = Assert.Throws<DomainException>(() =>
-              new StoreInstance(tenantId, storeBrandId, displayName));
+            var storeInstance = StoreInstance.Create(tenantId, storeBrandId, displayName);
 
-            Assert.Contains("TenantId is required", ex.Message);
+            Assert.True(storeInstance.IsFailure);
+            Assert.Equal(StoreInstanceErrors.TenantRequired, storeInstance.Error);
         }
 
         [Fact]
@@ -41,11 +41,10 @@ namespace Ecommerce.Domain.Tests.Stores
             var storeBrandId = Guid.Empty;
             var displayName = "My Store";
 
-            var ex = Assert.Throws<DomainException>(() =>
-              new StoreInstance(tenantId, storeBrandId, displayName));
+            var storeInstance = StoreInstance.Create(tenantId, storeBrandId, displayName);
 
-            Assert.Contains("StoreBrandId is required", ex.Message);
-
+            Assert.True(storeInstance.IsFailure);
+            Assert.Equal(StoreInstanceErrors.StoreBrandRequired, storeInstance.Error);
         }
 
         [Theory]
@@ -56,10 +55,10 @@ namespace Ecommerce.Domain.Tests.Stores
             var tenantId = Guid.NewGuid();
             var storeBrandId = Guid.NewGuid();
 
-            var ex = Assert.Throws<DomainException>(() =>
-                new StoreInstance(tenantId, storeBrandId, displayName));
+            var storeInstance = StoreInstance.Create(tenantId, storeBrandId, displayName);
 
-            Assert.Contains("Store display name is required", ex.Message);
+            Assert.True(storeInstance.IsFailure);
+            Assert.Equal(StoreInstanceErrors.NameRequired, storeInstance.Error);
         }
 
         [Fact]
@@ -69,9 +68,10 @@ namespace Ecommerce.Domain.Tests.Stores
             var storeBrandId = Guid.NewGuid();
             var displayName = "  My Store  ";
 
-            var storeInstance = new StoreInstance(tenantId, storeBrandId, displayName);
+            var storeInstance = StoreInstance.Create(tenantId, storeBrandId, displayName);
 
-            Assert.Equal("My Store", storeInstance.DisplayName);
+            Assert.True(storeInstance.IsSuccess);
+            Assert.Equal("My Store", storeInstance.Value.DisplayName);
         }
 
         [Fact]
@@ -82,10 +82,11 @@ namespace Ecommerce.Domain.Tests.Stores
             var displayName = "My Store";
 
             var before = DateTime.UtcNow;
-            var storeInstance = new StoreInstance(tenantId, storeBrandId, displayName);
+            var storeInstance = StoreInstance.Create(tenantId, storeBrandId, displayName);
             var after = DateTime.UtcNow;
 
-            Assert.InRange(storeInstance.CreatedAt, before, after);
+            Assert.True(storeInstance.IsSuccess);
+            Assert.InRange(storeInstance.Value.CreatedAt, before, after);
         }
     }
 }

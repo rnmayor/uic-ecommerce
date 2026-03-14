@@ -1,4 +1,3 @@
-using Ecommerce.Domain.Common;
 using Ecommerce.Domain.Users;
 
 namespace Ecommerce.Domain.Tests.Users
@@ -9,11 +8,12 @@ namespace Ecommerce.Domain.Tests.Users
         public void CreatesUser_WhenValid()
         {
             var clerkUserId = "123";
-            var user = new User(clerkUserId);
+            var user = User.Create(clerkUserId);
 
-            Assert.NotEqual(Guid.Empty, user.Id);
-            Assert.Equal(clerkUserId, user.ClerkUserId);
-            Assert.Equal(user.CreatedAt, user.UpdatedAt);
+            Assert.True(user.IsSuccess);
+            Assert.NotEqual(Guid.Empty, user.Value.Id);
+            Assert.Equal(clerkUserId, user.Value.ClerkUserId);
+            Assert.Equal(user.Value.CreatedAt, user.Value.UpdatedAt);
         }
 
         [Theory]
@@ -21,10 +21,10 @@ namespace Ecommerce.Domain.Tests.Users
         [InlineData(" ")]
         public void Throws_WhenClerkUserIdIsNullOrWhitespace(string clerkUserId)
         {
-            var ex = Assert.Throws<DomainException>(() =>
-                new User(clerkUserId));
+            var user = User.Create(clerkUserId);
 
-            Assert.Contains("Clerk user id is required", ex.Message);
+            Assert.True(user.IsFailure);
+            Assert.Equal(UserErrors.ClerkUserRequired, user.Error);
         }
 
         [Fact]
@@ -33,10 +33,11 @@ namespace Ecommerce.Domain.Tests.Users
             var clerkUserId = "123";
 
             var before = DateTime.UtcNow;
-            var user = new User(clerkUserId);
+            var user = User.Create(clerkUserId);
             var after = DateTime.UtcNow;
 
-            Assert.InRange(user.CreatedAt, before, after);
+            Assert.True(user.IsSuccess);
+            Assert.InRange(user.Value.CreatedAt, before, after);
         }
     }
 }

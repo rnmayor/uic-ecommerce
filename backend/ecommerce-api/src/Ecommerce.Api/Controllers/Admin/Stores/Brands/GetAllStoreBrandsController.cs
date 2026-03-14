@@ -5,11 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Ecommerce.Api.Controllers.Admin.Stores.Brands
 {
-    [ApiController]
     [Route("/api/admin/store-brands")]
     [Authorize]
     [SkipTenantResolution]
-    public sealed class GetAllStoreBrandsController : ControllerBase
+    public sealed class GetAllStoreBrandsController : ApiController
     {
         private readonly IGetAllStoreBrandsService _service;
         public GetAllStoreBrandsController(IGetAllStoreBrandsService service)
@@ -22,8 +21,8 @@ namespace Ecommerce.Api.Controllers.Admin.Stores.Brands
             [FromQuery] GetAllBrandsQuery query,
             CancellationToken ct = default)
         {
-            var response = await _service.HandleAsync(query, ct);
-            return Ok(response);
+            var result = await _service.HandleAsync(query, ct);
+            return HandleResult(result, brands => Ok(brands));
         }
 
     }
