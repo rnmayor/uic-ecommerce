@@ -1,50 +1,54 @@
-using Ecommerce.Domain.Common;
 using Ecommerce.Domain.Stores;
 
-namespace Ecommerce.Domain.Tests.Stores;
-
-public sealed class StoreBrandTests
+namespace Ecommerce.Domain.Tests.Stores
 {
-    [Fact]
-    public void CreateStoreBrand_WhenValid()
+    public sealed class StoreBrandTests
     {
-        var name = "My Brand";
-        var storeBrand = new StoreBrand(name);
+        [Fact]
+        public void CreateStoreBrand_WhenValid()
+        {
+            var name = "My Brand";
+            var storeBrand = StoreBrand.Create(name);
 
-        Assert.NotEqual(Guid.Empty, storeBrand.Id);
-        Assert.Equal(name, storeBrand.Name);
-        Assert.Equal(StoreBrand.Normalize(name), storeBrand.NormalizedName);
-    }
+            Assert.True(storeBrand.IsSuccess);
+            Assert.NotEqual(Guid.Empty, storeBrand.Value.Id);
+            Assert.Equal(name, storeBrand.Value.Name);
+            Assert.Equal(StoreBrand.Normalize(name), storeBrand.Value.NormalizedName);
+            Assert.Equal(storeBrand.Value.CreatedAt, storeBrand.Value.UpdatedAt);
+        }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData(" ")]
-    public void Throws_WhenNameIsNullOrWhitespace(string name)
-    {
-        var ex = Assert.Throws<DomainException>(() =>
-            new StoreBrand(name));
+        [Theory]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void ReturnsFailure_WhenNameIsNullOrWhitespace(string name)
+        {
+            var storeBrand = StoreBrand.Create(name);
 
-        Assert.Contains("Store brand name is required", ex.Message);
-    }
+            Assert.True(storeBrand.IsFailure);
+            Assert.Equal(StoreBrandErrors.NameRequired, storeBrand.Error);
+        }
 
-    [Fact]
-    public void TrimsName_OnCreation()
-    {
-        var name = "My Brand";
-        var storeBrand = new StoreBrand(name);
+        [Fact]
+        public void TrimsName_OnCreation()
+        {
+            var name = "   My Brand   ";
+            var storeBrand = StoreBrand.Create(name);
 
-        Assert.Equal("My Brand", storeBrand.Name);
-    }
+            Assert.True(storeBrand.IsSuccess);
+            Assert.Equal("My Brand", storeBrand.Value.Name);
+        }
 
-    [Fact]
-    public void SetsCreatedAtToUtcNow()
-    {
-        var name = "My Brand";
+        [Fact]
+        public void SetsCreatedAtToUtcNow()
+        {
+            var name = "My Brand";
 
-        var before = DateTime.UtcNow;
-        var storeBrand = new StoreBrand(name);
-        var after = DateTime.UtcNow;
+            var before = DateTime.UtcNow;
+            var storeBrand = StoreBrand.Create(name);
+            var after = DateTime.UtcNow;
 
-        Assert.InRange(storeBrand.CreatedAt, before, after);
+            Assert.True(storeBrand.IsSuccess);
+            Assert.InRange(storeBrand.Value.CreatedAt, before, after);
+        }
     }
 }

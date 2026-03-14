@@ -1,3 +1,4 @@
+using Ecommerce.Api.Errors;
 using Ecommerce.Api.Extensions;
 using Ecommerce.Application;
 using Ecommerce.Application.Common.Authorization.Policies;
@@ -31,21 +32,18 @@ JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 // Authentication
 builder.Services.AddAuthentication(builder.Configuration);
 
+// Infrastructure (DB, repositories, authorization helpers)
+builder.Services.AddInfrastructure();
+
 // Identity & Tenancy context
 builder.Services.AddIdentity();
 builder.Services.AddTenancy();
-
-// Infrastructure (DB, repositories, authorization helpers)
-builder.Services.AddInfrastructure();
 
 // Authorization
 builder.Services.AddAuthorization(options =>
 {
     AuthorizationPolicies.AddPolicies(options);
 });
-
-// Mapping
-builder.Services.AddAutoMapper();
 
 // Application services (business logic)
 builder.Services.AddApplicationServices();
@@ -54,9 +52,13 @@ builder.Services.AddApplicationServices();
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<EcommerceDbContext>();
 
-// API surface
+// API controllers and Swagger documentation
 builder.Services.AddApiControllers();
 builder.Services.AddSwaggerDocumentation();
+
+// Global error handling - catches unhandled exceptions and converts them to standardized API error responses
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 // Finalize the DI container, locks configuration, and builds the middleware pipeline host
 var app = builder.Build();
@@ -64,26 +66,23 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    // Exposes Swagger only in Development
     app.UseSwagger();
-    // Provides interactive UI to browse and test endpoints
     app.UseSwaggerUI();
 }
 
-// Transport / protocol
+app.UseExceptionHandler();
+
 app.UseHttpsRedirection();
 
 app.UseCorrelationId();
-app.UseGlobalExceptionHandling();
 
 app.UseAuthentication();
 app.UseTenantResolution();
 app.UseAuthorization();
+
 app.UseLogEnrichment();
 
-// Endpoints / API controller routes
 app.MapHealthChecks("/health");
 app.MapControllers();
 
-// Starts the web server and process incoming HTTP requests
 app.Run();

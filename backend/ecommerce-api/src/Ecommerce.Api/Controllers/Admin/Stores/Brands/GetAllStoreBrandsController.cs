@@ -3,27 +3,28 @@ using Ecommerce.Application.Common.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Ecommerce.Api.Controllers.Admin.Stores.Brands;
-
-[ApiController]
-[Route("/api/admin/store-brands")]
-[Authorize]
-[SkipTenantResolution]
-public sealed class GetAllStoreBrandsController : ControllerBase
+namespace Ecommerce.Api.Controllers.Admin.Stores.Brands
 {
-    private readonly IGetAllStoreBrandsService _service;
-    public GetAllStoreBrandsController(IGetAllStoreBrandsService service)
+    [ApiController]
+    [Route("/api/admin/store-brands")]
+    [Authorize]
+    [SkipTenantResolution]
+    public sealed class GetAllStoreBrandsController : ControllerBase
     {
-        _service = service;
-    }
+        private readonly IGetAllStoreBrandsService _service;
+        public GetAllStoreBrandsController(IGetAllStoreBrandsService service)
+        {
+            _service = service;
+        }
 
-    [HttpGet]
-    public async Task<ActionResult<StoreBrandsResponse>> HandleAsync(
-        [FromQuery] GetAllBrandsQuery query,
-        CancellationToken ct = default)
-    {
-        var response = await _service.HandleAsync(query, ct);
-        return Ok(response);
-    }
+        [HttpGet]
+        public async Task<ActionResult<StoreBrandsResponse>> HandleAsync(
+            [FromQuery] GetAllBrandsQuery query,
+            CancellationToken ct = default)
+        {
+            var response = await _service.HandleAsync(query, ct);
+            return Ok(response);
+        }
 
+    }
 }

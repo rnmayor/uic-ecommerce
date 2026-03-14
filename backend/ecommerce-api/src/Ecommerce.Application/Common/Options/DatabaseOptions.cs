@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Ecommerce.Application.Common.Options;
-
-public sealed class DatabaseOptions
+namespace Ecommerce.Application.Common.Options
 {
-    [Required]
-    public string ConnectionString { get; set; } = default!;
+    public sealed class DatabaseOptions
+    {
+        [Required]
+        public string ConnectionString { get; set; } = default!;
+    }
 }

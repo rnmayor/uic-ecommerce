@@ -1,11 +1,12 @@
-namespace Ecommerce.Application.Common.Interfaces;
-
-public interface ITenantMemberAuthorizationService
+namespace Ecommerce.Application.Common.Interfaces
 {
-    Task<bool> IsTenantMemberAsync(
-        Guid tenantId,
-        Guid userId,
-        string[] allowedRoles,
-        CancellationToken cancellationToken = default
-    );
+    public interface ITenantMemberAuthorizationService
+    {
+        Task<bool> IsTenantMemberAsync(
+            Guid tenantId,
+            Guid userId,
+            string[] allowedRoles,
+            CancellationToken cancellationToken = default
+        );
+    }
 }

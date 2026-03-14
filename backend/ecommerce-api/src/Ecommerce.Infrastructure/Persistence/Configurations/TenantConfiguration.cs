@@ -2,20 +2,21 @@ using Ecommerce.Domain.Tenants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Ecommerce.Infrastructure.Persistence.Configurations;
-
-internal sealed class TenantConfiguration : IEntityTypeConfiguration<Tenant>
+namespace Ecommerce.Infrastructure.Persistence.Configurations
 {
-    public void Configure(EntityTypeBuilder<Tenant> builder)
+    internal sealed class TenantConfiguration : IEntityTypeConfiguration<Tenant>
     {
-        builder.ToTable("tenants");
-        builder.HasKey(t => t.Id);
+        public void Configure(EntityTypeBuilder<Tenant> builder)
+        {
+            builder.ToTable("tenants");
+            builder.HasKey(t => t.Id);
 
-        builder.Property(t => t.Name).IsRequired().HasMaxLength(200);
-        builder.Property(t => t.OwnerUserId).IsRequired();
-        builder.Property(t => t.CreatedAt).IsRequired();
-        builder.Property(t => t.UpdatedAt).IsRequired();
+            builder.Property(t => t.Name).IsRequired().HasMaxLength(200);
+            builder.Property(t => t.OwnerUserId).IsRequired();
+            builder.Property(t => t.CreatedAt).IsRequired();
+            builder.Property(t => t.UpdatedAt).IsRequired();
 
-        builder.HasIndex(t => t.OwnerUserId);
+            builder.HasIndex(t => t.OwnerUserId);
+        }
     }
 }

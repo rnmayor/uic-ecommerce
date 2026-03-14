@@ -1,12 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Ecommerce.Api.Configurations;
-
-public sealed class ClerkAuthOptions
+namespace Ecommerce.Api.Configurations
 {
-    public const string SectionName = "Authentication:Clerk";
+    public sealed class ClerkAuthOptions
+    {
+        public const string SectionName = "Authentication";
 
-    [Required]
-    public string Issuer { get; init; } = default!;
-    public string? Audience { get; init; }
+        [Required]
+        public string Issuer { get; init; } = default!;
+        public string? Audience { get; init; }
+    }
 }

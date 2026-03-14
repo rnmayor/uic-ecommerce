@@ -3,19 +3,20 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Ecommerce.Api.Tests.Fixtures;
-
-public sealed class ApiWebApplicationFactory : WebApplicationFactory<Program>
+namespace Ecommerce.Api.Tests.Fixtures
 {
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    public sealed class ApiWebApplicationFactory : WebApplicationFactory<Program>
     {
-        builder.ConfigureServices(services =>
+        protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            services
-                .AddAuthentication("Test")
-                .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
-                    "Test", _ => { }
-                );
-        });
+            builder.ConfigureServices(services =>
+            {
+                services
+                    .AddAuthentication("Test")
+                    .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
+                        "Test", _ => { }
+                    );
+            });
+        }
     }
 }

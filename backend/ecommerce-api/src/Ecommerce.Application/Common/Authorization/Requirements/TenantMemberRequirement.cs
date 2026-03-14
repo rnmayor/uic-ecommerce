@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 
-namespace Ecommerce.Application.Common.Authorization.Requirements;
-
-public sealed class TenantMemberRequirement : IAuthorizationRequirement
+namespace Ecommerce.Application.Common.Authorization.Requirements
 {
-    public string[] AllowedRoles { get; }
-    public TenantMemberRequirement(params string[] allowedRoles)
+    public sealed class TenantMemberRequirement : IAuthorizationRequirement
     {
-        AllowedRoles = allowedRoles;
+        public string[] AllowedRoles { get; }
+        public TenantMemberRequirement(params string[] allowedRoles)
+        {
+            AllowedRoles = allowedRoles;
+        }
     }
 }

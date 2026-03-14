@@ -1,8 +1,9 @@
 using Ecommerce.Domain.Tenants;
 
-namespace Ecommerce.Application.Common.Persistence;
-
-public interface ITenantRepository
+namespace Ecommerce.Application.Common.Persistence
 {
-    Task CreateAsync(Tenant tenant, TenantUser tenantUser, CancellationToken ct = default);
+    public interface ITenantRepository
+    {
+        Task CreateAsync(Tenant tenant, TenantUser tenantUser, CancellationToken ct = default);
+    }
 }

@@ -1,6 +1,7 @@
-namespace Ecommerce.Domain.Common;
-
-public class DomainException : Exception
+namespace Ecommerce.Domain.Common
 {
-    public DomainException(string message) : base(message) { }
+    public class DomainException : Exception
+    {
+        public DomainException(string message) : base(message) { }
+    }
 }

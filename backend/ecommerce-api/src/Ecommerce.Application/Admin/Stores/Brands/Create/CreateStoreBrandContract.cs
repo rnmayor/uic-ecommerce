@@ -1,11 +1,19 @@
-namespace Ecommerce.Application.Admin.Stores.Brands.Create;
+using Ecommerce.Domain.Common;
 
-public sealed record CreateStoreBrandRequest
+namespace Ecommerce.Application.Admin.Stores.Brands.Create
 {
-    public string StoreBrandName { get; init; } = default!;
-}
+    public sealed record CreateStoreBrandRequest
+    {
+        public string StoreBrandName { get; init; } = default!;
+    }
 
-public sealed record CreateStoreBrandResponse
-{
-    public Guid StoreBrandId { get; init; }
+    public sealed record CreateStoreBrandResponse
+    {
+        public Guid StoreBrandId { get; init; }
+    }
+
+    public interface ICreateStoreBrandService
+    {
+        Task<Result<CreateStoreBrandResponse>> ExecuteAsync(CreateStoreBrandRequest request, CancellationToken ct = default);
+    }
 }
