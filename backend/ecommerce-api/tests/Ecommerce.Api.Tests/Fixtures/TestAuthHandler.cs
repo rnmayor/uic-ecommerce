@@ -24,9 +24,9 @@ namespace Ecommerce.Api.Tests.Fixtures
 
             var claims = new[]
             {
-            new Claim("user_id", Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.Name, "test-user")
-        };
+                new Claim("user_id", Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Name, "test-user")
+            };
 
             var identity = new ClaimsIdentity(claims, "Test");
             var principal = new ClaimsPrincipal(identity);

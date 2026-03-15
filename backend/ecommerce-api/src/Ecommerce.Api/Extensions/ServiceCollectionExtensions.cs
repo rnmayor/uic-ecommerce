@@ -20,14 +20,7 @@ namespace Ecommerce.Api.Extensions
         {
             services
                 .AddOptions<DatabaseOptions>()
-                .Configure(options =>
-                {
-                    options.ConnectionString =
-                        configuration.GetConnectionString("DatabaseConnection")
-                        ?? throw new InvalidOperationException(
-                            "Database connection string is missing."
-                        );
-                })
+                .Bind(configuration.GetSection(DatabaseOptions.SectionName))
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
 
