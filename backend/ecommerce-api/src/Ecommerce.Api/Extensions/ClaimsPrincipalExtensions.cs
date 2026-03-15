@@ -1,17 +1,18 @@
 using System.Security.Claims;
 
-namespace Ecommerce.Api.Extensions;
-
-public static class ClaimsPrincipalExtensions
+namespace Ecommerce.Api.Extensions
 {
-    public static Guid GetUserId(this ClaimsPrincipal user)
+    public static class ClaimsPrincipalExtensions
     {
-        var id = user.FindFirst("user_id")?.Value;
-        if (string.IsNullOrEmpty(id))
+        public static Guid GetUserId(this ClaimsPrincipal user)
         {
-            throw new UnauthorizedAccessException();
-        }
+            var id = user.FindFirst("user_id")?.Value;
+            if (string.IsNullOrEmpty(id))
+            {
+                throw new UnauthorizedAccessException();
+            }
 
-        return Guid.Parse(id);
+            return Guid.Parse(id);
+        }
     }
 }

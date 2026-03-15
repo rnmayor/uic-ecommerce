@@ -1,11 +1,12 @@
 using FluentValidation;
 
-namespace Ecommerce.Application.Admin.Tenants.Onboarding;
-
-public sealed class OnboardingRequestValidator : AbstractValidator<OnboardingRequest>
+namespace Ecommerce.Application.Admin.Tenants.Onboarding
 {
-    public OnboardingRequestValidator()
+    public sealed class OnboardingRequestValidator : AbstractValidator<OnboardingRequest>
     {
-        RuleFor(x => x.TenantName).NotEmpty().MaximumLength(200);
+        public OnboardingRequestValidator()
+        {
+            RuleFor(x => x.TenantName).NotEmpty().MaximumLength(200);
+        }
     }
 }

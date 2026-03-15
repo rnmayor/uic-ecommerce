@@ -1,6 +1,7 @@
-namespace Ecommerce.Application.Common.Interfaces;
-
-public interface IUserResolver
+namespace Ecommerce.Application.Common.Interfaces
 {
-    Task<Guid> ResolveUserIdAsync(string clerkUserId);
+    public interface IUserResolver
+    {
+        Task<Guid> ResolveUserIdAsync(string clerkUserId);
+    }
 }

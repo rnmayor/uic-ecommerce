@@ -1,11 +1,12 @@
 using FluentValidation;
 
-namespace Ecommerce.Application.Admin.Stores.Brands.Create;
-
-public sealed class CreateStoreBrandRequestValidator : AbstractValidator<CreateStoreBrandRequest>
+namespace Ecommerce.Application.Admin.Stores.Brands.Create
 {
-    public CreateStoreBrandRequestValidator()
+    public sealed class CreateStoreBrandRequestValidator : AbstractValidator<CreateStoreBrandRequest>
     {
-        RuleFor(x => x.StoreBrandName).NotEmpty().MaximumLength(200);
+        public CreateStoreBrandRequestValidator()
+        {
+            RuleFor(x => x.StoreBrandName).NotEmpty().MaximumLength(200);
+        }
     }
 }

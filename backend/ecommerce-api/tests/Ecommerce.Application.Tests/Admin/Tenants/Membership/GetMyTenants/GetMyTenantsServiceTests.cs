@@ -1,113 +1,146 @@
 using AutoFixture.Xunit2;
 using Ecommerce.Application.Admin.Tenants.Membership.GetMyTenants;
+using Ecommerce.Domain.Common;
 using Ecommerce.Domain.Tenants;
 using Ecommerce.TestUtils.Attributes;
+using System.Net;
 
-namespace Ecommerce.Application.Tests.Admin.Tenants.Membership.GetMyTenants;
-
-public sealed class GetMyTenantsServiceTests
+namespace Ecommerce.Application.Tests.Admin.Tenants.Membership.GetMyTenants
 {
-    [Theory, AutoMoqData]
-    public async Task HandleAsync_ReturnsTenantList_WhenUserHasMemberships(
-        Guid userId,
-        [Frozen] Mock<IGetMyTenantsRepository> repositoryMock,
-        GetMyTenantsService service)
+    public sealed class GetMyTenantsServiceTests
     {
-        // Arrange
-        var tenants = new List<MyTenantDTO>
+        [Theory, AutoMoqData]
+        public async Task HandleAsync_ReturnsTenantList_WhenUserHasMemberships(
+            Guid userId,
+            [Frozen] Mock<IGetMyTenantsRepository> repositoryMock,
+            GetMyTenantsService service)
+        {
+            // Arrange
+            var tenants = new List<MyTenantDTO>
         {
             new() { TenantId = Guid.NewGuid(), Name = "Tenant A", IsOwner = true, Role = TenantRoles.Owner },
             new() { TenantId = Guid.NewGuid(), Name = "Tenant B", IsOwner = false, Role = TenantRoles.Admin }
         };
 
-        repositoryMock
-            .Setup(r => r.GetTenantsForUserAsync(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(tenants);
+            repositoryMock
+                .Setup(r => r.GetTenantsForUserAsync(userId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(tenants);
 
-        // Act
-        var response = await service.HandleAsync(userId, CancellationToken.None);
+            // Act
+            var result = await service.HandleAsync(userId, CancellationToken.None);
 
-        // Assert
-        Assert.NotNull(response);
-        Assert.Equal(2, response.Tenants.Count);
-        Assert.True(response.HasTenant);
-        Assert.Same(tenants, response.Tenants);
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Value);
+            Assert.Equal(2, result.Value.Tenants.Count);
+            Assert.True(result.Value.HasTenant);
+            Assert.Equal(tenants, result.Value.Tenants);
 
-        repositoryMock.Verify(r => r.GetTenantsForUserAsync(
-            userId, It.IsAny<CancellationToken>()
-        ), Times.Once);
-    }
+            repositoryMock.Verify(r => r.GetTenantsForUserAsync(
+                userId, It.IsAny<CancellationToken>()
+            ), Times.Once);
+        }
 
-    [Theory, AutoMoqData]
-    public async Task HandleAsync_ReturnsEmptyList_WhenUserHasNoTenants(
-        Guid userId,
-        [Frozen] Mock<IGetMyTenantsRepository> repositoryMock,
-        GetMyTenantsService service)
-    {
-        // Arrange
-        repositoryMock
-            .Setup(r => r.GetTenantsForUserAsync(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<MyTenantDTO>());
+        [Theory, AutoMoqData]
+        public async Task HandleAsync_ReturnsEmptyList_WhenUserHasNoTenants(
+            Guid userId,
+            [Frozen] Mock<IGetMyTenantsRepository> repositoryMock,
+            GetMyTenantsService service)
+        {
+            // Arrange
+            repositoryMock
+                .Setup(r => r.GetTenantsForUserAsync(userId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<MyTenantDTO>());
 
-        // Act
-        var response = await service.HandleAsync(userId, CancellationToken.None);
+            // Act
+            var result = await service.HandleAsync(userId, CancellationToken.None);
 
-        // Assert
-        Assert.NotNull(response);
-        Assert.Empty(response.Tenants);
-        Assert.False(response.HasTenant);
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Value);
+            Assert.Empty(result.Value.Tenants);
+            Assert.False(result.Value.HasTenant);
 
-        repositoryMock.Verify(r => r.GetTenantsForUserAsync(
-            userId, It.IsAny<CancellationToken>()
-        ), Times.Once);
-    }
+            repositoryMock.Verify(r => r.GetTenantsForUserAsync(
+                userId, It.IsAny<CancellationToken>()
+            ), Times.Once);
+        }
 
-    [Theory]
-    [InlineAutoMoqData(TenantRoles.Admin)]
-    [InlineAutoMoqData(TenantRoles.Manager)]
-    [InlineAutoMoqData(TenantRoles.Staff)]
-    [InlineAutoMoqData(TenantRoles.Customer)]
-    public async Task HandleAsync_IsOwnerIsFalse_ForNonOwnerRoles(
-        string role,
-        Guid userId,
-        [Frozen] Mock<IGetMyTenantsRepository> repositoryMock,
-        GetMyTenantsService service)
-    {
-        // Arrange
-        var tenants = new List<MyTenantDTO>
+        [Theory]
+        [InlineAutoMoqData(TenantRoles.Admin)]
+        [InlineAutoMoqData(TenantRoles.Manager)]
+        [InlineAutoMoqData(TenantRoles.Staff)]
+        [InlineAutoMoqData(TenantRoles.Customer)]
+        public async Task HandleAsync_IsOwnerIsFalse_ForNonOwnerRoles(
+            string role,
+            Guid userId,
+            [Frozen] Mock<IGetMyTenantsRepository> repositoryMock,
+            GetMyTenantsService service)
+        {
+            // Arrange
+            var tenants = new List<MyTenantDTO>
         {
             new() { TenantId = Guid.NewGuid(), Name = "Tenant", Role = role, IsOwner = false }
         };
 
-        repositoryMock
-            .Setup(r => r.GetTenantsForUserAsync(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(tenants);
+            repositoryMock
+                .Setup(r => r.GetTenantsForUserAsync(userId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(tenants);
 
-        // Act
-        var response = await service.HandleAsync(userId, CancellationToken.None);
+            // Act
+            var result = await service.HandleAsync(userId, CancellationToken.None);
 
-        // Assert
-        Assert.False(response.Tenants.Single().IsOwner);
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.False(result.Value.Tenants.Single().IsOwner);
 
-        repositoryMock.Verify(r => r.GetTenantsForUserAsync(
-            userId, It.IsAny<CancellationToken>()
-        ), Times.Once);
-    }
+            repositoryMock.Verify(r => r.GetTenantsForUserAsync(
+                userId, It.IsAny<CancellationToken>()
+            ), Times.Once);
+        }
 
-    [Theory, AutoMoqData]
-    public async Task HandleAsync_PassesCancellationToken(
-        Guid userId,
-        [Frozen] Mock<IGetMyTenantsRepository> repositoryMock,
-        GetMyTenantsService service)
-    {
-        using var cts = new CancellationTokenSource();
+        [Theory, AutoMoqData]
+        public async Task HandleAsync_ReturnsFailure_WhenRepositoryFails(
+            Guid userId,
+            [Frozen] Mock<IGetMyTenantsRepository> repositoryMock,
+            GetMyTenantsService service
+        )
+        {
+            // Arrange
+            var dbError = new Error("db_error", "Failed to fetch membership", HttpStatusCode.InternalServerError);
+            repositoryMock
+                .Setup(r => r.GetTenantsForUserAsync(userId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(dbError);
 
-        repositoryMock
-            .Setup(r => r.GetTenantsForUserAsync(userId, cts.Token))
-            .ReturnsAsync(new List<MyTenantDTO>());
+            // Act
+            var result = await service.HandleAsync(userId, CancellationToken.None);
 
-        await service.HandleAsync(userId, cts.Token);
+            // Assert
+            Assert.True(result.IsFailure);
+            Assert.Equal(dbError, result.Error);
 
-        repositoryMock.Verify(r => r.GetTenantsForUserAsync(It.IsAny<Guid>(), cts.Token), Times.Once);
+            repositoryMock.Verify(r => r.GetTenantsForUserAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()
+            ), Times.Once);
+        }
+
+        [Theory, AutoMoqData]
+        public async Task HandleAsync_PassesCancellationToken(
+            Guid userId,
+            [Frozen] Mock<IGetMyTenantsRepository> repositoryMock,
+            GetMyTenantsService service)
+        {
+            using var cts = new CancellationTokenSource();
+
+            repositoryMock
+                .Setup(r => r.GetTenantsForUserAsync(userId, cts.Token))
+                .ReturnsAsync(new List<MyTenantDTO>());
+
+            var result = await service.HandleAsync(userId, cts.Token);
+
+            Assert.True(result.IsSuccess);
+            repositoryMock.Verify(r => r.GetTenantsForUserAsync(It.IsAny<Guid>(), cts.Token), Times.Once);
+        }
     }
 }

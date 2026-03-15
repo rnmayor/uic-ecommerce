@@ -51,7 +51,7 @@ next-env.d.ts
 .turbo
 .turbo/*
 
-# .Net / C#
+# .Net / C# / Visual Studio Connected Services
 **/bin/
 **/obj/
 **/*.user
@@ -61,6 +61,8 @@ next-env.d.ts
 **/*.dbmdl
 **/*.jfm
 **/*.rsuser
+**/Properties/serviceDependencies.local.json
+**/Properties/serviceDependencies.local.json.user
 
 # EF Core
 **/Migrations/*.Designer.cs

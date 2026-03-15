@@ -1,15 +1,16 @@
 using Ecommerce.Application.Common.Interfaces;
 
-namespace Ecommerce.Infrastructure.Tenancy;
-
-public sealed class TenantContext : ITenantContext
+namespace Ecommerce.Infrastructure.Tenancy
 {
-    public Guid TenantId { get; private set; }
-
-    public bool IsResolved => TenantId != Guid.Empty;
-
-    public void SetTenant(Guid tenantId)
+    public sealed class TenantContext : ITenantContext
     {
-        TenantId = tenantId;
+        public Guid TenantId { get; private set; }
+
+        public bool IsResolved => TenantId != Guid.Empty;
+
+        public void SetTenant(Guid tenantId)
+        {
+            TenantId = tenantId;
+        }
     }
 }

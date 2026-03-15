@@ -1,6 +1,16 @@
-@Ecommerce.Api_HostAddress = http://localhost:5022
+@Api_HostAddress = https://localhost:7212
+@ClerkToken = eyJhbGciOiJSUzI1NiIsImNhdCI6ImNsX0I3ZDRQRDExMUFBQSIsImtpZCI6Imluc18zM3VVS1FGMkxqUXg1cjBVUVlONzh3UnZ2alQiLCJ0eXAiOiJKV1QifQ.eyJhenAiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAiLCJleHAiOjE3NzM0MTMwOTAsImZ2YSI6WzQyODMsLTFdLCJpYXQiOjE3NzM0MTMwMzAsImlzcyI6Imh0dHBzOi8vcmVsZXZhbnQtYm94ZXItNDguY2xlcmsuYWNjb3VudHMuZGV2IiwibmJmIjoxNzczNDEzMDIwLCJzaWQiOiJzZXNzXzNBbDhySUF4aWV2Y1JiZktVZTAyYmxkc01rNiIsInN0cyI6ImFjdGl2ZSIsInN1YiI6InVzZXJfMzh5TElmRTNxQTBqNzkyMFc5b0d5N0cya0IxIiwidiI6Mn0.EqeC92f0DVLQH7fXfyN1SJZHwXmqwlQwrySY9bNV4eNIoZ5uLkr3Racv-mxL8u2TncfXh3vFVusgB-zYs5Ts-9mhesD9wbb0vY_JJJJ-peslWXBRPPE24JRwON8OzFu3F3nbDgB4l5PK1NjQn77m1BRKUFsRwLzZKFtU4Yl34VOgsNbXypMDpHbkr3jvb2wvH_0zKXSJNj2VYX1Y7fVytOTqC3WS0A1Zbuvfl_fFLQzdss_Jz5yynmNcGVLS3xD0Dt4mQLoJ84n4vJ3mrP1iJ3kGQoC1qlYTkfbIw2S13-uff3XKd5ztONCshsVEZ3WHVVWNma1HUasn2u2fsfD6lw
 
-GET {{Ecommerce.Api_HostAddress}}/weatherforecast/
+### Get store brands
+GET {{Api_HostAddress}}/api/admin/store-brands
+Authorization:  Bearer {{ClerkToken}}
 Accept: application/json
 
-###
+### Create store brand
+POST {{Api_HostAddress}}/api/admin/store-brands
+Authorization:  Bearer {{ClerkToken}}
+Accept: application/json
+Content-Type: application/json
+{
+  "StoreBrandName": "test4"
+}

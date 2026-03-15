@@ -1,66 +1,69 @@
-using Ecommerce.Domain.Common;
 using Ecommerce.Domain.Tenants;
 
-namespace Ecommerce.Domain.Tests.Tenants;
-
-public sealed class TenantTests
+namespace Ecommerce.Domain.Tests.Tenants
 {
-    [Fact]
-    public void CreatesTenant_WhenValid()
+    public sealed class TenantTests
     {
-        var name = "My Tenant";
-        var ownerUserId = Guid.NewGuid();
+        [Fact]
+        public void CreatesTenant_WhenValid()
+        {
+            var name = "My Tenant";
+            var ownerUserId = Guid.NewGuid();
 
-        var tenant = new Tenant(name, ownerUserId);
+            var tenant = Tenant.Create(name, ownerUserId);
 
-        Assert.NotEqual(Guid.Empty, tenant.Id);
-        Assert.Equal(name, tenant.Name);
-        Assert.Equal(ownerUserId, tenant.OwnerUserId);
-        Assert.Equal(tenant.CreatedAt, tenant.UpdatedAt);
-    }
+            Assert.True(tenant.IsSuccess);
+            Assert.NotEqual(Guid.Empty, tenant.Value.Id);
+            Assert.Equal(name, tenant.Value.Name);
+            Assert.Equal(ownerUserId, tenant.Value.OwnerUserId);
+            Assert.Equal(tenant.Value.CreatedAt, tenant.Value.UpdatedAt);
+        }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData(" ")]
-    public void Throws_WhenTenantIsNullOrWhiteSpace(string name)
-    {
-        var ownerUserId = Guid.NewGuid();
-        var ex = Assert.Throws<DomainException>(() =>
-            new Tenant(name, ownerUserId));
+        [Theory]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void Throws_WhenTenantIsNullOrWhiteSpace(string name)
+        {
+            var ownerUserId = Guid.NewGuid();
+            var tenant = Tenant.Create(name, ownerUserId);
 
-        Assert.Contains("Tenant name is required", ex.Message);
-    }
+            Assert.True(tenant.IsFailure);
+            Assert.Equal(TenantErrors.NameRequired, tenant.Error);
+        }
 
-    [Fact]
-    public void Throws_WhenOwnerUserIdIsEmpty()
-    {
-        var name = "My Tenant";
-        var ex = Assert.Throws<DomainException>(() =>
-            new Tenant(name, Guid.Empty));
+        [Fact]
+        public void Throws_WhenOwnerUserIdIsEmpty()
+        {
+            var name = "My Tenant";
+            var tenant = Tenant.Create(name, Guid.Empty);
 
-        Assert.Contains("OwnerUserId is required", ex.Message);
-    }
+            Assert.True(tenant.IsFailure);
+            Assert.Equal(TenantErrors.OwnerRequired, tenant.Error);
+        }
 
-    [Fact]
-    public void TrimsName_OnCreation()
-    {
-        var name = "   My Tenant   ";
-        var ownerUserId = Guid.NewGuid();
-        var tenant = new Tenant(name, ownerUserId);
+        [Fact]
+        public void TrimsName_OnCreation()
+        {
+            var name = "   My Tenant   ";
+            var ownerUserId = Guid.NewGuid();
+            var tenant = Tenant.Create(name, ownerUserId);
 
-        Assert.Equal("My Tenant", tenant.Name);
-    }
+            Assert.True(tenant.IsSuccess);
+            Assert.Equal("My Tenant", tenant.Value.Name);
+        }
 
-    [Fact]
-    public void SetsCreatedAtToUtcNow()
-    {
-        var name = "My Tenant";
-        var ownerUserId = Guid.NewGuid();
+        [Fact]
+        public void SetsCreatedAtToUtcNow()
+        {
+            var name = "My Tenant";
+            var ownerUserId = Guid.NewGuid();
 
-        var before = DateTime.UtcNow;
-        var tenant = new Tenant(name, ownerUserId);
-        var after = DateTime.UtcNow;
+            var before = DateTime.UtcNow;
+            var tenant = Tenant.Create(name, ownerUserId);
+            var after = DateTime.UtcNow;
 
-        Assert.InRange(tenant.CreatedAt, before, after);
+            Assert.True(tenant.IsSuccess);
+            Assert.InRange(tenant.Value.CreatedAt, before, after);
+        }
     }
 }

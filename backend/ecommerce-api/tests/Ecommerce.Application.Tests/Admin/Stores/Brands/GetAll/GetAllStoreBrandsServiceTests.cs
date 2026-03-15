@@ -1,106 +1,162 @@
 using AutoFixture.Xunit2;
 using Ecommerce.Application.Admin.Stores.Brands.GetAll;
+using Ecommerce.Domain.Common;
 using Ecommerce.TestUtils.Attributes;
+using System.Net;
 
-namespace Ecommerce.Application.Tests.Admin.Stores.Brands.GetAll;
-
-public sealed class GetAllStoreBrandsServiceTests
+namespace Ecommerce.Application.Tests.Admin.Stores.Brands.GetAll
 {
-    [Theory, AutoMoqData]
-    public async Task HandleAsync_ReturnsStoreBrandList(
-        [Frozen] Mock<IGetAllStoreBrandsRepository> repositoryMock,
-        GetAllStoreBrandsService service)
+    public sealed class GetAllStoreBrandsServiceTests
     {
-        // Arrange
-        var query = new GetAllBrandsQuery { Skip = 0, Limit = 10 };
-        var storeBrands = new List<StoreBrandDTO>
+        [Theory, AutoMoqData]
+        public async Task HandleAsync_ReturnsStoreBrandList(
+            [Frozen] Mock<IGetAllStoreBrandsRepository> repositoryMock,
+            GetAllStoreBrandsService service)
+        {
+            // Arrange
+            var query = new GetAllBrandsQuery { Skip = 0, Limit = 10 };
+            var storeBrands = new List<StoreBrandDTO>
         {
             new() { BrandId = Guid.NewGuid(), Name = "Brand A" },
             new() { BrandId = Guid.NewGuid(), Name = "Brand B" }
         };
-        int totalCount = 2;
+            int totalCount = 2;
 
-        repositoryMock
-            .Setup(r => r.GetAllAsync(It.IsAny<GetAllBrandsQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((storeBrands, totalCount));
+            repositoryMock
+                .Setup(r => r.GetAllAsync(It.IsAny<GetAllBrandsQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((storeBrands, totalCount));
 
-        // Act
-        var response = await service.HandleAsync(query, CancellationToken.None);
+            // Act
+            var result = await service.HandleAsync(query, CancellationToken.None);
 
-        // Assert
-        Assert.NotNull(response);
-        Assert.Equal(totalCount, response.TotalCount);
-        Assert.Equal(2, response.Brands.Count);
-        Assert.Same(storeBrands, response.Brands);
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Value);
+            Assert.Equal(totalCount, result.Value.TotalCount);
+            Assert.Equal(2, result.Value.Brands.Count);
+            Assert.Same(storeBrands, result.Value.Brands);
 
-        repositoryMock.Verify(r => r.GetAllAsync(
-            It.Is<GetAllBrandsQuery>(q => q.Limit == 10),
-            It.IsAny<CancellationToken>()
-        ), Times.Once);
-    }
+            repositoryMock.Verify(r => r.GetAllAsync(
+                It.Is<GetAllBrandsQuery>(q => q.Limit == 10),
+                It.IsAny<CancellationToken>()
+            ), Times.Once);
+        }
 
-    [Theory, AutoMoqData]
-    public async Task HandleAsync_AppliesHardLimit(
-        [Frozen] Mock<IGetAllStoreBrandsRepository> repositoryMock,
-        GetAllStoreBrandsService service
-    )
-    {
-        // Arrange
-        var query = new GetAllBrandsQuery { Limit = 9999 };
-        repositoryMock
-            .Setup(r => r.GetAllAsync(It.IsAny<GetAllBrandsQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((new List<StoreBrandDTO>(), 0));
+        [Theory, AutoMoqData]
+        public async Task HandleAsync_SanitizeLimit(
+            [Frozen] Mock<IGetAllStoreBrandsRepository> repositoryMock,
+            GetAllStoreBrandsService service
+        )
+        {
+            // Arrange
+            var query = new GetAllBrandsQuery { Limit = 9999 };
+            repositoryMock
+                .Setup(r => r.GetAllAsync(It.IsAny<GetAllBrandsQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((new List<StoreBrandDTO>(), 0));
 
-        // Act
-        await service.HandleAsync(query, CancellationToken.None);
+            // Act
+            var result = await service.HandleAsync(query, CancellationToken.None);
 
-        repositoryMock.Verify(r => r.GetAllAsync(
-            It.Is<GetAllBrandsQuery>(q => q.Limit == 100),
-            It.IsAny<CancellationToken>()
-        ), Times.Once);
-    }
+            // Assert
+            Assert.True(result.IsSuccess);
+            repositoryMock.Verify(r => r.GetAllAsync(
+                It.Is<GetAllBrandsQuery>(q => q.Limit == 100),
+                It.IsAny<CancellationToken>()
+            ), Times.Once);
+        }
 
-    [Theory, AutoMoqData]
-    public async Task HandleAsync_ReturnsEmptyList(
-        [Frozen] Mock<IGetAllStoreBrandsRepository> repositoryMock,
-        GetAllStoreBrandsService service
-    )
-    {
-        // Arrange
-        var query = new GetAllBrandsQuery();
-        repositoryMock
-            .Setup(r => r.GetAllAsync(It.IsAny<GetAllBrandsQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((new List<StoreBrandDTO>(), 0));
+        [Theory, AutoMoqData]
+        public async Task HandleAsync_SanitizeSkip(
+            [Frozen] Mock<IGetAllStoreBrandsRepository> repositoryMock,
+            GetAllStoreBrandsService service
+        )
+        {
+            // Arrange
+            var query = new GetAllBrandsQuery { Skip = -5 };
+            repositoryMock
+                .Setup(r => r.GetAllAsync(It.IsAny<GetAllBrandsQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((new List<StoreBrandDTO>(), 0));
 
-        // Act
-        var response = await service.HandleAsync(query, CancellationToken.None);
+            // Act
+            var result = await service.HandleAsync(query, CancellationToken.None);
 
-        // Assert
-        Assert.NotNull(response);
-        Assert.Empty(response.Brands);
-        Assert.Equal(0, response.TotalCount);
+            // Assert
+            Assert.True(result.IsSuccess);
+            repositoryMock.Verify(r => r.GetAllAsync(
+                It.Is<GetAllBrandsQuery>(q => q.Skip == 0),
+                It.IsAny<CancellationToken>()
+            ), Times.Once);
+        }
 
-        repositoryMock.Verify(r => r.GetAllAsync(
-            It.IsAny<GetAllBrandsQuery>(),
-            It.IsAny<CancellationToken>()
-        ), Times.Once);
-    }
+        [Theory, AutoMoqData]
+        public async Task HandleAsync_ReturnsEmptyList(
+            [Frozen] Mock<IGetAllStoreBrandsRepository> repositoryMock,
+            GetAllStoreBrandsService service
+        )
+        {
+            // Arrange
+            var query = new GetAllBrandsQuery();
+            repositoryMock
+                .Setup(r => r.GetAllAsync(It.IsAny<GetAllBrandsQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((new List<StoreBrandDTO>(), 0));
 
-    [Theory, AutoMoqData]
-    public async Task HandleAsync_PassesCancellationToken(
-        [Frozen] Mock<IGetAllStoreBrandsRepository> repositoryMock,
-        GetAllStoreBrandsService service
-    )
-    {
-        using var cts = new CancellationTokenSource();
-        var query = new GetAllBrandsQuery();
+            // Act
+            var result = await service.HandleAsync(query, CancellationToken.None);
 
-        repositoryMock
-            .Setup(r => r.GetAllAsync(It.IsAny<GetAllBrandsQuery>(), cts.Token))
-            .ReturnsAsync((new List<StoreBrandDTO>(), 0));
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Value);
+            Assert.Empty(result.Value.Brands);
+            Assert.Equal(0, result.Value.TotalCount);
 
-        await service.HandleAsync(query, cts.Token);
+            repositoryMock.Verify(r => r.GetAllAsync(
+                It.IsAny<GetAllBrandsQuery>(),
+                It.IsAny<CancellationToken>()
+            ), Times.Once);
+        }
 
-        repositoryMock.Verify(r => r.GetAllAsync(It.IsAny<GetAllBrandsQuery>(), cts.Token), Times.Once);
+        [Theory, AutoMoqData]
+        public async Task HandleAsync_ReturnsFailure_WhenRepositoryFails(
+            [Frozen] Mock<IGetAllStoreBrandsRepository> repositoryMock,
+            GetAllStoreBrandsService service
+        )
+        {
+            // Arrange
+            var error = new Error("db_error", "Database down", HttpStatusCode.InternalServerError);
+            repositoryMock
+                .Setup(r => r.GetAllAsync(It.IsAny<GetAllBrandsQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(error);
+
+            // Act
+            var result = await service.HandleAsync(new GetAllBrandsQuery(), CancellationToken.None);
+
+            // Assert
+            Assert.True(result.IsFailure);
+            Assert.Equal(error, result.Error);
+
+            repositoryMock.Verify(r => r.GetAllAsync(
+                It.IsAny<GetAllBrandsQuery>(),
+                It.IsAny<CancellationToken>()
+            ), Times.Once);
+        }
+
+        [Theory, AutoMoqData]
+        public async Task HandleAsync_PassesCancellationToken(
+            [Frozen] Mock<IGetAllStoreBrandsRepository> repositoryMock,
+            GetAllStoreBrandsService service
+        )
+        {
+            using var cts = new CancellationTokenSource();
+            var query = new GetAllBrandsQuery();
+
+            repositoryMock
+                .Setup(r => r.GetAllAsync(It.IsAny<GetAllBrandsQuery>(), cts.Token))
+                .ReturnsAsync((new List<StoreBrandDTO>(), 0));
+
+            var result = await service.HandleAsync(query, cts.Token);
+
+            Assert.True(result.IsSuccess);
+            repositoryMock.Verify(r => r.GetAllAsync(It.IsAny<GetAllBrandsQuery>(), cts.Token), Times.Once);
+        }
     }
 }

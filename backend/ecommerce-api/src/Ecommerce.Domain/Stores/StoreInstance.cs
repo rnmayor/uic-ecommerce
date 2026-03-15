@@ -1,35 +1,42 @@
 using Ecommerce.Domain.Common;
 
-namespace Ecommerce.Domain.Stores;
-
-public class StoreInstance : TenantEntity
+namespace Ecommerce.Domain.Stores
 {
-    public Guid StoreBrandId { get; private set; }
-    public StoreBrand StoreBrand { get; private set; } = default!;
-    public string DisplayName { get; private set; } = default!;
-    public DateTime CreatedAt { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
-    private StoreInstance() { } // For EF
-    public StoreInstance(Guid tenantId, Guid storeBrandId, string displayName)
+    public class StoreInstance : TenantEntity
     {
-        if (tenantId == Guid.Empty)
+        public Guid StoreBrandId { get; private set; }
+        public StoreBrand StoreBrand { get; private set; } = default!;
+        public string DisplayName { get; private set; } = default!;
+        public DateTime CreatedAt { get; private set; }
+        public DateTime UpdatedAt { get; private set; }
+        private StoreInstance() { } // For EF
+        public static Result<StoreInstance> Create(Guid tenantId, Guid storeBrandId, string displayName)
         {
-            throw new DomainException("TenantId is required.");
-        }
-        if (storeBrandId == Guid.Empty)
-        {
-            throw new DomainException("StoreBrandId is required.");
-        }
-        if (string.IsNullOrWhiteSpace(displayName))
-        {
-            throw new DomainException("Store display name is required.");
-        }
+            if (tenantId == Guid.Empty)
+            {
+                return StoreInstanceErrors.TenantRequired;
+            }
+            if (storeBrandId == Guid.Empty)
+            {
+                return StoreInstanceErrors.StoreBrandRequired;
+            }
+            if (string.IsNullOrWhiteSpace(displayName))
+            {
+                return StoreInstanceErrors.NameRequired;
+            }
 
-        Id = Guid.NewGuid();
-        TenantId = tenantId;
-        StoreBrandId = storeBrandId;
-        DisplayName = displayName.Trim();
-        CreatedAt = DateTime.UtcNow;
-        UpdatedAt = CreatedAt;
+            var now = DateTime.UtcNow;
+            var store = new StoreInstance
+            {
+                Id = Guid.NewGuid(),
+                TenantId = tenantId,
+                StoreBrandId = storeBrandId,
+                DisplayName = displayName.Trim(),
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+
+            return store;
+        }
     }
 }

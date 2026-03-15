@@ -1,23 +1,30 @@
 using Ecommerce.Domain.Common;
 
-namespace Ecommerce.Domain.Users;
-
-public class User : Entity
+namespace Ecommerce.Domain.Users
 {
-    public string ClerkUserId { get; private set; } = default!;
-    public DateTime CreatedAt { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
-    private User() { } // For EF
-    public User(string clerkUserId)
+    public class User : Entity
     {
-        if (string.IsNullOrWhiteSpace(clerkUserId))
+        public string ClerkUserId { get; private set; } = default!;
+        public DateTime CreatedAt { get; private set; }
+        public DateTime UpdatedAt { get; private set; }
+        private User() { } // For EF
+        public static Result<User> Create(string clerkUserId)
         {
-            throw new DomainException("Clerk user id is required.");
-        }
+            if (string.IsNullOrWhiteSpace(clerkUserId))
+            {
+                return UserErrors.ClerkUserRequired;
+            }
 
-        Id = Guid.NewGuid();
-        ClerkUserId = clerkUserId;
-        CreatedAt = DateTime.UtcNow;
-        UpdatedAt = CreatedAt;
+            var now = DateTime.UtcNow;
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                ClerkUserId = clerkUserId,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+
+            return user;
+        }
     }
 }

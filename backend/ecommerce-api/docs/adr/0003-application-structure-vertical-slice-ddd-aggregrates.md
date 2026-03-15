@@ -23,8 +23,8 @@ We adopt `Vertical Slice Architecture` combined with `DDD aggregates` modeling:
 
 - Organized by features/use-cases (vertical slices) rather than technical types (DTOs, Services)
 - Each feature folder contains:
-  - Request/Response DTOs
-  - Service interface and implementation
+  - Contract: records for Request/Response/DTOs and Service interface
+  - Actual Service implementation
 - Example:
 
   ```
@@ -34,9 +34,7 @@ We adopt `Vertical Slice Architecture` combined with `DDD aggregates` modeling:
               └── 📁Brands
                   └── 📁GetAll
                       ├── GetAllStoreBrandsService.cs
-                      ├── IGetAllStoreBrandService.cs
-                      ├── StoreBrandDTO.cs
-                      ├── StoreBrandsResponse.cs
+                      ├── GetAllStoreBrandsContract.cs
   ```
 
 2. Infrastructure layer

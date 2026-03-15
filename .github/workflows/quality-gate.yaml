@@ -65,8 +65,6 @@ jobs:
     needs: changes
     if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
-    env:
-      ConnectionStrings__Database: 'Server=localhost;Database=TestDb;User Id=sa;Password=Password123;'
     steps:
       - uses: actions/checkout@v4
 
