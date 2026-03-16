@@ -78,6 +78,8 @@ app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 
+app.UseSerilogRequestLogging();
+
 app.UseCorrelationId();
 
 app.UseAuthentication();
