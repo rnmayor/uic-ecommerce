@@ -123,6 +123,9 @@ jobs:
     needs: [changes, backend-ci]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     env:
       DOCKER_BUILDKIT: 1
