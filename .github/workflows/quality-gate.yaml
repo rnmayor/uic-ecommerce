@@ -276,6 +276,8 @@ jobs:
       # ---------------------------------------
       - name: Rollback Deployment
         if: github.ref == 'refs/heads/main' && steps.healthcheck.outcome == 'failure'
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
           echo "Health check failed. Initiating rollback to :previous..."
 
@@ -292,7 +294,7 @@ jobs:
               ghcr.io/${{ github.repository }}/uic-ecommerce-backend-api:latest
 
             echo "Redeploying Railway service with previous image..."
-            railway redeploy --service ${{ vars.RAILWAY_SERVICE_NAME }}
+            railway redeploy --service ${{ vars.RAILWAY_SERVICE_NAME }} -y
           fi
           
           if [ "${{ vars.TARGET_PROVIDER }}" == "azure" ]; then
