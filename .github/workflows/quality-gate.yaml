@@ -212,7 +212,7 @@ jobs:
 
       - name: Railway Deploy
         if: github.ref == 'refs/heads/main' && vars.TARGET_PROVIDER == 'railway'
-        run: railway up --service ${{ vars.RAILWAY_SERVICE_NAME }} -i ${{ needs.backend-containerize.outputs.image }}
+        run: railway up --service ${{ vars.RAILWAY_SERVICE_NAME }} --image ${{ needs.backend-containerize.outputs.image }}
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
@@ -257,7 +257,7 @@ jobs:
           echo "Health check failed. Initiating rollback to :previous..."
 
           if [ "${{ vars.TARGET_PROVIDER }}" == "railway" ]; then
-            railway up --service ${{ vars.RAILWAY_SERVICE_NAME }} -i ghcr.io/${{ github.repository }}/uic-ecommerce-backend-api:previous
+            railway up --service ${{ vars.RAILWAY_SERVICE_NAME }} --image ghcr.io/${{ github.repository }}/uic-ecommerce-backend-api:previous
           fi
           
           if [ "${{ vars.TARGET_PROVIDER }}" == "azure" ]; then
