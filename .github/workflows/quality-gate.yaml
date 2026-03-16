@@ -121,7 +121,11 @@ jobs:
   backend-containerize:
     name: Build Docker Image
     needs: [changes, backend-ci]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.changes.outputs.backend == 'true'
+    if: |
+      needs.changes.outputs.backend == 'true' &&
+      needs.backend-ci.result == 'success' &&
+      github.event_name == 'push' && 
+      github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -177,10 +181,11 @@ jobs:
     name: Production Deploy
     needs: [changes, backend-ci, backend-containerize]
     if: |
-      always() && 
       needs.changes.outputs.backend == 'true' && 
-      (needs.backend-ci.result == 'success') &&
-      (github.ref == 'refs/heads/main' || github.event_name == 'pull_request')
+      needs.backend-ci.result == 'success' &&
+      needs.backend-containerize.result == 'success' &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
 
@@ -199,9 +204,10 @@ jobs:
       # Apply Neon DB migrations
       # ---------------------------------------
       - name: Apply DB Migrations
-        run: psql "${{ secrets.DATABASE_URL }}" -f migration.sql
         env:
           PGPASSWORD: ${{ secrets.NEON_DB_PASSWORD }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: psql -v ON_ERROR_STOP=1 "$DATABASE_URL" -f migration.sql
 
       # ---------------------------------------
       # Railway Deploy
@@ -212,7 +218,10 @@ jobs:
 
       - name: Railway Deploy
         if: github.ref == 'refs/heads/main' && vars.TARGET_PROVIDER == 'railway'
-        run: railway up --service ${{ vars.RAILWAY_SERVICE_NAME }} --image ${{ needs.backend-containerize.outputs.image }}
+        run: |
+          railway redeploy \
+          --service ${{ vars.RAILWAY_SERVICE_NAME }} \
+          --message "Deploy ${{ github.sha }}"
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
@@ -240,13 +249,27 @@ jobs:
         id: healthcheck
         continue-on-error: true
         run: |
-          n=0
-          until [ $n -ge 3 ]
-          do
-            curl -f ${{ vars.API_HEALTH_ENDPOINT }} && break
-            n=$((n+1))
-            sleep 5
+          for i in {1..5}; do
+            if curl -fsS --max-time 5 ${{ vars.API_HEALTH_ENDPOINT }}; then
+              echo "Health check passed!"
+              exit 0
+            fi
+              echo "Health check failed. Retry $i..."
+              sleep 5
           done
+
+          echo "Health check failed after multiple attempts."
+          exit 1
+
+      # ---------------------------------------
+      # Login GHCR
+      # ---------------------------------------
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       # ---------------------------------------
       # Rollback if Health check fails
@@ -257,11 +280,24 @@ jobs:
           echo "Health check failed. Initiating rollback to :previous..."
 
           if [ "${{ vars.TARGET_PROVIDER }}" == "railway" ]; then
-            railway up --service ${{ vars.RAILWAY_SERVICE_NAME }} --image ghcr.io/${{ github.repository }}/uic-ecommerce-backend-api:previous
+            echo "Restoring previous image as latest..."
+
+            docker pull ghcr.io/${{ github.repository }}/uic-ecommerce-backend-api:previous
+
+            docker tag \
+              ghcr.io/${{ github.repository }}/uic-ecommerce-backend-api:previous \
+              ghcr.io/${{ github.repository }}/uic-ecommerce-backend-api:latest
+
+            docker push \
+              ghcr.io/${{ github.repository }}/uic-ecommerce-backend-api:latest
+
+            echo "Redeploying Railway service with previous image..."
+            railway redeploy --service ${{ vars.RAILWAY_SERVICE_NAME }}
           fi
           
           if [ "${{ vars.TARGET_PROVIDER }}" == "azure" ]; then
             echo "Rollback for Azure Container Apps"
+
             az containerapp update \
               --name ${{ vars.AZURE_APP_NAME }} \
               --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
