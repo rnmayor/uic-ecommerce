@@ -1,4 +1,4 @@
-name: Quality Gate
+name: Quality Gate & Deploy
 
 on:
   push:
@@ -6,7 +6,18 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: true
+
 jobs:
+  # ---------------------------------------------
+  # Detect what changed in monorepo
+  # ---------------------------------------------
   changes:
     name: Detect Changes
     runs-on: ubuntu-latest
@@ -34,15 +45,19 @@ jobs:
               - '.gitignore'
             backend:
               - 'backend/**'
+              - '.github/workflows/**' 
 
+  # ---------------------------------------------
+  # Frontend quality gate
+  # ---------------------------------------------
   frontend:
     name: Frontend Gate
     needs: changes
     if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     env:
-      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_cmVsZXZhbnQtYm94ZXItNDguY2xlcmsuYWNjb3VudHMuZGV2JA
-      CLERK_SECRET_KEY: sk_test_dummy_key_123
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+      CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -57,21 +72,198 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm type-check
-      # - run: pnpm test:run
+      - run: pnpm test --if-present
       - run: pnpm build
 
-  backend:
-    name: Backend Gate
+  # ---------------------------------------------
+  # Backend CI (tests + migration generation)
+  # ---------------------------------------------
+  backend-ci:
+    name: Backend Test & Migration Build
     needs: changes
     if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-dotnet@v4
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
 
-      - run: dotnet restore backend/ecommerce-api/Ecommerce.slnx
-      - run: dotnet build backend/ecommerce-api/Ecommerce.slnx --no-restore --configuration Release
-      - run: dotnet test backend/ecommerce-api/Ecommerce.slnx --no-build --configuration Release
+      - name: Restore Dependencies
+        run: dotnet restore backend/ecommerce-api/Ecommerce.slnx
+
+      - name: Run Unit Tests
+        run: dotnet test backend/ecommerce-api/Ecommerce.slnx --no-restore --configuration Release
+
+      - name: Install EF Tool
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Generate SQL Migration
+        env:
+          DatabaseOptions__ConnectionString: ${{ secrets.DATABASEOPTIONS__CONNECTIONSTRING }}
+        run: |
+          dotnet ef migrations script \
+          --project backend/ecommerce-api/src/Ecommerce.Infrastructure/Ecommerce.Infrastructure.csproj \
+          --startup-project backend/ecommerce-api/src/Ecommerce.Api/Ecommerce.Api.csproj \
+          --idempotent \
+          --output migration.sql
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: db-migration
+          path: migration.sql
+
+  # ---------------------------------------------
+  # Build & push backend container
+  # ---------------------------------------------
+  backend-containerize:
+    name: Build Docker Image
+    needs: [changes, backend-ci]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+
+    env:
+      DOCKER_BUILDKIT: 1
+
+    outputs:
+      image: ghcr.io/${{ github.repository }}/uic-ecommerce-backend-api:${{ github.sha }}
+
+    steps:
+      - uses: actions/checkout@v4
+  
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # ---------------------------------------------
+      # Save current production image as rollback target
+      # ---------------------------------------------
+      - name: Tag current image as previous
+        run: |
+          docker pull ghcr.io/${{ github.repository }}/uic-ecommerce-backend-api:latest || true
+          docker tag ghcr.io/${{ github.repository }}/uic-ecommerce-backend-api:latest \
+            ghcr.io/${{ github.repository }}/uic-ecommerce-backend-api:previous || true
+          docker push ghcr.io/${{ github.repository }}/uic-ecommerce-backend-api:previous || true
+
+      - name: Build and Push Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend/ecommerce-api
+          file: ./backend/ecommerce-api/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/uic-ecommerce-backend-api:latest
+            ghcr.io/${{ github.repository }}/uic-ecommerce-backend-api:${{ github.sha }}
+
+          # Build cache
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ---------------------------------------------
+  # Production deployment
+  # ---------------------------------------------
+  deploy:
+    name: Production Deploy
+    needs: [changes, backend-ci, backend-containerize]
+    if: |
+      always() && 
+      needs.changes.outputs.backend == 'true' && 
+      (needs.backend-ci.result == 'success') &&
+      (github.ref == 'refs/heads/main' || github.event_name == 'pull_request')
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: db-migration
+
+      # Install Postgres CLI
+      - name: Install Postgres CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      # ---------------------------------------
+      # Apply Neon DB migrations
+      # ---------------------------------------
+      - name: Apply DB Migrations
+        run: psql "${{ secrets.DATABASE_URL }}" -f migration.sql
+        env:
+          PGPASSWORD: ${{ secrets.NEON_DB_PASSWORD }}
+
+      # ---------------------------------------
+      # Railway Deploy
+      # ---------------------------------------
+      - name: Install Railway CLI
+        if: github.ref == 'refs/heads/main' && vars.TARGET_PROVIDER == 'railway'
+        run: npm install -g @railway/cli
+
+      - name: Railway Deploy
+        if: github.ref == 'refs/heads/main' && vars.TARGET_PROVIDER == 'railway'
+        run: railway up --service ${{ vars.RAILWAY_SERVICE_NAME }} -i ${{ needs.backend-containerize.outputs.image }}
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+      # ---------------------------------------
+      # Azure Container Apps Deploy
+      # ---------------------------------------
+      - name: Azure Login
+        if: github.ref == 'refs/heads/main' && vars.TARGET_PROVIDER == 'azure'
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Azure Deploy
+        if: github.ref == 'refs/heads/main' && vars.TARGET_PROVIDER == 'azure'
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          imageToDeploy: ${{ needs.backend-containerize.outputs.image }}
+          containerAppName: ${{ vars.AZURE_APP_NAME }}
+          resourceGroup: ${{ vars.AZURE_RESOURCE_GROUP }}
+
+      # ---------------------------------------
+      # Post-deploy health check
+      # ---------------------------------------
+      - name: Verify Deployment
+        id: healthcheck
+        continue-on-error: true
+        run: |
+          n=0
+          until [ $n -ge 3 ]
+          do
+            curl -f ${{ vars.API_HEALTH_ENDPOINT }} && break
+            n=$((n+1))
+            sleep 5
+          done
+
+      # ---------------------------------------
+      # Rollback if Health check fails
+      # ---------------------------------------
+      - name: Rollback Deployment
+        if: github.ref == 'refs/heads/main' && steps.healthcheck.outcome == 'failure'
+        run: |
+          echo "Health check failed. Initiating rollback to :previous..."
+
+          if [ "${{ vars.TARGET_PROVIDER }}" == "railway" ]; then
+            railway up --service ${{ vars.RAILWAY_SERVICE_NAME }} -i ghcr.io/${{ github.repository }}/uic-ecommerce-backend-api:previous
+          fi
+          
+          if [ "${{ vars.TARGET_PROVIDER }}" == "azure" ]; then
+            echo "Rollback for Azure Container Apps"
+            az containerapp update \
+              --name ${{ vars.AZURE_APP_NAME }} \
+              --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
+              --image ghcr.io/${{ github.repository }}/uic-ecommerce-backend-api:previous
+          fi
+
+          # Fail the job after rollback so the workflow shows as 'Failed'
+          exit 1
