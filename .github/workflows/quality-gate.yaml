@@ -218,7 +218,7 @@ jobs:
 
       - name: Railway Deploy
         if: github.ref == 'refs/heads/main' && vars.TARGET_PROVIDER == 'railway'
-        run: railway redeploy --service ${{ vars.RAILWAY_SERVICE_NAME }}
+        run: railway redeploy --service ${{ vars.RAILWAY_SERVICE_NAME }} -y
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
