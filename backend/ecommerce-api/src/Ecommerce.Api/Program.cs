@@ -10,6 +10,10 @@ using System.IdentityModel.Tokens.Jwt;
 // Bootstrap the entire application host and setup configuration, logging, DI, environment detection
 var builder = WebApplication.CreateBuilder(args);
 
+// Standardize port binding for Cloud proivders (Railway/Azure)
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://*:{port}");
+
 // Replace default logging
 builder.Host.UseSerilog((context, services, configuration) =>
 {
