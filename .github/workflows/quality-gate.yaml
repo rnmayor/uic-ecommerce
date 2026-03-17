@@ -116,16 +116,48 @@ jobs:
           path: migration.sql
 
   # ---------------------------------------------
+  # Headles Staging
+  # ---------------------------------------------
+  deploy-staging:
+    name: Staging Migration Test
+    needs: [changes, backend-ci]
+    if: |
+      github.event_name == 'pull_request' && 
+      needs.changes.outputs.backend == 'true' &&
+      needs.backend-ci.result == 'success'
+    runs-on: ubuntu-latest
+    environment: staging
+    
+    steps: 
+      - uses: actions/download-artifact@v4
+        with:
+          name: db-migration
+
+      # Install Postgres CLI
+      - name: Install Postgres CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      # ---------------------------------------
+      # Apply Neon DB migrations
+      # ---------------------------------------
+      - name: Apply DB Migrations (Staging)
+        env:
+          PGPASSWORD: ${{ secrets.NEON_DB_PASSWORD }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: psql -v ON_ERROR_STOP=1 "$DATABASE_URL" -f migration.sql
+        
+  # ---------------------------------------------
   # Build & push backend container
   # ---------------------------------------------
   backend-containerize:
     name: Build Docker Image
     needs: [changes, backend-ci]
     if: |
+      github.ref == 'refs/heads/main' &&
       needs.changes.outputs.backend == 'true' &&
-      needs.backend-ci.result == 'success' &&
-      github.event_name == 'push' && 
-      github.ref == 'refs/heads/main'
+      needs.backend-ci.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -177,20 +209,19 @@ jobs:
   # ---------------------------------------------
   # Production deployment
   # ---------------------------------------------
-  deploy:
+  deploy-production:
     name: Production Deploy
     needs: [changes, backend-ci, backend-containerize]
     if: |
+      github.ref == 'refs/heads/main' &&
       needs.changes.outputs.backend == 'true' && 
       needs.backend-ci.result == 'success' &&
-      needs.backend-containerize.result == 'success' &&
-      github.event_name == 'push' &&
-      github.ref == 'refs/heads/main'
+      needs.backend-containerize.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    environment: production
 
     steps:
       - uses: actions/download-artifact@v4
@@ -216,11 +247,11 @@ jobs:
       # Railway Deploy
       # ---------------------------------------
       - name: Install Railway CLI
-        if: github.ref == 'refs/heads/main' && vars.TARGET_PROVIDER == 'railway'
+        if: vars.TARGET_PROVIDER == 'railway'
         run: npm install -g @railway/cli
 
       - name: Railway Deploy
-        if: github.ref == 'refs/heads/main' && vars.TARGET_PROVIDER == 'railway'
+        if: vars.TARGET_PROVIDER == 'railway'
         run: railway redeploy --service ${{ vars.RAILWAY_SERVICE_NAME }} -y
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
@@ -229,13 +260,13 @@ jobs:
       # Azure Container Apps Deploy
       # ---------------------------------------
       - name: Azure Login
-        if: github.ref == 'refs/heads/main' && vars.TARGET_PROVIDER == 'azure'
+        if: vars.TARGET_PROVIDER == 'azure'
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Azure Deploy
-        if: github.ref == 'refs/heads/main' && vars.TARGET_PROVIDER == 'azure'
+        if: vars.TARGET_PROVIDER == 'azure'
         uses: azure/container-apps-deploy-action@v1
         with:
           imageToDeploy: ${{ needs.backend-containerize.outputs.image }}
@@ -275,7 +306,7 @@ jobs:
       # Rollback if Health check fails
       # ---------------------------------------
       - name: Rollback Deployment
-        if: github.ref == 'refs/heads/main' && steps.healthcheck.outcome == 'failure'
+        if: steps.healthcheck.outcome == 'failure'
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
