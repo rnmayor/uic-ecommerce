@@ -1,7 +1,7 @@
-using Ecommerce.Application.Admin.Stores.Brands.Create;
-using Ecommerce.Application.Admin.Stores.Brands.GetAll;
-using Ecommerce.Application.Admin.Tenants.Membership.GetMyTenants;
-using Ecommerce.Application.Admin.Tenants.Onboarding;
+using Ecommerce.Application.Admin.Stores.Brands.Commands.CreateStoreBrand;
+using Ecommerce.Application.Admin.Stores.Brands.Queries.GetAllStoreBrands;
+using Ecommerce.Application.Admin.Tenants.Features.Onboarding;
+using Ecommerce.Application.Admin.Tenants.Queries.GetMyTenants;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Ecommerce.Application

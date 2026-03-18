@@ -1,6 +1,6 @@
 using Ecommerce.Api.Tests.Extensions;
 using Ecommerce.Api.Tests.Fixtures;
-using Ecommerce.Application.Admin.Tenants.Onboarding;
+using Ecommerce.Application.Admin.Tenants.Features.Onboarding;
 using Ecommerce.Domain.Common;
 using Ecommerce.Domain.Tenants;
 using Microsoft.AspNetCore.Mvc;

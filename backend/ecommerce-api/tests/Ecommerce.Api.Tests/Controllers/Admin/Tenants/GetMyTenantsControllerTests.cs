@@ -1,6 +1,6 @@
 using Ecommerce.Api.Tests.Extensions;
 using Ecommerce.Api.Tests.Fixtures;
-using Ecommerce.Application.Admin.Tenants.Membership.GetMyTenants;
+using Ecommerce.Application.Admin.Tenants.Queries.GetMyTenants;
 using Ecommerce.Domain.Common;
 using Ecommerce.Domain.Tenants;
 using Microsoft.AspNetCore.Mvc;

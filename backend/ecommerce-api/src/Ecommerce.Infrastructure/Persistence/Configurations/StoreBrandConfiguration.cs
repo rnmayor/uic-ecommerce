@@ -11,8 +11,8 @@ namespace Ecommerce.Infrastructure.Persistence.Configurations
             builder.ToTable("store_brands");
             builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.Name).IsRequired().HasMaxLength(200);
-            builder.Property(x => x.NormalizedName).IsRequired().HasMaxLength(200);
+            builder.Property(x => x.Name).IsRequired().HasMaxLength(100);
+            builder.Property(x => x.NormalizedName).IsRequired().HasMaxLength(100);
             builder.Property(x => x.CreatedAt).IsRequired();
 
             builder.HasIndex(x => x.NormalizedName).IsUnique();

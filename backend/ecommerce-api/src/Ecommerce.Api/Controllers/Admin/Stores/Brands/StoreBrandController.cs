@@ -1,4 +1,4 @@
-using Ecommerce.Application.Admin.Stores.Brands.Create;
+using Ecommerce.Application.Admin.Stores.Brands.Commands.CreateStoreBrand;
 using Ecommerce.Application.Common.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

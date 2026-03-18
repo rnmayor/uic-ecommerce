@@ -5,6 +5,8 @@ namespace Ecommerce.Domain.Tenants
     public class Tenant : Entity
     {
         public string Name { get; private set; } = default!;
+
+        public string Slug { get; private set; } = default!;
         public Guid OwnerUserId { get; private set; }
         public DateTime CreatedAt { get; private set; }
         public DateTime UpdatedAt { get; private set; }
@@ -27,6 +29,7 @@ namespace Ecommerce.Domain.Tenants
             {
                 Id = Guid.NewGuid(),
                 Name = name.Trim(),
+                Slug = SlugGenerator.Generate(name),
                 OwnerUserId = ownerUserId,
                 CreatedAt = now,
                 UpdatedAt = now,

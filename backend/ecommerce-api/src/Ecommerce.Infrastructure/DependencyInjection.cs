@@ -1,6 +1,6 @@
-using Ecommerce.Application.Admin.Stores.Brands.GetAll;
-using Ecommerce.Application.Admin.Tenants.Membership.GetMyTenants;
-using Ecommerce.Application.Admin.Tenants.Onboarding;
+using Ecommerce.Application.Admin.Stores.Brands.Queries.GetAllStoreBrands;
+using Ecommerce.Application.Admin.Tenants.Features.Onboarding;
+using Ecommerce.Application.Admin.Tenants.Queries.GetMyTenants;
 using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Application.Common.Options;
 using Ecommerce.Application.Common.Persistence;
@@ -8,10 +8,9 @@ using Ecommerce.Infrastructure.Authorization;
 using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.Persistence;
 using Ecommerce.Infrastructure.Persistence.Repositories.Stores.Brands;
-using Ecommerce.Infrastructure.Persistence.Repositories.Stores.Brands.GetAll;
-using Ecommerce.Infrastructure.Persistence.Repositories.Tenants;
-using Ecommerce.Infrastructure.Persistence.Repositories.Tenants.Membership.GetMyTenants;
-using Ecommerce.Infrastructure.Persistence.Repositories.Tenants.Onboarding;
+using Ecommerce.Infrastructure.Persistence.Repositories.Stores.Brands.Queries.GetAllStoreBrands;
+using Ecommerce.Infrastructure.Persistence.Repositories.Tenants.Features.Onboarding;
+using Ecommerce.Infrastructure.Persistence.Repositories.Tenants.Queries.GetTenantsForUser;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -49,11 +48,10 @@ namespace Ecommerce.Infrastructure
 
             // Use-case specific repositories
             services.AddScoped<IOnboardingRepository, OnboardingRepository>();
-            services.AddScoped<IGetMyTenantsRepository, GetMyTenantsRepository>();
+            services.AddScoped<IGetTenantsForUserRepository, GetTenantsForUserRepository>();
             services.AddScoped<IGetAllStoreBrandsRepository, GetAllStoreBrandsRepository>();
 
             // Aggregrate repositories
-            services.AddScoped<ITenantRepository, TenantRepository>();
             services.AddScoped<IStoreBrandRepository, StoreBrandRepository>();
 
             return services;
