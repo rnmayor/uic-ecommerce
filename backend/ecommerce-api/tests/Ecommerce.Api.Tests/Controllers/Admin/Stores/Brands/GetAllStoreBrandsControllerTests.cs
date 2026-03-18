@@ -1,6 +1,6 @@
 using Ecommerce.Api.Tests.Extensions;
 using Ecommerce.Api.Tests.Fixtures;
-using Ecommerce.Application.Admin.Stores.Brands.GetAll;
+using Ecommerce.Application.Admin.Stores.Brands.Queries.GetAllStoreBrands;
 using Ecommerce.Domain.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -47,7 +47,7 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Stores.Brands
                     Name = "Store Brand B"
                 }
                 ],
-                TotalCount = 100
+                Total = 100
             };
 
             _serviceMock
@@ -66,7 +66,7 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Stores.Brands
 
             Assert.NotNull(body);
             Assert.Equal(2, body.Brands.Count);
-            Assert.Equal(100, body.TotalCount);
+            Assert.Equal(100, body.Total);
 
             _serviceMock.Verify(s => s.HandleAsync(
                 It.Is<GetAllBrandsQuery>(q => q.Skip == 5),
@@ -82,7 +82,7 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Stores.Brands
 
             _serviceMock
                 .Setup(s => s.HandleAsync(It.IsAny<GetAllBrandsQuery>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result<StoreBrandsResponse>.Success(new StoreBrandsResponse { Brands = [], TotalCount = 0 }));
+                .ReturnsAsync(Result<StoreBrandsResponse>.Success(new StoreBrandsResponse { Brands = [], Total = 0 }));
 
             // Act
             var response = await client.GetAsync("/api/admin/store-brands");
@@ -94,7 +94,7 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Stores.Brands
 
             Assert.NotNull(body);
             Assert.Empty(body.Brands);
-            Assert.Equal(0, body.TotalCount);
+            Assert.Equal(0, body.Total);
 
             _serviceMock.Verify(s => s.HandleAsync(
                 It.IsAny<GetAllBrandsQuery>(),

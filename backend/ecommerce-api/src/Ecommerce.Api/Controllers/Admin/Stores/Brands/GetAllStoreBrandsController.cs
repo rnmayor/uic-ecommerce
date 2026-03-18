@@ -1,4 +1,4 @@
-using Ecommerce.Application.Admin.Stores.Brands.GetAll;
+using Ecommerce.Application.Admin.Stores.Brands.Queries.GetAllStoreBrands;
 using Ecommerce.Application.Common.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

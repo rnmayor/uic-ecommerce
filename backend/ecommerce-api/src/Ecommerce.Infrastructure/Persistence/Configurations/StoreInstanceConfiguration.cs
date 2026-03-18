@@ -13,7 +13,7 @@ namespace Ecommerce.Infrastructure.Persistence.Configurations
 
             builder.Property(s => s.TenantId).IsRequired();
             builder.Property(s => s.StoreBrandId).IsRequired();
-            builder.Property(s => s.DisplayName).IsRequired().HasMaxLength(200);
+            builder.Property(s => s.DisplayName).IsRequired().HasMaxLength(100);
             builder.Property(s => s.CreatedAt).IsRequired();
             builder.Property(s => s.UpdatedAt).IsRequired();
 

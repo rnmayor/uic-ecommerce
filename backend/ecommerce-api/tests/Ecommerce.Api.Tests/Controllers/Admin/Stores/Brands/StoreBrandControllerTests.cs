@@ -1,6 +1,6 @@
 using Ecommerce.Api.Tests.Extensions;
 using Ecommerce.Api.Tests.Fixtures;
-using Ecommerce.Application.Admin.Stores.Brands.Create;
+using Ecommerce.Application.Admin.Stores.Brands.Commands.CreateStoreBrand;
 using Ecommerce.Domain.Common;
 using Ecommerce.Domain.Stores;
 using Microsoft.AspNetCore.Mvc;

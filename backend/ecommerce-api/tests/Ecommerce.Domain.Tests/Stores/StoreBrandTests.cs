@@ -1,3 +1,4 @@
+using Ecommerce.Domain.Common;
 using Ecommerce.Domain.Stores;
 
 namespace Ecommerce.Domain.Tests.Stores
@@ -13,7 +14,7 @@ namespace Ecommerce.Domain.Tests.Stores
             Assert.True(storeBrand.IsSuccess);
             Assert.NotEqual(Guid.Empty, storeBrand.Value.Id);
             Assert.Equal(name, storeBrand.Value.Name);
-            Assert.Equal(StoreBrand.Normalize(name), storeBrand.Value.NormalizedName);
+            Assert.Equal(IdentityNormalizer.Normalize(name), storeBrand.Value.NormalizedName);
             Assert.Equal(storeBrand.Value.CreatedAt, storeBrand.Value.UpdatedAt);
         }
 

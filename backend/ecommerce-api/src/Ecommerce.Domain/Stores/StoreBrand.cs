@@ -26,7 +26,7 @@ namespace Ecommerce.Domain.Stores
             {
                 Id = Guid.NewGuid(),
                 Name = name.Trim(),
-                NormalizedName = Normalize(name),
+                NormalizedName = IdentityNormalizer.Normalize(name),
                 CreatedAt = now,
                 UpdatedAt = now,
             };
@@ -34,8 +34,6 @@ namespace Ecommerce.Domain.Stores
             return brand;
 
         }
-
-        public static string Normalize(string name) => name.Trim().ToUpperInvariant();
     }
 }
 

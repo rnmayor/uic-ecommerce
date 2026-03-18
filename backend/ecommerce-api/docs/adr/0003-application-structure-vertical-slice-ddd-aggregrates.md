@@ -21,41 +21,74 @@ We adopt `Vertical Slice Architecture` combined with `DDD aggregates` modeling:
 
 1. Application Layer
 
-- Organized by features/use-cases (vertical slices) rather than technical types (DTOs, Services)
-- Each feature folder contains:
-  - Contract: records for Request/Response/DTOs and Service interface
-  - Actual Service implementation
-- Example:
+- The Application layer is organized primarily by **Business Domain** (e.g: Tenants, Stores, Orders).
+
+- Within each domain, functionality is grouped using a combination of:
+    - Commands (state-changing operations)
+    - Queries (read-only operations)
+    - Features (domain workflows or cross-aggregrate functionality)
+
+- Each vertical slice contains:
+    - Contract: records for Request/Response/DTOs and Service interface
+    - Actual Service Implementation
+    - Optional validation logic
+
+Example:
 
   ```
-  └── 📁Ecommerce.Application
-      └── 📁Admin
-          └── 📁Stores
-              └── 📁Brands
-                  └── 📁GetAll
-                      ├── GetAllStoreBrandsService.cs
-                      ├── GetAllStoreBrandsContract.cs
+  └── Ecommerce.Application
+    └── Admin
+        └── Tenants
+            ├── Commands
+            │   ├── CreateTenant
+            │   │   ├── CreateTenantService.cs
+            │   │   └── CreateTenantContract.cs
+            │   │
+            │   └── DeleteTenant
+            │
+            ├── Queries
+            │   ├── GetTenant
+            │   │   ├── GetTenantService.cs
+            │   │   └── GetTenantContract.cs
+            │   │
+            │   └── GetMyTenants
+            │
+            └── Features
+                ├── Membership
+                │   └── GetMyTenants
+                │
+                └── Onboarding
+                    ├── OnboardingService.cs
+                    └── OnboardingContract.cs
   ```
 
 2. Infrastructure layer
 
-- Mirrors Application layer per feature for repositories
-- Aggregate repositories live under Repositories/{Aggregate}
+- Infrastructure implementations mirror the Application contracts where necessary
+- Aggregate repositories live under: *Infrastructure/Persistence/Repositories/{Aggregate}*
+- Feature-specific read repositories may be implemented under the feature folder to match the corresponsing application slice.
 - Example:
 
   ```
   └── 📁Ecommerce.Infrastructure
-      └── 📁Persistence
-          └── 📁Repositories
-              └── 📁Stores
-                  └── 📁Brands
-                      └── 📁GetAll
-                          ├── GetAllStoreBrandsRepository.cs
-              └── 📁Tenants
-                  └── 📁Membership
-                      └── 📁GetMyTenants
-                          ├── GetMyTenantsRepository.cs
-                  ├── TenantRepository.cs
+    └── 📁Persistence
+        └── 📁Repositories
+            ├── 📁Tenants
+            │   ├── TenantRepository.cs
+            │   ├── 📁Queries
+            │   │   ├── 📁GetTenant
+            │   │   │   └── GetTenantRepository.cs
+            │   │   └── 📁GetMyTenants
+            │   │       └── GetMyTenantsRepository.cs
+            │   └── 📁Features
+            │       └── 📁Membership
+            │           └── GetTenantMembersRepository.cs
+            │
+            └── 📁Stores
+                ├── StoreRepository.cs
+                └── 📁Queries
+                    └── 📁GetAllStoreBrands
+                        └── GetAllStoreBrandsRepository.cs
   ```
 
 3. Domain Layer

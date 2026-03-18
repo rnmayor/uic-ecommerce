@@ -1,5 +1,5 @@
 using Ecommerce.Api.Extensions;
-using Ecommerce.Application.Admin.Tenants.Membership.GetMyTenants;
+using Ecommerce.Application.Admin.Tenants.Queries.GetMyTenants;
 using Ecommerce.Application.Common.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
