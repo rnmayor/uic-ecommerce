@@ -30,5 +30,5 @@ public interface IGetAllStoreBrandsService
 
 public interface IGetAllStoreBrandsRepository
 {
-    Task<Result<(IReadOnlyList<StoreBrandDTO> Items, int TotalCount)>> GetAllAsync(GetAllBrandsQuery query, CancellationToken ct = default);
+    Task<(IReadOnlyList<StoreBrandDTO> Items, int TotalCount)> GetAllAsync(GetAllBrandsQuery query, CancellationToken ct = default);
 }

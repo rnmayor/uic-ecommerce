@@ -12,7 +12,7 @@ namespace Ecommerce.Infrastructure.Persistence.Repositories.Tenants.Queries.GetT
         {
             _context = context;
         }
-        public async Task<Result<IReadOnlyList<MyTenantDTO>>> GetTenantsForUserAsync(Guid userId, CancellationToken ct = default)
+        public async Task<IReadOnlyList<MyTenantDTO>> GetTenantsForUserAsync(Guid userId, CancellationToken ct = default)
         {
             return await _context.TenantUsers
                 .IgnoreQueryFilters()

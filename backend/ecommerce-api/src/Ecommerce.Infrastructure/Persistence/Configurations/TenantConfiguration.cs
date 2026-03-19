@@ -12,12 +12,14 @@ namespace Ecommerce.Infrastructure.Persistence.Configurations
             builder.HasKey(t => t.Id);
 
             builder.Property(t => t.Name).IsRequired().HasMaxLength(100);
+            builder.Property(t => t.NormalizedName).IsRequired().HasMaxLength(100);
             builder.Property(t => t.Slug).IsRequired().HasMaxLength(100);
             builder.Property(t => t.OwnerUserId).IsRequired();
             builder.Property(t => t.CreatedAt).IsRequired();
             builder.Property(t => t.UpdatedAt).IsRequired();
 
             builder.HasIndex(t => t.OwnerUserId);
+            builder.HasIndex(t => t.NormalizedName).IsUnique();
             builder.HasIndex(t => t.Slug).IsUnique();
         }
     }

@@ -23,6 +23,11 @@ namespace Ecommerce.Infrastructure.Persistence.Repositories.Tenants.Features.Onb
             await tx.CommitAsync(ct);
         }
 
+        public async Task<bool> TenantExistAsync(string normalizedName, CancellationToken ct = default)
+        {
+            return await _context.Tenants.AnyAsync(x => x.NormalizedName == normalizedName, ct);
+        }
+
         public async Task<bool> UserAlreadyHasTenantAsync(Guid userId, CancellationToken ct = default)
         {
             return await _context.Tenants

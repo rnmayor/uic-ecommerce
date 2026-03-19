@@ -83,7 +83,6 @@ jobs:
     needs: changes
     if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
-    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -103,7 +102,7 @@ jobs:
 
       - name: Generate SQL Migration
         env:
-          DatabaseOptions__ConnectionString: ${{ secrets.DATABASEOPTIONS__CONNECTIONSTRING }}
+          DatabaseOptions__ConnectionString: "Host=localhost;Database=dummy;Username=dummy;Password=dummy;"
         run: |
           dotnet ef migrations script \
           --project backend/ecommerce-api/src/Ecommerce.Infrastructure/Ecommerce.Infrastructure.csproj \

@@ -1,3 +1,4 @@
+using Ecommerce.Domain.Common;
 using Ecommerce.Domain.Tenants;
 
 namespace Ecommerce.Domain.Tests.Tenants
@@ -15,6 +16,8 @@ namespace Ecommerce.Domain.Tests.Tenants
             Assert.True(tenant.IsSuccess);
             Assert.NotEqual(Guid.Empty, tenant.Value.Id);
             Assert.Equal(name, tenant.Value.Name);
+            Assert.Equal(IdentityNormalizer.Normalize(name), tenant.Value.NormalizedName);
+            Assert.Equal(SlugGenerator.Generate(name), tenant.Value.Slug);
             Assert.Equal(ownerUserId, tenant.Value.OwnerUserId);
             Assert.Equal(tenant.Value.CreatedAt, tenant.Value.UpdatedAt);
         }
@@ -22,7 +25,7 @@ namespace Ecommerce.Domain.Tests.Tenants
         [Theory]
         [InlineData("")]
         [InlineData(" ")]
-        public void Throws_WhenTenantIsNullOrWhiteSpace(string name)
+        public void ReturnsFailure_WhenTenantIsNullOrWhiteSpace(string name)
         {
             var ownerUserId = Guid.NewGuid();
             var tenant = Tenant.Create(name, ownerUserId);
@@ -32,7 +35,7 @@ namespace Ecommerce.Domain.Tests.Tenants
         }
 
         [Fact]
-        public void Throws_WhenOwnerUserIdIsEmpty()
+        public void ReturnsFailure_WhenOwnerUserIdIsEmpty()
         {
             var name = "My Tenant";
             var tenant = Tenant.Create(name, Guid.Empty);

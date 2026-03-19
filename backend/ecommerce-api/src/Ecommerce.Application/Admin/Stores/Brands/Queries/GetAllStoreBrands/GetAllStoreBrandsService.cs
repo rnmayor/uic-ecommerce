@@ -22,16 +22,12 @@ public sealed class GetAllStoreBrandsService : IGetAllStoreBrandsService
             Search = string.IsNullOrWhiteSpace(query.Search) ? null : query.Search.Trim()
         };
 
-        var result = await _repository.GetAllAsync(sanitizedQuery, ct);
-        if (result.IsFailure)
-        {
-            return result.Error;
-        }
+        var (items, total) = await _repository.GetAllAsync(sanitizedQuery, ct);
 
         return new StoreBrandsResponse
         {
-            Brands = result.Value.Items,
-            Total = result.Value.TotalCount,
+            Brands = items,
+            Total = total,
             Skip = sanitizedQuery.Skip,
             Limit = sanitizedQuery.Limit
         };
