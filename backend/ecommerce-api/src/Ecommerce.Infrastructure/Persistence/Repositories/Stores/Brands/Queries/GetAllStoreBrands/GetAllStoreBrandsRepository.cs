@@ -12,7 +12,7 @@ namespace Ecommerce.Infrastructure.Persistence.Repositories.Stores.Brands.Querie
             _context = context;
 
         }
-        public async Task<Result<(IReadOnlyList<StoreBrandDTO> Items, int TotalCount)>> GetAllAsync(GetAllBrandsQuery query, CancellationToken ct = default)
+        public async Task<(IReadOnlyList<StoreBrandDTO> Items, int TotalCount)> GetAllAsync(GetAllBrandsQuery query, CancellationToken ct = default)
         {
             var baseQuery = _context.StoreBrands
                 .IgnoreQueryFilters()

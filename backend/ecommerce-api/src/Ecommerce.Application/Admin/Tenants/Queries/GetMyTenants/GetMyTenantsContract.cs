@@ -23,6 +23,6 @@ namespace Ecommerce.Application.Admin.Tenants.Queries.GetMyTenants
 
     public interface IGetTenantsForUserRepository
     {
-        Task<Result<IReadOnlyList<MyTenantDTO>>> GetTenantsForUserAsync(Guid userId, CancellationToken ct = default);
+        Task<IReadOnlyList<MyTenantDTO>> GetTenantsForUserAsync(Guid userId, CancellationToken ct = default);
     }
 }

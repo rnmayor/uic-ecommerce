@@ -12,14 +12,10 @@ namespace Ecommerce.Application.Admin.Tenants.Queries.GetMyTenants
         public async Task<Result<MyTenantsResponse>> HandleAsync(Guid userId, CancellationToken ct = default)
         {
             var result = await _repository.GetTenantsForUserAsync(userId, ct);
-            if (result.IsFailure)
-            {
-                return result.Error;
-            }
 
             return new MyTenantsResponse
             {
-                Tenants = result.Value
+                Tenants = result
             };
         }
     }

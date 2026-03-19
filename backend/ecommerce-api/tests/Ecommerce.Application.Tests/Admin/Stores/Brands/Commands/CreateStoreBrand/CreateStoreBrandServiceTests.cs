@@ -41,6 +41,8 @@ namespace Ecommerce.Application.Tests.Admin.Stores.Brands.Commands.CreateStoreBr
 
             validatorMock.Verify(v => v.ValidateAsync(request, It.IsAny<CancellationToken>()), Times.Once);
 
+            repositoryMock.Verify(r => r.StoreBrandExistAsync(expectedNormalizedName, It.IsAny<CancellationToken>()), Times.Once);
+
             repositoryMock.Verify(r => r.CreateAsync(
               It.Is<StoreBrand>(b => b.Name == request.StoreBrandName),
               It.IsAny<CancellationToken>()

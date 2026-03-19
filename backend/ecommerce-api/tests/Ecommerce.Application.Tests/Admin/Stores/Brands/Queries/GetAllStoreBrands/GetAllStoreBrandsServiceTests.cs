@@ -116,31 +116,6 @@ namespace Ecommerce.Application.Tests.Admin.Stores.Brands.Queries.GetAllStoreBra
         }
 
         [Theory, AutoMoqData]
-        public async Task HandleAsync_ReturnsFailure_WhenRepositoryFails(
-            [Frozen] Mock<IGetAllStoreBrandsRepository> repositoryMock,
-            GetAllStoreBrandsService service
-        )
-        {
-            // Arrange
-            var error = new Error("db_error", "Database down", HttpStatusCode.InternalServerError);
-            repositoryMock
-                .Setup(r => r.GetAllAsync(It.IsAny<GetAllBrandsQuery>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(error);
-
-            // Act
-            var result = await service.HandleAsync(new GetAllBrandsQuery(), CancellationToken.None);
-
-            // Assert
-            Assert.True(result.IsFailure);
-            Assert.Equal(error, result.Error);
-
-            repositoryMock.Verify(r => r.GetAllAsync(
-                It.IsAny<GetAllBrandsQuery>(),
-                It.IsAny<CancellationToken>()
-            ), Times.Once);
-        }
-
-        [Theory, AutoMoqData]
         public async Task HandleAsync_PassesCancellationToken(
             [Frozen] Mock<IGetAllStoreBrandsRepository> repositoryMock,
             GetAllStoreBrandsService service

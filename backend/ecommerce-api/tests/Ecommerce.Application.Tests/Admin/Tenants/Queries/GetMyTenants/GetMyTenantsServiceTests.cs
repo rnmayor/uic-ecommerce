@@ -100,32 +100,6 @@ namespace Ecommerce.Application.Tests.Admin.Tenants.Queries.GetMyTenants
         }
 
         [Theory, AutoMoqData]
-        public async Task HandleAsync_ReturnsFailure_WhenRepositoryFails(
-            Guid userId,
-            [Frozen] Mock<IGetTenantsForUserRepository> repositoryMock,
-            GetMyTenantsService service
-        )
-        {
-            // Arrange
-            var dbError = new Error("db_error", "Failed to fetch membership", HttpStatusCode.InternalServerError);
-            repositoryMock
-                .Setup(r => r.GetTenantsForUserAsync(userId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(dbError);
-
-            // Act
-            var result = await service.HandleAsync(userId, CancellationToken.None);
-
-            // Assert
-            Assert.True(result.IsFailure);
-            Assert.Equal(dbError, result.Error);
-
-            repositoryMock.Verify(r => r.GetTenantsForUserAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()
-            ), Times.Once);
-        }
-
-        [Theory, AutoMoqData]
         public async Task HandleAsync_PassesCancellationToken(
             Guid userId,
             [Frozen] Mock<IGetTenantsForUserRepository> repositoryMock,

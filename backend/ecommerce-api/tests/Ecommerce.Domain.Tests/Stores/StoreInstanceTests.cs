@@ -22,7 +22,7 @@ namespace Ecommerce.Domain.Tests.Stores
         }
 
         [Fact]
-        public void Throws_WhenTenantIdIsEmpty()
+        public void ReturnsFailure_WhenTenantIdIsEmpty()
         {
             var tenantId = Guid.Empty;
             var storeBrandId = Guid.NewGuid();
@@ -35,7 +35,7 @@ namespace Ecommerce.Domain.Tests.Stores
         }
 
         [Fact]
-        public void Throws_WhenStoreBrandIdIsEmpty()
+        public void ReturnsFailure_WhenStoreBrandIdIsEmpty()
         {
             var tenantId = Guid.NewGuid();
             var storeBrandId = Guid.Empty;
@@ -50,7 +50,7 @@ namespace Ecommerce.Domain.Tests.Stores
         [Theory]
         [InlineData("")]
         [InlineData(" ")]
-        public void Throws_WhenDisplayNameIsNullOrWhitespace(string displayName)
+        public void ReturnsFailure_WhenDisplayNameIsNullOrWhitespace(string displayName)
         {
             var tenantId = Guid.NewGuid();
             var storeBrandId = Guid.NewGuid();

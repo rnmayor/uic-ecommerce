@@ -20,7 +20,7 @@ namespace Ecommerce.Domain.Tests.Tenants
         }
 
         [Fact]
-        public void Throws_WhenTenantIdIsEmpty()
+        public void ReturnsFailure_WhenTenantIdIsEmpty()
         {
             var userId = Guid.NewGuid();
 
@@ -31,7 +31,7 @@ namespace Ecommerce.Domain.Tests.Tenants
         }
 
         [Fact]
-        public void Throws_WhenUserIdIsEmpty()
+        public void ReturnsFailure_WhenUserIdIsEmpty()
         {
             var tenantId = Guid.NewGuid();
 
@@ -44,7 +44,7 @@ namespace Ecommerce.Domain.Tests.Tenants
         [Theory]
         [InlineData("")]
         [InlineData(" ")]
-        public void Throws_WhenRolesIsNullOrWhitespace(string role)
+        public void ReturnsFailure_WhenRolesIsNullOrWhitespace(string role)
         {
             var tenantId = Guid.NewGuid();
             var userId = Guid.NewGuid();
@@ -56,7 +56,7 @@ namespace Ecommerce.Domain.Tests.Tenants
         }
 
         [Fact]
-        public void Throws_WhenRolesIsInvalid()
+        public void ReturnsFailure_WhenRolesIsInvalid()
         {
             var tenantId = Guid.NewGuid();
             var userId = Guid.NewGuid();

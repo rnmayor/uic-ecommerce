@@ -16,6 +16,7 @@ namespace Ecommerce.Application.Admin.Tenants.Features.Onboarding
     public interface IOnboardingRepository
     {
         Task<bool> UserAlreadyHasTenantAsync(Guid userId, CancellationToken ct = default);
+        Task<bool> TenantExistAsync(string normalizedName, CancellationToken ct = default);
         Task CreateTenantWithOwnerAsync(Tenant tenant, TenantUser owner, CancellationToken ct = default);
     }
 

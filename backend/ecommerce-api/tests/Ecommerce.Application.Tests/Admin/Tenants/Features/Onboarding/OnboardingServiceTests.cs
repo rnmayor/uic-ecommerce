@@ -1,5 +1,6 @@
 using AutoFixture.Xunit2;
 using Ecommerce.Application.Admin.Tenants.Features.Onboarding;
+using Ecommerce.Domain.Common;
 using Ecommerce.Domain.Tenants;
 using Ecommerce.TestUtils.Attributes;
 using FluentValidation;
@@ -10,7 +11,7 @@ namespace Ecommerce.Application.Tests.Admin.Tenants.Features.Onboarding
     public sealed class OnboardingServiceTests
     {
         [Theory, AutoMoqData]
-        public async Task ExecuteAsync_CreatesTenantAndOwner_WhenUserDoesNotOwnTenant(
+        public async Task ExecuteAsync_CreatesTenantAndOwner_WhenUserDoesNotOwnTenant_AndTenantDoestNotExist(
             Guid userId,
             [Frozen] Mock<IValidator<OnboardingRequest>> validatorMock,
             [Frozen] Mock<IOnboardingRepository> onboardingRepoMock,
@@ -30,6 +31,11 @@ namespace Ecommerce.Application.Tests.Admin.Tenants.Features.Onboarding
                 .Setup(r => r.UserAlreadyHasTenantAsync(userId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
 
+            var expectedNormalizedName = IdentityNormalizer.Normalize(request.TenantName);
+            onboardingRepoMock
+                .Setup(r => r.TenantExistAsync(expectedNormalizedName, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false);
+
             // Act
             var result = await service.ExecuteAsync(userId, request, CancellationToken.None);
 
@@ -46,6 +52,8 @@ namespace Ecommerce.Application.Tests.Admin.Tenants.Features.Onboarding
                 userId,
                 It.IsAny<CancellationToken>()
             ), Times.Once);
+
+            onboardingRepoMock.Verify(r => r.TenantExistAsync(expectedNormalizedName, It.IsAny<CancellationToken>()), Times.Once);
 
             onboardingRepoMock.Verify(r => r.CreateTenantWithOwnerAsync(
                 It.Is<Tenant>(t =>
@@ -100,6 +108,8 @@ namespace Ecommerce.Application.Tests.Admin.Tenants.Features.Onboarding
                 It.IsAny<CancellationToken>()
             ), Times.Never);
 
+            onboardingRepoMock.Verify(r => r.TenantExistAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+
             onboardingRepoMock.Verify(r => r.CreateTenantWithOwnerAsync(
                 It.IsAny<Tenant>(),
                 It.IsAny<TenantUser>(),
@@ -108,7 +118,7 @@ namespace Ecommerce.Application.Tests.Admin.Tenants.Features.Onboarding
         }
 
         [Theory, AutoMoqData]
-        public async Task ExecuteAsync_Throws_WhenUserAlreadyOwnsTenant(
+        public async Task ExecuteAsync_ReturnsFailure_WhenUserAlreadyOwnsTenant(
             Guid userId,
             [Frozen] Mock<IValidator<OnboardingRequest>> validatorMock,
             [Frozen] Mock<IOnboardingRepository> onboardingRepoMock,
@@ -145,6 +155,60 @@ namespace Ecommerce.Application.Tests.Admin.Tenants.Features.Onboarding
                 It.IsAny<CancellationToken>()
             ), Times.Once);
 
+            onboardingRepoMock.Verify(r => r.TenantExistAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+
+            onboardingRepoMock.Verify(r => r.CreateTenantWithOwnerAsync(
+                It.IsAny<Tenant>(),
+                It.IsAny<TenantUser>(),
+                It.IsAny<CancellationToken>()
+            ), Times.Never);
+        }
+
+        [Theory, AutoMoqData]
+        public async Task ExecuteAsync_ReturnsFailure_WhenTenantExist(
+            Guid userId,
+            [Frozen] Mock<IValidator<OnboardingRequest>> validatorMock,
+            [Frozen] Mock<IOnboardingRepository> onboardingRepoMock,
+            OnboardingService service)
+        {
+            // Arrange
+            var request = new OnboardingRequest
+            {
+                TenantName = "My Tenant",
+            };
+
+            validatorMock
+                .Setup(v => v.ValidateAsync(request, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ValidationResult());
+
+            onboardingRepoMock
+                .Setup(r => r.UserAlreadyHasTenantAsync(userId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false);
+
+            var expectedNormalizedName = IdentityNormalizer.Normalize(request.TenantName);
+            onboardingRepoMock
+                .Setup(r => r.TenantExistAsync(expectedNormalizedName, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            // Act
+            var result = await service.ExecuteAsync(userId, request, CancellationToken.None);
+
+            // Assert
+            Assert.True(result.IsFailure);
+            Assert.Equal(TenantErrors.NameAlreadyExists.Code, result.Error.Code);
+
+            validatorMock.Verify(v => v.ValidateAsync(
+                request,
+                It.IsAny<CancellationToken>()
+            ), Times.Once);
+
+            onboardingRepoMock.Verify(r => r.UserAlreadyHasTenantAsync(
+                userId,
+                It.IsAny<CancellationToken>()
+            ), Times.Once);
+
+            onboardingRepoMock.Verify(r => r.TenantExistAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+
             onboardingRepoMock.Verify(r => r.CreateTenantWithOwnerAsync(
                 It.IsAny<Tenant>(),
                 It.IsAny<TenantUser>(),
@@ -174,6 +238,11 @@ namespace Ecommerce.Application.Tests.Admin.Tenants.Features.Onboarding
                 .Setup(r => r.UserAlreadyHasTenantAsync(userId, cts.Token))
                 .ReturnsAsync(false);
 
+            var expectedNormalizedName = IdentityNormalizer.Normalize(request.TenantName);
+            onboardingRepoMock
+                .Setup(r => r.TenantExistAsync(expectedNormalizedName, cts.Token))
+                .ReturnsAsync(false);
+
             // Act
             var result = await service.ExecuteAsync(userId, request, cts.Token);
 
@@ -188,6 +257,8 @@ namespace Ecommerce.Application.Tests.Admin.Tenants.Features.Onboarding
                 It.IsAny<Guid>(),
                 cts.Token
             ), Times.Once);
+
+            onboardingRepoMock.Verify(r => r.TenantExistAsync(It.IsAny<string>(), cts.Token), Times.Once);
 
             onboardingRepoMock.Verify(r => r.CreateTenantWithOwnerAsync(
                 It.IsAny<Tenant>(),

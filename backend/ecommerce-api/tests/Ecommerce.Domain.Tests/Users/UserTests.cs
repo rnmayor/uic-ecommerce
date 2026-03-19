@@ -19,7 +19,7 @@ namespace Ecommerce.Domain.Tests.Users
         [Theory]
         [InlineData("")]
         [InlineData(" ")]
-        public void Throws_WhenClerkUserIdIsNullOrWhitespace(string clerkUserId)
+        public void ReturnsFailure_WhenClerkUserIdIsNullOrWhitespace(string clerkUserId)
         {
             var user = User.Create(clerkUserId);
 

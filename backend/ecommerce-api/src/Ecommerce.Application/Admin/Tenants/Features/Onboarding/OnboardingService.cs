@@ -28,6 +28,12 @@ namespace Ecommerce.Application.Admin.Tenants.Features.Onboarding
                 return TenantErrors.UserOwnsTenant;
             }
 
+            var normalizedName = IdentityNormalizer.Normalize(request.TenantName);
+            if (await _onboardingRepo.TenantExistAsync(normalizedName, ct))
+            {
+                return TenantErrors.NameAlreadyExists;
+            }
+
             var tenant = Tenant.Create(request.TenantName, userId);
             if (tenant.IsFailure)
             {
