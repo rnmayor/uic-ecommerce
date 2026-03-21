@@ -6,7 +6,6 @@ namespace Ecommerce.Domain.Tenants
     {
         public string Name { get; private set; } = default!;
         public string NormalizedName { get; private set; } = default!;
-
         public string Slug { get; private set; } = default!;
         public Guid OwnerUserId { get; private set; }
         public DateTime CreatedAt { get; private set; }

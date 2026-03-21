@@ -22,7 +22,8 @@ builder.Host.UseSerilog((context, services, configuration) =>
         .ReadFrom.Services(services)
         .Enrich.FromLogContext()
         .Enrich.WithEnvironmentName()
-        .Enrich.WithThreadId();
+        .Enrich.WithThreadId()
+        .Enrich.WithProperty("Application", "EcommerceAPI");
 });
 
 // ---------- Add services to the container ---------- //
@@ -74,23 +75,33 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Log first
+app.UseSerilogRequestLogging();
+
+// Global exception handling
 app.UseExceptionHandler();
 
-if (!app.Environment.IsProduction())
+if (builder.Configuration.GetValue<bool>("EnableHttpsRedirection"))
 {
     app.UseHttpsRedirection();
 }
 
-app.UseSerilogRequestLogging();
-
+// Correlation ID
 app.UseCorrelationId();
 
+// Auth pipeline
 app.UseAuthentication();
-app.UseTenantResolution();
-app.UseAuthorization();
 
+// Tenant resolution
+app.UseTenantResolution();
+
+// Log enrichment
 app.UseLogEnrichment();
 
+// Authorization
+app.UseAuthorization();
+
+// Endpoints
 app.MapHealthChecks("/health");
 app.MapControllers();
 

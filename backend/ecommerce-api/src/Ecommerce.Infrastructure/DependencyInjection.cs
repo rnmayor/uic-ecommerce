@@ -1,6 +1,7 @@
 using Ecommerce.Application.Admin.Stores.Brands.Queries.GetAllStoreBrands;
 using Ecommerce.Application.Admin.Tenants.Features.Onboarding;
 using Ecommerce.Application.Admin.Tenants.Queries.GetMyTenants;
+using Ecommerce.Application.Admin.Tenants.Queries.GetTenant;
 using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Application.Common.Options;
 using Ecommerce.Application.Common.Persistence;
@@ -10,6 +11,7 @@ using Ecommerce.Infrastructure.Persistence;
 using Ecommerce.Infrastructure.Persistence.Repositories.Stores.Brands;
 using Ecommerce.Infrastructure.Persistence.Repositories.Stores.Brands.Queries.GetAllStoreBrands;
 using Ecommerce.Infrastructure.Persistence.Repositories.Tenants.Features.Onboarding;
+using Ecommerce.Infrastructure.Persistence.Repositories.Tenants.Queries.GetTenant;
 using Ecommerce.Infrastructure.Persistence.Repositories.Tenants.Queries.GetTenantsForUser;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,6 +29,7 @@ namespace Ecommerce.Infrastructure
         /// <item><c>IUserResolver:</c> Resolves the application's internal user identity from external authentication claims.</item>
         /// <item><c>ITenantOnboardingRepository: </c> Provides persistence abstraction for atomically storing the entities created during tenant onboarding.</item>
         /// <item><c>IGetMyTenantsRepository: </c> Provides read-only persistence abstraction for querying tenant memberships for a given user, including role-based projections required by application-level queries.</item>
+        /// <item><c>IGetTenantRepository: Provides read-only persistence abstraction for querying tenant details for a given slug.</c></item>
         /// <item><c>IGetAllStoreBrandsRepository: </c> Provides read-only persistence abstraction for querying store brands.</item>
         /// <item><c>ITenantRepository: </c> Provides persistence abstraction for storing tenant.</item>
         /// <item><c>IStoreBrandRepository: </c> Provides persistence abstraction for storing store brand.</item>
@@ -49,6 +52,7 @@ namespace Ecommerce.Infrastructure
             // Use-case specific repositories
             services.AddScoped<IOnboardingRepository, OnboardingRepository>();
             services.AddScoped<IGetTenantsForUserRepository, GetTenantsForUserRepository>();
+            services.AddScoped<IGetTenantRepository, GetTenantRepository>();
             services.AddScoped<IGetAllStoreBrandsRepository, GetAllStoreBrandsRepository>();
 
             // Aggregrate repositories

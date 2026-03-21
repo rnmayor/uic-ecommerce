@@ -1,9 +1,7 @@
 using AutoFixture.Xunit2;
 using Ecommerce.Application.Admin.Tenants.Queries.GetMyTenants;
-using Ecommerce.Domain.Common;
 using Ecommerce.Domain.Tenants;
 using Ecommerce.TestUtils.Attributes;
-using System.Net;
 
 namespace Ecommerce.Application.Tests.Admin.Tenants.Queries.GetMyTenants
 {

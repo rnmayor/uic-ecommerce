@@ -1,5 +1,4 @@
 using Ecommerce.Application.Admin.Tenants.Queries.GetMyTenants;
-using Ecommerce.Domain.Common;
 using Ecommerce.Domain.Tenants;
 using Microsoft.EntityFrameworkCore;
 
