@@ -85,12 +85,12 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Stores.Brands
                 .ReturnsAsync(Result<StoreBrandsResponse>.Success(new StoreBrandsResponse { Brands = [], Total = 0 }));
 
             // Act
-            var response = await client.GetAsync("/api/admin/store-brands");
+            var httpResponse = await client.GetAsync("/api/admin/store-brands");
 
             // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, httpResponse.StatusCode);
 
-            var body = await response.Content.ReadFromJsonAsync<StoreBrandsResponse>();
+            var body = await httpResponse.Content.ReadFromJsonAsync<StoreBrandsResponse>();
 
             Assert.NotNull(body);
             Assert.Empty(body.Brands);
@@ -114,12 +114,12 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Stores.Brands
                 .ReturnsAsync(Result<StoreBrandsResponse>.Failure(expectedError));
 
             // Act
-            var response = await client.GetAsync("/api/admin/store-brands");
+            var httpResponse = await client.GetAsync("/api/admin/store-brands");
 
             // Assert
-            Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+            Assert.Equal(HttpStatusCode.ServiceUnavailable, httpResponse.StatusCode);
 
-            var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+            var problem = await httpResponse.Content.ReadFromJsonAsync<ProblemDetails>();
             Assert.NotNull(problem);
             Assert.Equal("db.timeout", problem.Type);
             Assert.Equal("DB TIMEOUT", problem.Title);
@@ -137,10 +137,10 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Stores.Brands
             var client = _factory.CreateClient();
 
             // Act
-            var response = await client.GetAsync("/api/admin/store-brands");
+            var httpResponse = await client.GetAsync("/api/admin/store-brands");
 
             // Assert
-            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.Equal(HttpStatusCode.Unauthorized, httpResponse.StatusCode);
 
             _serviceMock.Verify(s => s.HandleAsync(
                 It.IsAny<GetAllBrandsQuery>(),

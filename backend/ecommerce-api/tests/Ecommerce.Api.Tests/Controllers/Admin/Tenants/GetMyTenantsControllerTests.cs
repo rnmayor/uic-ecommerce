@@ -69,7 +69,7 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Tenants
             var body = await httpResponse.Content.ReadFromJsonAsync<MyTenantsResponse>();
 
             Assert.NotNull(body);
-            Assert.Equal(2, body.Tenants.Count);
+            Assert.Equal(response.Tenants.Count, body.Tenants.Count);
             Assert.True(body.HasTenant);
 
             _serviceMock.Verify(s => s.HandleAsync(
@@ -91,12 +91,12 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Tenants
                 .ReturnsAsync(Result<MyTenantsResponse>.Success(new MyTenantsResponse()));
 
             // Act
-            var response = await client.GetAsync("/api/admin/me/tenants");
+            var httpResponse = await client.GetAsync("/api/admin/me/tenants");
 
             // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, httpResponse.StatusCode);
 
-            var body = await response.Content.ReadFromJsonAsync<MyTenantsResponse>();
+            var body = await httpResponse.Content.ReadFromJsonAsync<MyTenantsResponse>();
 
             Assert.NotNull(body);
             Assert.Empty(body.Tenants);
@@ -122,12 +122,12 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Tenants
                 .ReturnsAsync(expectedError);
 
             // Act
-            var response = await client.GetAsync("/api/admin/me/tenants");
+            var httpResponse = await client.GetAsync("/api/admin/me/tenants");
 
             // Assert
-            Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+            Assert.Equal(HttpStatusCode.ServiceUnavailable, httpResponse.StatusCode);
 
-            var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+            var problem = await httpResponse.Content.ReadFromJsonAsync<ProblemDetails>();
             Assert.NotNull(problem);
             Assert.Equal("db.timeout", problem.Type);
             Assert.Equal("DB TIMEOUT", problem.Title);
@@ -145,10 +145,10 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Tenants
             var client = _factory.CreateClient();
 
             // Act
-            var response = await client.GetAsync("/api/admin/me/tenants");
+            var httpResponse = await client.GetAsync("/api/admin/me/tenants");
 
             // Assert
-            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.Equal(HttpStatusCode.Unauthorized, httpResponse.StatusCode);
 
             _serviceMock.Verify(s => s.HandleAsync(
                 It.IsAny<Guid>(),

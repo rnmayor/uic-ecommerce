@@ -88,15 +88,15 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Stores.Brands
                 .ReturnsAsync(StoreBrandErrors.ValidationFailed("Name is required"));
 
             // Act
-            var response = await client.PostAsJsonAsync(
+            var httpResponse = await client.PostAsJsonAsync(
                 "/api/admin/store-brands",
                 request
             );
 
             // Assert
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, httpResponse.StatusCode);
 
-            var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+            var problem = await httpResponse.Content.ReadFromJsonAsync<ProblemDetails>();
             Assert.NotNull(problem);
             Assert.Equal(StoreBrandErrors.ValidationFailed("").Code, problem.Type);
             Assert.Equal("STORE BRAND VALIDATION FAILED", problem.Title);
@@ -124,18 +124,57 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Stores.Brands
                 .ReturnsAsync(StoreBrandErrors.NameAlreadyExists);
 
             // Act
-            var response = await client.PostAsJsonAsync(
+            var httpResponse = await client.PostAsJsonAsync(
                 "/api/admin/store-brands",
                 request
             );
 
             // Assert
-            Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+            Assert.Equal(HttpStatusCode.Conflict, httpResponse.StatusCode);
 
-            var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+            var problem = await httpResponse.Content.ReadFromJsonAsync<ProblemDetails>();
             Assert.NotNull(problem);
             Assert.Equal(StoreBrandErrors.NameAlreadyExists.Code, problem.Type);
             Assert.Equal("STORE BRAND NAME CONFLICT", problem.Title);
+
+            _serviceMock.Verify(s => s.ExecuteAsync(
+                It.IsAny<CreateStoreBrandRequest>(),
+                It.IsAny<CancellationToken>()
+            ), Times.Once);
+        }
+
+        [Fact]
+        public async Task HandleAsync_WhenServiceFails_ReturnsProblemDetails()
+        {
+            // Arrange
+            var client = _factory.CreateAuthenticatedClient();
+
+            var request = new CreateStoreBrandRequest
+            {
+                StoreBrandName = "My Brand"
+            };
+
+            var expectedError = new Error("db.timeout", "Database timeout.", HttpStatusCode.ServiceUnavailable);
+
+            _serviceMock
+                .Setup(s => s.ExecuteAsync(
+                    It.IsAny<CreateStoreBrandRequest>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedError);
+
+            // Act
+            var httpResponse = await client.PostAsJsonAsync(
+                "/api/admin/store-brands",
+                request
+            );
+
+            // Assert
+            Assert.Equal(HttpStatusCode.ServiceUnavailable, httpResponse.StatusCode);
+
+            var problem = await httpResponse.Content.ReadFromJsonAsync<ProblemDetails>();
+            Assert.NotNull(problem);
+            Assert.Equal("db.timeout", problem.Type);
+            Assert.Equal("DB TIMEOUT", problem.Title);
 
             _serviceMock.Verify(s => s.ExecuteAsync(
                 It.IsAny<CreateStoreBrandRequest>(),
@@ -155,13 +194,13 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Stores.Brands
             };
 
             // Act
-            var response = await client.PostAsJsonAsync(
+            var httpResponse = await client.PostAsJsonAsync(
                 "/api/admin/store-brands",
                 request
             );
 
             // Assert
-            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.Equal(HttpStatusCode.Unauthorized, httpResponse.StatusCode);
 
             _serviceMock.Verify(s => s.ExecuteAsync(
                 It.IsAny<CreateStoreBrandRequest>(),

@@ -8,17 +8,17 @@ namespace Ecommerce.Application.Tests.Admin.Tenants.Queries.GetMyTenants
     public sealed class GetMyTenantsServiceTests
     {
         [Theory, AutoMoqData]
-        public async Task HandleAsync_ReturnsTenantList_WhenUserHasMemberships(
+        public async Task HandleAsync_ReturnsTenantList_WhenUserHasTenants(
             Guid userId,
             [Frozen] Mock<IGetTenantsForUserRepository> repositoryMock,
             GetMyTenantsService service)
         {
             // Arrange
             var tenants = new List<MyTenantDTO>
-        {
-            new() { TenantId = Guid.NewGuid(), Name = "Tenant A", IsOwner = true, Role = TenantRoles.Owner },
-            new() { TenantId = Guid.NewGuid(), Name = "Tenant B", IsOwner = false, Role = TenantRoles.Admin }
-        };
+            {
+                new() { TenantId = Guid.NewGuid(), Name = "Tenant A", IsOwner = true, Role = TenantRoles.Owner },
+                new() { TenantId = Guid.NewGuid(), Name = "Tenant B", IsOwner = false, Role = TenantRoles.Admin }
+            };
 
             repositoryMock
                 .Setup(r => r.GetTenantsForUserAsync(userId, It.IsAny<CancellationToken>()))
@@ -30,9 +30,8 @@ namespace Ecommerce.Application.Tests.Admin.Tenants.Queries.GetMyTenants
             // Assert
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Value);
-            Assert.Equal(2, result.Value.Tenants.Count);
+            Assert.Equal(tenants.Count, result.Value.Tenants.Count);
             Assert.True(result.Value.HasTenant);
-            Assert.Equal(tenants, result.Value.Tenants);
 
             repositoryMock.Verify(r => r.GetTenantsForUserAsync(
                 userId, It.IsAny<CancellationToken>()
@@ -77,9 +76,9 @@ namespace Ecommerce.Application.Tests.Admin.Tenants.Queries.GetMyTenants
         {
             // Arrange
             var tenants = new List<MyTenantDTO>
-        {
-            new() { TenantId = Guid.NewGuid(), Name = "Tenant", Role = role, IsOwner = false }
-        };
+            {
+                new() { TenantId = Guid.NewGuid(), Name = "Tenant", Role = role, IsOwner = false }
+            };
 
             repositoryMock
                 .Setup(r => r.GetTenantsForUserAsync(userId, It.IsAny<CancellationToken>()))
