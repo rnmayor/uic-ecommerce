@@ -1,5 +1,6 @@
 using Ecommerce.Application.Common.Attributes;
 using Ecommerce.Application.Common.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Ecommerce.Api.Middleware
 {
@@ -32,8 +33,22 @@ namespace Ecommerce.Api.Middleware
 
             if (!context.Request.Headers.TryGetValue(TenantHeader, out var tenantIdHeader) || !Guid.TryParse(tenantIdHeader, out var tenantId))
             {
-                context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                await context.Response.WriteAsync("Missing or invalid X-Tenant-Id header.");
+                var problem = new ProblemDetails
+                {
+                    Type = "api.invalid_tenant_context",
+                    Title = "INVALID TENANT CONTEXT",
+                    Detail = "Missing or invalid X-Tenant-Id header.",
+                    Status = StatusCodes.Status400BadRequest,
+                    Instance = context.Request.Path
+                };
+
+                problem.Extensions["traceId"] = context.TraceIdentifier;
+
+                context.Response.StatusCode = problem.Status.Value;
+                context.Response.ContentType = "application/problem+json";
+
+                await context.Response.WriteAsJsonAsync(problem);
+
                 return;
             }
 

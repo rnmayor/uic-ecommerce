@@ -92,18 +92,59 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Tenants
                 .ReturnsAsync(TenantErrors.ValidationFailed("Name is required"));
 
             // Act
-            var response = await client.PostAsJsonAsync(
+            var httpResponse = await client.PostAsJsonAsync(
                 "/api/admin/onboarding/tenant",
                 request
             );
 
             // Assert
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, httpResponse.StatusCode);
 
-            var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+            var problem = await httpResponse.Content.ReadFromJsonAsync<ProblemDetails>();
             Assert.NotNull(problem);
             Assert.Equal(TenantErrors.ValidationFailed("").Code, problem.Type);
             Assert.Equal("TENANT VALIDATION FAILED", problem.Title);
+
+            _serviceMock.Verify(s => s.ExecuteAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<OnboardingRequest>(),
+                It.IsAny<CancellationToken>()
+            ), Times.Once);
+        }
+
+        [Fact]
+        public async Task HandleAsync_WhenServiceFails_ReturnsProblemDetails()
+        {
+            // Arrange
+            var client = _factory.CreateAuthenticatedClient();
+
+            var request = new OnboardingRequest
+            {
+                TenantName = "My Tenant"
+            };
+
+            var expectedError = new Error("db.timeout", "Database timeout.", HttpStatusCode.ServiceUnavailable);
+
+            _serviceMock
+                .Setup(s => s.ExecuteAsync(
+                    It.IsAny<Guid>(),
+                    It.IsAny<OnboardingRequest>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedError);
+
+            // Act
+            var httpResponse = await client.PostAsJsonAsync(
+                "/api/admin/onboarding/tenant",
+                request
+            );
+
+            // Assert
+            Assert.Equal(HttpStatusCode.ServiceUnavailable, httpResponse.StatusCode);
+
+            var problem = await httpResponse.Content.ReadFromJsonAsync<ProblemDetails>();
+            Assert.NotNull(problem);
+            Assert.Equal("db.timeout", problem.Type);
+            Assert.Equal("DB TIMEOUT", problem.Title);
 
             _serviceMock.Verify(s => s.ExecuteAsync(
                 It.IsAny<Guid>(),
@@ -124,13 +165,13 @@ namespace Ecommerce.Api.Tests.Controllers.Admin.Tenants
             };
 
             // Act
-            var response = await client.PostAsJsonAsync(
+            var httpResponse = await client.PostAsJsonAsync(
                 "/api/admin/onboarding/tenant",
                 request
             );
 
             // Assert
-            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.Equal(HttpStatusCode.Unauthorized, httpResponse.StatusCode);
 
             _serviceMock.Verify(s => s.ExecuteAsync(
                 It.IsAny<Guid>(),

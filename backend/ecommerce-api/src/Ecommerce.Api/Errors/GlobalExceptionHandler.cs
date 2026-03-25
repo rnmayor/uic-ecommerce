@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
-using System.Net;
 
 namespace Ecommerce.Api.Errors
 {
@@ -13,16 +12,18 @@ namespace Ecommerce.Api.Errors
 
             var problem = new ProblemDetails
             {
-                Type = "server_error",
+                Type = "api.internal_server_error",
                 Title = "INTERNAL SERVER ERROR",
                 Detail = "An unhandled exception occurred while processing the request. Please try again later.",
-                Status = (int)HttpStatusCode.InternalServerError,
+                Status = StatusCodes.Status500InternalServerError,
                 Instance = context.Request.Path
             };
 
             problem.Extensions["traceId"] = context.TraceIdentifier;
 
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            context.Response.StatusCode = problem.Status.Value;
+            context.Response.ContentType = "application/problem+json";
+
             await context.Response.WriteAsJsonAsync(problem, ct);
 
             return true;

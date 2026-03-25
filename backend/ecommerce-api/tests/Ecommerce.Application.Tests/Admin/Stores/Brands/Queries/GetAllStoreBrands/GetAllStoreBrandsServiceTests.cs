@@ -1,8 +1,6 @@
 using AutoFixture.Xunit2;
 using Ecommerce.Application.Admin.Stores.Brands.Queries.GetAllStoreBrands;
-using Ecommerce.Domain.Common;
 using Ecommerce.TestUtils.Attributes;
-using System.Net;
 
 namespace Ecommerce.Application.Tests.Admin.Stores.Brands.Queries.GetAllStoreBrands
 {

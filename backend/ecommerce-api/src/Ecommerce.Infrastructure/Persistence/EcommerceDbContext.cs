@@ -4,6 +4,7 @@ using Ecommerce.Domain.Stores;
 using Ecommerce.Domain.Tenants;
 using Ecommerce.Domain.Users;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace Ecommerce.Infrastructure.Persistence
 {
@@ -36,23 +37,19 @@ namespace Ecommerce.Infrastructure.Persistence
                 if (typeof(TenantEntity).IsAssignableFrom(entityType.ClrType))
                 {
                     var method = typeof(EcommerceDbContext)
-                        .GetMethod(nameof(SetTenantFilter), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
+                        .GetMethod(nameof(SetTenantFilter), BindingFlags.NonPublic | BindingFlags.Instance)!
                         .MakeGenericMethod(entityType.ClrType);
 
-                    method.Invoke(null, new object[] { modelBuilder, _tenantContext });
+                    method.Invoke(this, new object[] { modelBuilder });
                 }
             }
         }
 
-        private static void SetTenantFilter<TEntity>(
-            ModelBuilder modelBuilder,
-            ITenantContext tenantContext
+        private void SetTenantFilter<TEntity>(
+            ModelBuilder modelBuilder
         ) where TEntity : TenantEntity
         {
-            if (tenantContext.IsResolved)
-            {
-                modelBuilder.Entity<TEntity>().HasQueryFilter(e => e.TenantId == tenantContext.TenantId);
-            }
+            modelBuilder.Entity<TEntity>().HasQueryFilter(e => !_tenantContext.IsResolved || e.TenantId == _tenantContext.TenantId);
         }
     }
 }
