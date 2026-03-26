@@ -10,21 +10,31 @@
     "build": "pnpm build:apps",
     "build:apps": "pnpm -r --filter \"./apps/*\" build",
     "lint": "eslint . --max-warnings=0 && echo \"ESLint: No issues found.\"",
-    "test": "echo \"Error: no test configured\"",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:app": "vitest --project uic-ecommerce",
+    "test:coverage": "vitest run --coverage",
     "prepare": "husky",
     "format": "prettier --write .",
     "type-check": "pnpm -r --filter \"./packages/*\" type-check"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.10.4",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "@vitest/coverage-v8": "^4.1.1",
     "eslint": "^9.39.2",
     "eslint-config-next": "16.1.1",
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
+    "jsdom": "^29.0.1",
+    "msw": "^2.12.14",
     "prettier": "^3.7.4",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.1"
   },
   "engines": {
     "node": "24.x"
