@@ -24,8 +24,11 @@ jobs:
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
       backend: ${{ steps.filter.outputs.backend }}
+      ui: ${{ steps.filter.outputs.ui }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Detect changed paths
         id: filter
@@ -43,9 +46,12 @@ jobs:
               - '*config.mjs'
               - '.prettier*'
               - '.gitignore'
+            ui:
+              - 'packages/ui/**'
+              - 'packages/core/**'
             backend:
               - 'backend/**'
-              - '.github/workflows/**' 
+              - '.github/workflows/**'
 
   # ---------------------------------------------
   # Frontend quality gate
@@ -75,6 +81,34 @@ jobs:
       - run: pnpm test --if-present
       - run: pnpm build
 
+  chromatic:
+    name: Storybook Visual Tests
+    needs: [changes, frontend]
+    if: needs.changes.outputs.ui == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.24.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.12
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Publish to Chromatic
+        uses: chromaui/action@latest
+        with:
+          workingDir: packages/ui
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          buildScriptName: build-storybook
+
   # ---------------------------------------------
   # Backend CI (tests + migration generation)
   # ---------------------------------------------
@@ -102,7 +136,7 @@ jobs:
 
       - name: Generate SQL Migration
         env:
-          DatabaseOptions__ConnectionString: "Host=localhost;Database=dummy;Username=dummy;Password=dummy;"
+          DatabaseOptions__ConnectionString: 'Host=localhost;Database=dummy;Username=dummy;Password=dummy;'
         run: |
           dotnet ef migrations script \
           --project backend/ecommerce-api/src/Ecommerce.Infrastructure/Ecommerce.Infrastructure.csproj \
@@ -122,13 +156,13 @@ jobs:
     name: Staging Migration Test
     needs: [changes, backend-ci]
     if: |
-      github.event_name == 'pull_request' && 
+      github.event_name == 'pull_request' &&
       needs.changes.outputs.backend == 'true' &&
       needs.backend-ci.result == 'success'
     runs-on: ubuntu-latest
     environment: staging
-    
-    steps: 
+
+    steps:
       - uses: actions/download-artifact@v4
         with:
           name: db-migration
@@ -147,7 +181,7 @@ jobs:
           PGPASSWORD: ${{ secrets.NEON_DB_PASSWORD }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: psql -v ON_ERROR_STOP=1 "$DATABASE_URL" -f migration.sql
-        
+
   # ---------------------------------------------
   # Build & push backend container
   # ---------------------------------------------
@@ -171,7 +205,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-  
+
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -214,7 +248,7 @@ jobs:
     needs: [changes, backend-ci, backend-containerize]
     if: |
       github.ref == 'refs/heads/main' &&
-      needs.changes.outputs.backend == 'true' && 
+      needs.changes.outputs.backend == 'true' &&
       needs.backend-ci.result == 'success' &&
       needs.backend-containerize.result == 'success'
     runs-on: ubuntu-latest
@@ -327,7 +361,7 @@ jobs:
             echo "Redeploying Railway service with previous image..."
             railway redeploy --service ${{ vars.RAILWAY_SERVICE_NAME }} -y
           fi
-          
+
           if [ "${{ vars.TARGET_PROVIDER }}" == "azure" ]; then
             echo "Rollback for Azure Container Apps"
 
