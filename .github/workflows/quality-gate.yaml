@@ -27,6 +27,8 @@ jobs:
       ui: ${{ steps.filter.outputs.ui }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Detect changed paths
         id: filter
