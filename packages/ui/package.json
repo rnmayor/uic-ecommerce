@@ -9,7 +9,7 @@
   },
   "scripts": {
     "storybook": "storybook dev -p 6006",
-    "storybook:build": "storybook build",
+    "build-storybook": "storybook build",
     "type-check": "tsc --build"
   },
   "dependencies": {

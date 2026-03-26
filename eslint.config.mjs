@@ -42,6 +42,12 @@ export default defineConfig([
     '**/.env.*',
     '**/*.log',
     '**/next-env.d.ts',
+
+    '**/storybook-static/**',
+    '**/*.log',
+    '**/chromatic-build-*.xml',
+    '**/chromatic-diagnostics.json',
+    '**/.storybook/dist/**',
   ]),
 
   ...nextCoreWebVitals,
