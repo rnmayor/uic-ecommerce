@@ -108,7 +108,6 @@ jobs:
           workingDir: packages/ui
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           buildScriptName: build-storybook
-          autoAcceptChanges: 'main'
 
   # ---------------------------------------------
   # Backend CI (tests + migration generation)
