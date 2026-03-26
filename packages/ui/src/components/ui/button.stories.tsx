@@ -45,10 +45,3 @@ export const Destructive: Story = {
     variant: 'destructive',
   },
 };
-
-export const Link: Story = {
-  args: {
-    children: 'Click Me',
-    variant: 'link',
-  },
-};
