@@ -40,5 +40,5 @@ A production-oriented SaaS platform modeling real-world multi-tenant commerce sy
 
 ## 🔗 Links
 
-- Portfolio: [ronelmayor.dev](https://ronelmayor.dev)  
+- Portfolio: [ronelmayor.dev](https://uic-rm-portfolio.vercel.app/)  
 - LinkedIn: [linkedin.com/in/ronelmayor](https://linkedin.com/in/ronelmayor)
