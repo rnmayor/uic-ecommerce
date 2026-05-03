@@ -1,5 +1,4 @@
-﻿using Ecommerce.Api.Extensions;
-using Ecommerce.Api.Modules.Tenancy;
+﻿using Ecommerce.Api.Modules.Tenancy;
 
 namespace Ecommerce.Api.Modules
 {
