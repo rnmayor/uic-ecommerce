@@ -1,6 +1,6 @@
+using Ecommerce.Api;
 using Ecommerce.Api.Errors;
 using Ecommerce.Api.Extensions;
-using Ecommerce.Api.Modules;
 using Ecommerce.Application;
 using Ecommerce.Application.Common.Authorization.Policies;
 using Ecommerce.Infrastructure;

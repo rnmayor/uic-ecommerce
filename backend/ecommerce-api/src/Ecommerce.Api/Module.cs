@@ -1,4 +1,4 @@
-﻿namespace Ecommerce.Api.Modules
+﻿namespace Ecommerce.Api
 {
     internal record Module(string Value)
     {

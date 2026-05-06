@@ -1,8 +1,12 @@
-﻿namespace Ecommerce.Api.Modules.Tenancy
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Ecommerce.Tenancy.Api
 {
     public static class TenancyModule
     {
-        public static IServiceCollection AddTenanyModule(this IServiceCollection services, IConfiguration configuration, string module)
+        public static IServiceCollection AddTenancyModule(this IServiceCollection services, IConfiguration configuration, string module)
         {
             if (!IsEnabled(configuration, module)) return services;
 
