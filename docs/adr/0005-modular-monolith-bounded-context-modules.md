@@ -1,4 +1,4 @@
-# ADR-0005: Modular Monolith with Bounded Context Modules
+# ADR-0005: Modular architecture with bounded context modules and evolutionary extraction boundaries
 
 ## Status
 

@@ -15,7 +15,7 @@ namespace Ecommerce.Shared.Infrastructure.Messaging
             var handlerType = typeof(IQueryHandler<,>).MakeGenericType(query.GetType(), typeof(TResponse));
             dynamic handler = _serviceProvider.GetRequiredService(handlerType);
 
-            return await handler.DispatchAsync(query, ct);
+            return await handler.HandleAsync(query, ct);
         }
     }
 }

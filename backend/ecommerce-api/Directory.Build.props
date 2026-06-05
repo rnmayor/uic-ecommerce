@@ -1,0 +1,15 @@
+<Project>
+  <!--
+    Inherited by every project under backend/ecommerce-api/ (src/, tests/, Modules/, Shared/).
+    Keeps target framework and language settings consistent as modules are added.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+</Project>

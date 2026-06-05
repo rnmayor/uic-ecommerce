@@ -1,0 +1,342 @@
+# Identity & Mission
+
+I am a Senior Software Engineer with 15+ years of experience building modern, scalable software systems.
+
+This project is a portfolio-grade, enterprise-style, multi-tenant SaaS e-commerce platform that serves as a long-term technical demonstration of modern software architecture, engineering practices, and product development.
+
+The Goal:
+
+Build a production-grade, multi-tenant SaaS platform that demonstrates:
+
+- Domain-Driven Design (DDD)
+- Vertical Slice Architecture
+- Modular architecture with bounded contexts
+- Event-driven design and asynchronous workflows
+- Multi-tenancy and data isolation
+- Clean Architecture principles
+- Modern .NET backend development
+- Angular enterprise application development
+- Next.js marketplace architecture
+- Cloud-native deployment, observability, and operational excellence
+
+The system should be designed for evolutionary architecture, allowing modules to remain within a modular monolith or be extracted into independently deployable services when justified by business, operational, or scaling requirements.
+
+Core Requirement:
+Every line of code must reflect production-grade engineering quality. Prioritize maintainability, explicit design, type safety, testability, observability, and strict architectural boundaries over shortcuts or quick implementations.
+
+This project serves as a long-term demonstration of how a modern SaaS platform can be designed, built, tested, deployed, operated, and evolved using production-grade engineering practices.
+
+# AI Behavior Rules
+
+- Always prioritize maintainability over brevity
+- Do not generate placeholder or pseudo code
+- If uncertain, ask for clarification instead of guessing
+- Always follow existing patterns in the codebase
+- Do not introduce new libraries without justification
+- Prefer explicit over implicit implementation
+- Ensure all generated code compiles and is production-ready
+
+# Rule Priority (Highest -> Lowest)
+
+1. Business Rules Document
+2. ADR Documents
+3. Architecture & Dependency Rules
+4. Coding Standards
+5. Style / Formatting
+
+If conflicts occur, follow this order strictly.
+
+# The Tech Stack
+
+Backend:
+
+- Runtime: .NET 10 (latest)
+- Framework: ASP.NET Core WEB API
+- Persistence: PostgreSQL with EF Core (Neon.tech for Cloud / Local Docker)
+- Auth: Clerk (Identity Provider) + Custom JWT Claims Transformation
+- Testing: xUnit + FluentAssertions (Tests organized per Vertical Slice)
+- Tooling: Central Package Management (Directory.Packages.Props), .slnx solution format
+
+Frontend (Monorepo):
+
+- Admin CMS: Angular v21 (Typescript)
+  - State: Signals + Tanstack Query
+  - Validation: Zod
+  - UI: Angular Material (Enterprise standard) + TailwindCSS
+  - Architecture: Feature-package approach with DDAU (Data Down, Actions Up)
+
+- Marketplace: Next.js 16 (App Router - Typescript)
+  - Components: React Server Components (RSC)
+  - Validation: Zod
+  - UI: shadcn/ui + TailwindCSS
+  - Data: Server Actions + Module Pattern
+
+- Testing: Vitest (Test files co-located with implementations)
+
+Package Management:
+
+- Frontend: pnpm (Workspace-aware, strict dependency hoisting)
+- Backend: Central Package Management (Directory.Packages.Props)
+
+Infrastructure & CI/CD:
+
+- Automated PR checks (Linting, Build, Vitest, xUnit)
+- Dockerization of backend and frontend apps
+- Automated push to Github Packages (GHCR)
+- Deployment to Railway (App Hosting) and Neon (DB Migrations)
+
+- Migration Strategy: EF Core Migrations. Note: Rollbacks are handled via "Roll-Forward" migrations or manual DB snapshots in Neon to maintain integrity.
+
+# Scalability Principles:
+
+- Prefer read/write separation at the slice level when needed
+- Design aggregates to minimize cross-tenant locking
+- Use pagination and filtering for all list endpoints
+- Avoid N+1 queries via Explicit Projections
+- Prefer async streaming for large datasets
+- Ensure all endpoints are safe under concurrent tenant access
+
+# Architecture & Rules
+
+- Pattern: Vertical Slice Architecture combined with DDD Aggregates
+- Error Handling: Result Pattern (ADR-0004)
+  - Failures are first-class data
+  - All operations must return Result<T> or Result
+  - Errors must be categorized:
+    - Domain Errors (business rule violations)
+    - Validation Errors (input issues)
+    - Infrastructure Errors (external/system failures)
+  - API layer must map errors to RFC 7807 ProblemDetails
+  - Exceptions are only allowed for truly unexpected failures
+- Isolation: Multi-tenancy via X-Tenant-Id and EF Global Query Filters (ADR-0001)
+- Modeling: Explicit split between StoreBrand (Global) and StoreInstance (Tenant-scoped) (ADR-0002)
+- Logic & Flow: Refer to ADR-0005 for naming conventions and layer responsibilities.
+  - Treat each bounded context as a module with explicit public contracts and project boundaries.
+  - Communicate across modules only via defined interfaces, DTO contracts, or integration events.
+
+# Forbidden Practices
+
+- No direct DbContext usage outside Infrastructure
+- No module access to another module’s internal implementation, repository, or DbContext
+- No shared kernel domain objects: shared libraries are for technical abstractions only, not business entities or domain logic
+- No cross-slice dependencies
+- No shared mutable state between tenants
+- No bypassing Result Pattern with exceptions (except truly exceptional cases)
+- No logic inside Controllers beyond orchestration
+- No leaking Infrastructure concerns into Application layer
+
+# Domain Model & Entities
+
+Refer to ADR-0001 (Multi-Tenant Model) and ADR-0002 (Store Split) for the definitive entity relationships.
+
+- Hierarchy: All entities must strictly follow the Tenant vs StoreBrand vs StoreInstance definitions found in context documents
+- Implementation: Use TenantId as the discriminator for all scoped entities to satisfy the Global Query Filter requirement
+
+# ADR Index
+
+- ADR-0001: Multi-Tenant Model
+- ADR-0002: Split Store into StoreBrand and StoreInstance
+- ADR-0003: Application Structure - Vertical Slice and DDD aggregates
+- ADR-0004: Error Handling - Results Pattern and Functional Error
+- ADR-0005: 0005-modular-monolith-bounded-context-modules
+
+# Migration & Platform Alignment
+
+- Use `docs/migration-playbook-from-layered-monolith-to-modular-monolith.md` as the core migration roadmap.
+- Follow the playbook’s per-module phase template when moving domains into ADR-0005 bounded-context modules.
+- Apply the event-driven maturity ladder: in-process publisher first, then outbox persistence, then optional external broker.
+- Do not use integration events as a replacement for normal synchronous command/query boundaries.
+- Use `docs/platform/README.md` for optional post-migration platform guidance.
+- Platform docs such as `docs/platform/dotnet-aspire-orchestration.md` and `docs/platform/opentelemetry-observability.md` are optional extras after the modular monolith is stable.
+
+# Business & Security Rules
+
+- Refer to the Business Rules document for all logic governing:
+  - Tenant Onboarding (Rules T-01 to T-04)
+  - Membership & Roles (Rules M-01 to R-01)
+  - Store Operations (Rules S-01 to S-05)
+  - Tenant Resolution (Rules SR-01 to SR-03)
+- Do not implement any logic that contradicts the rules established in these documents. If a conflict arises, the Business Rules document is the authoritative source
+
+# Pipeline & Middleware
+
+The request pipeline order is strictly enforced to ensure security and observability. Refer below as the gold standard for implementation:
+
+1. Observability & Safety (Top of Pipeline)
+
+- Serilog: Must be first to capture the entire lifecycle
+- ExceptionHandler: Uses GlobalExceptionHandler to convert unhandled exceptions into RFC 7807 Problem Details
+
+2. Security & Context (Middle of the Pipeline)
+
+- Correlation ID: Injected early for cross-service tracing
+- Authentication: Validates the Clerk JWT
+  - Note: JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear() is mandatory to prevent claim renaming.
+- Tenant Resolution: Extracts X-Tenant-Id. Must run after Auth to ensure the user is identified but before Authorization
+- Log Enrichment: Add UserId and TenantId to the Serilog properties for every log entry in that request
+- Authorization: Policy-based checks
+
+3. Dependency Injection Rules
+
+- Database: Configured via AddDatabaseOptions (PostgreSQL/Neon)
+- Identity & Tenancy: Services must be registered via AddIdentity() and AddTenancy()
+- Vertical Slices: Business logic is registered via AddApplicationServices()
+
+4. Resilience & Protection
+
+- Rate Limiting (Inbound): Positioned immediately after UseExceptionHandler
+  - Use User.Identity.Name or IP Address as the partition key
+  - Return 429 Too Many Requests when limits are exceeded
+
+- Resilience (Outbound): Implemented in the Infrastructure Layer using Polly
+  - Event-driven integration should evolve along a safe ladder: in-process publisher -> outbox -> broker
+  - Retry Patterns: 3 retries with exponential backoff for transient HTTP errors (5xx, 408)
+  - Circuit Breaker: Open the circuit if failure rate > 50% over a 30s window to prevent cascading failures to external dependencies
+
+5. Layered Dependency Injection
+
+- Pattern: Each project layer (Application, Infrastructure, Api) must contain a DependencyInjection.cs file with an IServiceCollection extension method (e.g: .AddApplication(), .AddInfrastructure())
+- Encapsulation:
+  - The API project only calls the top-level extension method in Program.cs
+  - Internal dependencies (like specific Repositories or Validators) should be registered within their respective layers
+- Implementation: Use Primary Constructors for all injected dependencies in these classes
+
+# Folder & Project Structure
+
+The project is organized as a Monorepo. Root directory: uic-ecommerce/
+
+1. Root Level
+
+- Directory.Build.Props: Global MSBuild settings
+- Directory.Packages.Props: Central Package Management (CPM)
+- .cursorrules: Architectural instructions
+- .cursorignore: Privacy and exclusion rules
+
+2. Backend (/backend/ecommerce-api/)
+   Follow Modular Monolith with Bounded Context Modules: ADR-0005: 0005-modular-monolith-bounded-context-modules
+
+3. Apps (/apps/)
+
+- admin/: Angular v21
+  - src/: Application shell, main, config
+  - libs/: Feature-package approach. Sub-folders: features/, ui/, core/
+
+- marketplace/: Next.js 16
+  - app/: Server router and pages
+  - features/: Module pattern (Services/Repos/Actions)
+  - shared/: ui/ (shadcn) and core/ (utils)
+
+4. Infrastructure
+
+- /docker/: Docker Compose and environment files
+- Dockerfile: Multi-staged build co-located in the backend project root
+
+- Optional platform guidance: see `docs/platform/README.md` for observability and orchestration patterns once ADR-0005 migration is stable.
+
+# Coding Standards & Build Strategy
+
+1. Testing Strategy (Frontend)
+
+- Tooling: Use Vitest for both Angular and Next.js
+- Location: Use Co-location. Test files (_.spec.ts or _.test.ts) must live in the same folder as the implementation
+- Mocking: Use msw (Mock Service Worker) for API mocking to ensure tests are resilient to backend changes
+
+2. Frontend Build & Configuration
+
+- Typescript: Use a base TSConfig at the monorepo root. Each app (admin, marketplace) must have its own tsconfig.json that extends the root, with strict path aliases (e.g: @sharead/_, @features/_)
+- Build Tooling: Use Vite as the underlying engine for Angular 21 and Vitest
+
+3. Rendering & Hydration
+
+- Next.js 16 (Marketplace):
+  - Strategy: Default to Static Rendering for product catalogs (ISR/SSG) with a revalidation interval
+  - Dynamic Parts: Use Partial Prerendering (PPR) for user-specific sections (cart, profile) to keep the shell fast
+
+- Angular v21 (Admin):
+  - Strategy: Use Client-Side Rendering (CSR) since it's a protected CMS
+  - Hydration: Enable Zoneless Change Detection with Signals and Event Replay for maximum performance
+
+4. C# Aesthetic
+
+- Use Primary Constructors for DI in all layers
+- Use Collection Expressions and var where the type is obvious
+- Null Safety: Strict nullability enabled across all backend projects
+
+5. ESLint (v9.39.2) - Flat Config
+
+- Strictness: Enable @typecript-eslint/no-explicit-any: error
+- Imports: Force consistent-type-imports with prefer: type-imports
+- Order: use import/order with the following group sequence: builtin, external, internal/parent/sibling, type, then index/object
+  - Alphabetize (ascending/case-insensitive)
+  - New lines between groups
+  - Treat @ecommerce/\*\* as an internal path group
+- Rules:
+  - Allow \_ prefix for unused variables (argsIgnorePattern)
+  - Disallow console logs except warn and error
+  - Enforce eqeqeq (strict equality) and curly (all braces)
+
+6. Prettier
+
+- Integration: Must run via eslint-plugin-prettier to avoid conflicts
+- Rules: Single quotes, trailing commas (all), 2-space indentation, and 100 character print width
+
+7. Backend Build & Dependency Management
+
+- Central Package Management (CPM): Versions must live in Directory.Packages.Props only. No versions should be defined in individual .csproj files. This ensures a single version of EF Core, Serilog, or xUnit across the entire solution
+- Global Props: Use Directory.Build.Props - enforce global settings:
+  - <Nullable>enable</Nullable> and <ImplicitUsings>enable</ImplicitUsings>
+  - <AnalysisLevel>latest</AnalysisLevel> and <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild> to treat style warnings as build errors
+  - <TreatWarningsAsErrors>true</TreatWarningsAsErrors> for Release builds
+
+8. EditorConfig & Formatting
+
+- The .editorconfig acts as the "source of truth" for the IDE's behavior. It should enforce:
+  - Root: root = true
+  - General: charset = utf-8, indent_style = space, indent_size = 2 (Frontend) / 4 (Backend)
+- C# Specifics:
+  - Enforce File-scoped namespaces, Primary Constructors, and Remove unused usings on build
+  - csharp_style_primary_constructors = true:suggestion
+  - csharp_style_expression_bodied_methods = true:suggestion
+  - csharp_style_namespace_declarations = file_scoped:error
+  - dotnet_diagnostic.IDE0005.severity = error
+
+# Backend Testing Strategy
+
+1. Unit Tests:
+
+- Domain logic
+- Value objects
+- Validators
+
+2. Slice Tests:
+
+- Test the primary use-case entry point of a vertical slice (e.g.: Application Services, Use-Case classes, or HandleAsync/ExecuteAsync methods)
+- Do NOT assume CQRS or MediatR-style handlers unless explicitly defined
+- Focus on business behavior, not framework patterns
+- Use real implementations where possible (avoid excessive mocking)
+- A slice represents a complete feature flow from entry point to persistence within architectural boundaries
+
+3. Integration Tests:
+
+- Full pipeline using WebApplicationFactory
+- Validate middleware, auth, and tenant resolution
+
+4. Database:
+
+- Prefer real PostgreSQL (Testcontainers or Docker)
+- Do NOT mock DbContext
+
+5. Assertions:
+
+- Use FluentAssertions for readability
+
+# Definition of DONE
+
+- Code compiles with zero warnings
+- Tests exist and pass
+- Follows architectural boundaries
+- Includes validation and error handling
+- Uses Result Pattern consistently
+- Logging is included where relevant
+- No architectural rule violations
+- Code is understandable and explainable without additional context

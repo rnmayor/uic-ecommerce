@@ -1,0 +1,10 @@
+<Project>
+  <!-- Import solution-wide settings from backend/ecommerce-api/Directory.Build.props -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <!-- Test projects under tests/ are not packable NuGet artifacts. -->
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+</Project>
