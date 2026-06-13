@@ -1,7 +1,6 @@
-﻿namespace Ecommerce.Shared.Core.Messaging
+namespace Ecommerce.Shared.Core.Messaging;
+
+public interface IQueryDispatcher
 {
-    public interface IQueryDispatcher
-    {
-        Task<TResponse> DispatchAsync<TResponse>(IQuery<TResponse> query, CancellationToken ct = default);
-    }
+    Task<TResponse> DispatchAsync<TResponse>(IQuery<TResponse> query, CancellationToken ct = default);
 }

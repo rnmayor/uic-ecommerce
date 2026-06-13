@@ -2,21 +2,20 @@ using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoFixture.Xunit2;
 
-namespace Ecommerce.TestUtils.Attributes
+namespace Ecommerce.TestUtils.Attributes;
+
+public sealed class AutoMoqDataAttribute : AutoDataAttribute
 {
-    public sealed class AutoMoqDataAttribute : AutoDataAttribute
+    public AutoMoqDataAttribute() : base(() =>
     {
-        public AutoMoqDataAttribute() : base(() =>
+        var fixture = new Fixture();
+
+        fixture.Customize(new AutoMoqCustomization
         {
-            var fixture = new Fixture();
+            ConfigureMembers = true
+        });
 
-            fixture.Customize(new AutoMoqCustomization
-            {
-                ConfigureMembers = true
-            });
-
-            return fixture;
-        })
-        { }
-    }
+        return fixture;
+    })
+    { }
 }

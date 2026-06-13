@@ -1,8 +1,7 @@
-﻿namespace Ecommerce.Shared.Core.Messaging
+namespace Ecommerce.Shared.Core.Messaging;
+
+public interface ICommand<TResponse> { }
+public interface ICommandHandler<TCommand, TResponse> where TCommand : ICommand<TResponse>
 {
-    public interface ICommand<TResponse> { }
-    public interface ICommandHandler<TCommand, TResponse> where TCommand : ICommand<TResponse>
-    {
-        Task<TResponse> HandleAsync(TCommand command, CancellationToken ct);
-    }
+    Task<TResponse> HandleAsync(TCommand command, CancellationToken ct);
 }

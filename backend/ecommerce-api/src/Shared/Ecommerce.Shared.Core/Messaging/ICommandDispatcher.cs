@@ -1,7 +1,6 @@
-﻿namespace Ecommerce.Shared.Core.Messaging
+namespace Ecommerce.Shared.Core.Messaging;
+
+public interface ICommandDispatcher
 {
-    public interface ICommandDispatcher
-    {
-        Task<TResponse> DispatchAsync<TResponse>(ICommand<TResponse> command, CancellationToken ct = default);
-    }
+    Task<TResponse> DispatchAsync<TResponse>(ICommand<TResponse> command, CancellationToken ct = default);
 }

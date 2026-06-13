@@ -1,35 +1,34 @@
-﻿using Ecommerce.Domain.Common;
+using Ecommerce.Domain.Common;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Ecommerce.Api.Extensions
+namespace Ecommerce.Api.Extensions;
+
+public static class ResultExtensions
 {
-    public static class ResultExtensions
+    public static ActionResult ToActionResult<T>(
+        this Result<T> result,
+        HttpContext context,
+        Func<T, ActionResult> onSuccess)
     {
-        public static ActionResult ToActionResult<T>(
-            this Result<T> result,
-            HttpContext context,
-            Func<T, ActionResult> onSuccess)
+        if (result.IsSuccess)
+            return onSuccess(result.Value);
+
+        var error = result.Error;
+
+        var problem = new ProblemDetails
         {
-            if (result.IsSuccess)
-                return onSuccess(result.Value);
+            Type = error.Code,
+            Title = error.Code.Replace(".", " ").Replace("_", " ").ToUpperInvariant(),
+            Detail = error.Description,
+            Status = (int)error.StatusCode,
+            Instance = context.Request.Path
+        };
 
-            var error = result.Error;
+        problem.Extensions["traceId"] = context.TraceIdentifier;
 
-            var problem = new ProblemDetails
-            {
-                Type = error.Code,
-                Title = error.Code.Replace(".", " ").Replace("_", " ").ToUpperInvariant(),
-                Detail = error.Description,
-                Status = (int)error.StatusCode,
-                Instance = context.Request.Path
-            };
-
-            problem.Extensions["traceId"] = context.TraceIdentifier;
-
-            return new ObjectResult(problem)
-            {
-                StatusCode = (int)error.StatusCode
-            };
-        }
+        return new ObjectResult(problem)
+        {
+            StatusCode = (int)error.StatusCode
+        };
     }
 }

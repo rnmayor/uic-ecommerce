@@ -1,3 +1,5 @@
+using System.Net;
+using System.Net.Http.Json;
 using Ecommerce.Api.Tests.Extensions;
 using Ecommerce.Api.Tests.Fixtures;
 using Ecommerce.Application.Admin.Tenants.Queries.GetMyTenants;
@@ -6,154 +8,151 @@ using Ecommerce.Domain.Tenants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net;
-using System.Net.Http.Json;
 
-namespace Ecommerce.Api.Tests.Controllers.Admin.Tenants
+namespace Ecommerce.Api.Tests.Controllers.Admin.Tenants;
+
+public sealed class GetMyTenantsControllerTests : IClassFixture<ApiWebApplicationFactory>
 {
-    public sealed class GetMyTenantsControllerTests : IClassFixture<ApiWebApplicationFactory>
+    private readonly WebApplicationFactory<Program> _factory;
+    private readonly Mock<IGetMyTenantsService> _serviceMock;
+    public GetMyTenantsControllerTests(ApiWebApplicationFactory factory)
     {
-        private readonly WebApplicationFactory<Program> _factory;
-        private readonly Mock<IGetMyTenantsService> _serviceMock;
-        public GetMyTenantsControllerTests(ApiWebApplicationFactory factory)
-        {
-            _serviceMock = new Mock<IGetMyTenantsService>();
+        _serviceMock = new Mock<IGetMyTenantsService>();
 
-            _factory = factory.WithWebHostBuilder(builder =>
+        _factory = factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureServices(services =>
             {
-                builder.ConfigureServices(services =>
-                {
-                    services.AddScoped(_ => _serviceMock.Object);
-                });
+                services.AddScoped(_ => _serviceMock.Object);
             });
-        }
+        });
+    }
 
-        [Fact]
-        public async Task HandleAsync_WhenUserHasTenants_ReturnsTenantList()
+    [Fact]
+    public async Task HandleAsync_WhenUserHasTenants_ReturnsTenantList()
+    {
+        // Arrange
+        var client = _factory.CreateAuthenticatedClient();
+
+        var response = new MyTenantsResponse
         {
-            // Arrange
-            var client = _factory.CreateAuthenticatedClient();
-
-            var response = new MyTenantsResponse
-            {
-                Tenants = [
-                    new MyTenantDTO
-                {
-                    TenantId = Guid.NewGuid(),
-                    Name = "Tenant A",
-                    IsOwner = true,
-                    Role = TenantRoles.Owner
-                },
+            Tenants = [
                 new MyTenantDTO
-                {
-                    TenantId = Guid.NewGuid(),
-                    Name = "Tenant B",
-                    IsOwner = false,
-                    Role = TenantRoles.Admin
-                }
-                ]
-            };
+            {
+                TenantId = Guid.NewGuid(),
+                Name = "Tenant A",
+                IsOwner = true,
+                Role = TenantRoles.Owner
+            },
+            new MyTenantDTO
+            {
+                TenantId = Guid.NewGuid(),
+                Name = "Tenant B",
+                IsOwner = false,
+                Role = TenantRoles.Admin
+            }
+            ]
+        };
 
-            _serviceMock
-                .Setup(s => s.HandleAsync(
-                    It.IsAny<Guid>(),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result<MyTenantsResponse>.Success(response));
-
-            // Act
-            var httpResponse = await client.GetAsync("/api/admin/me/tenants");
-
-            // Assert
-            Assert.Equal(HttpStatusCode.OK, httpResponse.StatusCode);
-
-            var body = await httpResponse.Content.ReadFromJsonAsync<MyTenantsResponse>();
-
-            Assert.NotNull(body);
-            Assert.Equal(response.Tenants.Count, body.Tenants.Count);
-            Assert.True(body.HasTenant);
-
-            _serviceMock.Verify(s => s.HandleAsync(
+        _serviceMock
+            .Setup(s => s.HandleAsync(
                 It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()
-            ), Times.Once);
-        }
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<MyTenantsResponse>.Success(response));
 
-        [Fact]
-        public async Task HandleAsync_WhenUserHasNoTenants_ReturnsEmptyList()
-        {
-            // Arrange
-            var client = _factory.CreateAuthenticatedClient();
+        // Act
+        var httpResponse = await client.GetAsync("/api/admin/me/tenants");
 
-            _serviceMock
-                .Setup(s => s.HandleAsync(
-                    It.IsAny<Guid>(),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result<MyTenantsResponse>.Success(new MyTenantsResponse()));
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, httpResponse.StatusCode);
 
-            // Act
-            var httpResponse = await client.GetAsync("/api/admin/me/tenants");
+        var body = await httpResponse.Content.ReadFromJsonAsync<MyTenantsResponse>();
 
-            // Assert
-            Assert.Equal(HttpStatusCode.OK, httpResponse.StatusCode);
+        Assert.NotNull(body);
+        Assert.Equal(response.Tenants.Count, body.Tenants.Count);
+        Assert.True(body.HasTenant);
 
-            var body = await httpResponse.Content.ReadFromJsonAsync<MyTenantsResponse>();
+        _serviceMock.Verify(s => s.HandleAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<CancellationToken>()
+        ), Times.Once);
+    }
 
-            Assert.NotNull(body);
-            Assert.Empty(body.Tenants);
-            Assert.False(body.HasTenant);
+    [Fact]
+    public async Task HandleAsync_WhenUserHasNoTenants_ReturnsEmptyList()
+    {
+        // Arrange
+        var client = _factory.CreateAuthenticatedClient();
 
-            _serviceMock.Verify(s => s.HandleAsync(
+        _serviceMock
+            .Setup(s => s.HandleAsync(
                 It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()
-            ), Times.Once);
-        }
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<MyTenantsResponse>.Success(new MyTenantsResponse()));
 
-        [Fact]
-        public async Task HandleAsync_WhenServiceFails_ReturnsProblemDetails()
-        {
-            // Arrange
-            var client = _factory.CreateAuthenticatedClient();
-            var expectedError = new Error("db.timeout", "Database timeout.", HttpStatusCode.ServiceUnavailable);
+        // Act
+        var httpResponse = await client.GetAsync("/api/admin/me/tenants");
 
-            _serviceMock
-                .Setup(s => s.HandleAsync(
-                    It.IsAny<Guid>(),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(expectedError);
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, httpResponse.StatusCode);
 
-            // Act
-            var httpResponse = await client.GetAsync("/api/admin/me/tenants");
+        var body = await httpResponse.Content.ReadFromJsonAsync<MyTenantsResponse>();
 
-            // Assert
-            Assert.Equal(HttpStatusCode.ServiceUnavailable, httpResponse.StatusCode);
+        Assert.NotNull(body);
+        Assert.Empty(body.Tenants);
+        Assert.False(body.HasTenant);
 
-            var problem = await httpResponse.Content.ReadFromJsonAsync<ProblemDetails>();
-            Assert.NotNull(problem);
-            Assert.Equal("db.timeout", problem.Type);
-            Assert.Equal("DB TIMEOUT", problem.Title);
+        _serviceMock.Verify(s => s.HandleAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<CancellationToken>()
+        ), Times.Once);
+    }
 
-            _serviceMock.Verify(s => s.HandleAsync(
+    [Fact]
+    public async Task HandleAsync_WhenServiceFails_ReturnsProblemDetails()
+    {
+        // Arrange
+        var client = _factory.CreateAuthenticatedClient();
+        var expectedError = new Error("db.timeout", "Database timeout.", HttpStatusCode.ServiceUnavailable);
+
+        _serviceMock
+            .Setup(s => s.HandleAsync(
                 It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()
-            ), Times.Once);
-        }
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedError);
 
-        [Fact]
-        public async Task HandleAsync_WhenUserIsUnauthenticated_Returns401()
-        {
-            // Arrange
-            var client = _factory.CreateClient();
+        // Act
+        var httpResponse = await client.GetAsync("/api/admin/me/tenants");
 
-            // Act
-            var httpResponse = await client.GetAsync("/api/admin/me/tenants");
+        // Assert
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, httpResponse.StatusCode);
 
-            // Assert
-            Assert.Equal(HttpStatusCode.Unauthorized, httpResponse.StatusCode);
+        var problem = await httpResponse.Content.ReadFromJsonAsync<ProblemDetails>();
+        Assert.NotNull(problem);
+        Assert.Equal("db.timeout", problem.Type);
+        Assert.Equal("DB TIMEOUT", problem.Title);
 
-            _serviceMock.Verify(s => s.HandleAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()
-            ), Times.Never);
-        }
+        _serviceMock.Verify(s => s.HandleAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<CancellationToken>()
+        ), Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleAsync_WhenUserIsUnauthenticated_Returns401()
+    {
+        // Arrange
+        var client = _factory.CreateClient();
+
+        // Act
+        var httpResponse = await client.GetAsync("/api/admin/me/tenants");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, httpResponse.StatusCode);
+
+        _serviceMock.Verify(s => s.HandleAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<CancellationToken>()
+        ), Times.Never);
     }
 }
