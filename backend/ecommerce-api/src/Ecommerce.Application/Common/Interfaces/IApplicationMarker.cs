@@ -1,4 +1,3 @@
-namespace Ecommerce.Application.Common.Interfaces
-{
-    public interface IApplicationMarker { }
-}
+namespace Ecommerce.Application.Common.Interfaces;
+
+public interface IApplicationMarker { }

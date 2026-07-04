@@ -1,4 +1,11 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".dockerIgnore" />
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="Dockerfile" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Ecommerce.Api/Ecommerce.Api.csproj" />
     <Project Path="src/Ecommerce.Application/Ecommerce.Application.csproj" />
@@ -6,6 +13,7 @@
     <Project Path="src/Ecommerce.Infrastructure/Ecommerce.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <File Path="tests/Directory.Build.props" />
     <Project Path="tests/Ecommerce.Api.Tests/Ecommerce.Api.Tests.csproj" />
     <Project Path="tests/Ecommerce.Application.Tests/Ecommerce.Application.Tests.csproj" />
     <Project Path="tests/Ecommerce.Domain.Tests/Ecommerce.Domain.Tests.csproj" />

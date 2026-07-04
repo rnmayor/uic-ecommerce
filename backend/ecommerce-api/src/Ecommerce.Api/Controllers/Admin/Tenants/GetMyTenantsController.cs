@@ -4,28 +4,27 @@ using Ecommerce.Application.Common.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Ecommerce.Api.Controllers.Admin.Tenants
+namespace Ecommerce.Api.Controllers.Admin.Tenants;
+
+[Route("api/admin/me")]
+[Authorize]
+[SkipTenantResolution]
+public sealed class GetMyTenantsController : ApiController
 {
-    [Route("api/admin/me")]
-    [Authorize]
-    [SkipTenantResolution]
-    public sealed class GetMyTenantsController : ApiController
+    private readonly IGetMyTenantsService _service;
+    public GetMyTenantsController(IGetMyTenantsService service)
     {
-        private readonly IGetMyTenantsService _service;
-        public GetMyTenantsController(IGetMyTenantsService service)
-        {
-            _service = service;
-        }
+        _service = service;
+    }
 
-        [HttpGet("tenants")]
-        public async Task<ActionResult<MyTenantsResponse>> HandleAsync(
-          CancellationToken ct
-        )
-        {
-            var userId = User.GetUserId();
-            var result = await _service.HandleAsync(userId, ct);
+    [HttpGet("tenants")]
+    public async Task<ActionResult<MyTenantsResponse>> HandleAsync(
+      CancellationToken ct
+    )
+    {
+        var userId = User.GetUserId();
+        var result = await _service.HandleAsync(userId, ct);
 
-            return HandleResult(result, myTenants => Ok(myTenants));
-        }
+        return HandleResult(result, myTenants => Ok(myTenants));
     }
 }

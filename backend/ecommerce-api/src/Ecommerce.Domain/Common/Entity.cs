@@ -1,7 +1,6 @@
-namespace Ecommerce.Domain.Common
+namespace Ecommerce.Domain.Common;
+
+public abstract class Entity
 {
-    public abstract class Entity
-    {
-        public Guid Id { get; protected set; }
-    }
+    public Guid Id { get; protected set; }
 }

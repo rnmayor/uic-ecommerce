@@ -1,9 +1,8 @@
-namespace Ecommerce.Application.Common.Interfaces
+namespace Ecommerce.Application.Common.Interfaces;
+
+public interface ITenantContext
 {
-    public interface ITenantContext
-    {
-        Guid TenantId { get; }
-        bool IsResolved { get; }
-        void SetTenant(Guid tenantId);
-    }
+    Guid TenantId { get; }
+    bool IsResolved { get; }
+    void SetTenant(Guid tenantId);
 }

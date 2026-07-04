@@ -1,3 +1,5 @@
+using System.Net;
+using System.Net.Http.Json;
 using Ecommerce.Api.Tests.Extensions;
 using Ecommerce.Api.Tests.Fixtures;
 using Ecommerce.Application.Admin.Tenants.Features.Onboarding;
@@ -6,178 +8,175 @@ using Ecommerce.Domain.Tenants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net;
-using System.Net.Http.Json;
 
-namespace Ecommerce.Api.Tests.Controllers.Admin.Tenants
+namespace Ecommerce.Api.Tests.Controllers.Admin.Tenants;
+
+public sealed class OnboardTenantControllerTests : IClassFixture<ApiWebApplicationFactory>
 {
-    public sealed class OnboardTenantControllerTests : IClassFixture<ApiWebApplicationFactory>
+    private readonly WebApplicationFactory<Program> _factory;
+    private readonly Mock<IOnboardingService> _serviceMock;
+
+    public OnboardTenantControllerTests(ApiWebApplicationFactory factory)
     {
-        private readonly WebApplicationFactory<Program> _factory;
-        private readonly Mock<IOnboardingService> _serviceMock;
+        _serviceMock = new Mock<IOnboardingService>();
 
-        public OnboardTenantControllerTests(ApiWebApplicationFactory factory)
+        _factory = factory.WithWebHostBuilder(builder =>
         {
-            _serviceMock = new Mock<IOnboardingService>();
-
-            _factory = factory.WithWebHostBuilder(builder =>
+            builder.ConfigureServices(services =>
             {
-                builder.ConfigureServices(services =>
-                {
-                    services.AddScoped(_ => _serviceMock.Object);
-                });
+                services.AddScoped(_ => _serviceMock.Object);
             });
-        }
+        });
+    }
 
-        [Fact]
-        public async Task HandleAsync_WhenValidRequest_ReturnsCreated()
+    [Fact]
+    public async Task HandleAsync_WhenValidRequest_ReturnsCreated()
+    {
+        // Arrange
+        var client = _factory.CreateAuthenticatedClient();
+
+        var request = new OnboardingRequest
         {
-            // Arrange
-            var client = _factory.CreateAuthenticatedClient();
+            TenantName = "My Tenant"
+        };
 
-            var request = new OnboardingRequest
-            {
-                TenantName = "My Tenant"
-            };
+        var response = new OnboardingResponse
+        {
+            TenantId = Guid.NewGuid()
+        };
 
-            var response = new OnboardingResponse
-            {
-                TenantId = Guid.NewGuid()
-            };
-
-            _serviceMock
-                .Setup(s => s.ExecuteAsync(
-                    It.IsAny<Guid>(),
-                    It.IsAny<OnboardingRequest>(),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result<OnboardingResponse>.Success(response));
-
-            // Act
-            var httpResponse = await client.PostAsJsonAsync(
-                "/api/admin/onboarding/tenant",
-                request
-            );
-
-            // Assert
-            Assert.Equal(HttpStatusCode.Created, httpResponse.StatusCode);
-
-            var body = await httpResponse.Content.ReadFromJsonAsync<OnboardingResponse>();
-
-            Assert.NotNull(body);
-            Assert.Equal(response.TenantId, body.TenantId);
-
-            _serviceMock.Verify(s => s.ExecuteAsync(
+        _serviceMock
+            .Setup(s => s.ExecuteAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<OnboardingRequest>(),
-                It.IsAny<CancellationToken>()
-            ), Times.Once);
-        }
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<OnboardingResponse>.Success(response));
 
-        [Fact]
-        public async Task HandleAsync_WhenInvalidRequest_Returns400()
+        // Act
+        var httpResponse = await client.PostAsJsonAsync(
+            "/api/admin/onboarding/tenant",
+            request
+        );
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Created, httpResponse.StatusCode);
+
+        var body = await httpResponse.Content.ReadFromJsonAsync<OnboardingResponse>();
+
+        Assert.NotNull(body);
+        Assert.Equal(response.TenantId, body.TenantId);
+
+        _serviceMock.Verify(s => s.ExecuteAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<OnboardingRequest>(),
+            It.IsAny<CancellationToken>()
+        ), Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleAsync_WhenInvalidRequest_Returns400()
+    {
+        // Arrange
+        var client = _factory.CreateAuthenticatedClient();
+
+        var request = new OnboardingRequest
         {
-            // Arrange
-            var client = _factory.CreateAuthenticatedClient();
+            TenantName = ""
+        };
 
-            var request = new OnboardingRequest
-            {
-                TenantName = ""
-            };
-
-            _serviceMock
-                .Setup(s => s.ExecuteAsync(
-                    It.IsAny<Guid>(),
-                    It.IsAny<OnboardingRequest>(),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(TenantErrors.ValidationFailed("Name is required"));
-
-            // Act
-            var httpResponse = await client.PostAsJsonAsync(
-                "/api/admin/onboarding/tenant",
-                request
-            );
-
-            // Assert
-            Assert.Equal(HttpStatusCode.BadRequest, httpResponse.StatusCode);
-
-            var problem = await httpResponse.Content.ReadFromJsonAsync<ProblemDetails>();
-            Assert.NotNull(problem);
-            Assert.Equal(TenantErrors.ValidationFailed("").Code, problem.Type);
-            Assert.Equal("TENANT VALIDATION FAILED", problem.Title);
-
-            _serviceMock.Verify(s => s.ExecuteAsync(
+        _serviceMock
+            .Setup(s => s.ExecuteAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<OnboardingRequest>(),
-                It.IsAny<CancellationToken>()
-            ), Times.Once);
-        }
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(TenantErrors.ValidationFailed("Name is required"));
 
-        [Fact]
-        public async Task HandleAsync_WhenServiceFails_ReturnsProblemDetails()
+        // Act
+        var httpResponse = await client.PostAsJsonAsync(
+            "/api/admin/onboarding/tenant",
+            request
+        );
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, httpResponse.StatusCode);
+
+        var problem = await httpResponse.Content.ReadFromJsonAsync<ProblemDetails>();
+        Assert.NotNull(problem);
+        Assert.Equal(TenantErrors.ValidationFailed("").Code, problem.Type);
+        Assert.Equal("TENANT VALIDATION FAILED", problem.Title);
+
+        _serviceMock.Verify(s => s.ExecuteAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<OnboardingRequest>(),
+            It.IsAny<CancellationToken>()
+        ), Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleAsync_WhenServiceFails_ReturnsProblemDetails()
+    {
+        // Arrange
+        var client = _factory.CreateAuthenticatedClient();
+
+        var request = new OnboardingRequest
         {
-            // Arrange
-            var client = _factory.CreateAuthenticatedClient();
+            TenantName = "My Tenant"
+        };
 
-            var request = new OnboardingRequest
-            {
-                TenantName = "My Tenant"
-            };
+        var expectedError = new Error("db.timeout", "Database timeout.", HttpStatusCode.ServiceUnavailable);
 
-            var expectedError = new Error("db.timeout", "Database timeout.", HttpStatusCode.ServiceUnavailable);
-
-            _serviceMock
-                .Setup(s => s.ExecuteAsync(
-                    It.IsAny<Guid>(),
-                    It.IsAny<OnboardingRequest>(),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(expectedError);
-
-            // Act
-            var httpResponse = await client.PostAsJsonAsync(
-                "/api/admin/onboarding/tenant",
-                request
-            );
-
-            // Assert
-            Assert.Equal(HttpStatusCode.ServiceUnavailable, httpResponse.StatusCode);
-
-            var problem = await httpResponse.Content.ReadFromJsonAsync<ProblemDetails>();
-            Assert.NotNull(problem);
-            Assert.Equal("db.timeout", problem.Type);
-            Assert.Equal("DB TIMEOUT", problem.Title);
-
-            _serviceMock.Verify(s => s.ExecuteAsync(
+        _serviceMock
+            .Setup(s => s.ExecuteAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<OnboardingRequest>(),
-                It.IsAny<CancellationToken>()
-            ), Times.Once);
-        }
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedError);
 
-        [Fact]
-        public async Task HandleAsync_WhenUserIsUnauthenticated_Returns401()
+        // Act
+        var httpResponse = await client.PostAsJsonAsync(
+            "/api/admin/onboarding/tenant",
+            request
+        );
+
+        // Assert
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, httpResponse.StatusCode);
+
+        var problem = await httpResponse.Content.ReadFromJsonAsync<ProblemDetails>();
+        Assert.NotNull(problem);
+        Assert.Equal("db.timeout", problem.Type);
+        Assert.Equal("DB TIMEOUT", problem.Title);
+
+        _serviceMock.Verify(s => s.ExecuteAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<OnboardingRequest>(),
+            It.IsAny<CancellationToken>()
+        ), Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleAsync_WhenUserIsUnauthenticated_Returns401()
+    {
+        // Arrange
+        var client = _factory.CreateClient();
+
+        var request = new OnboardingRequest
         {
-            // Arrange
-            var client = _factory.CreateClient();
+            TenantName = "My Tenant"
+        };
 
-            var request = new OnboardingRequest
-            {
-                TenantName = "My Tenant"
-            };
+        // Act
+        var httpResponse = await client.PostAsJsonAsync(
+            "/api/admin/onboarding/tenant",
+            request
+        );
 
-            // Act
-            var httpResponse = await client.PostAsJsonAsync(
-                "/api/admin/onboarding/tenant",
-                request
-            );
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, httpResponse.StatusCode);
 
-            // Assert
-            Assert.Equal(HttpStatusCode.Unauthorized, httpResponse.StatusCode);
-
-            _serviceMock.Verify(s => s.ExecuteAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<OnboardingRequest>(),
-                It.IsAny<CancellationToken>()
-            ), Times.Never);
-        }
+        _serviceMock.Verify(s => s.ExecuteAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<OnboardingRequest>(),
+            It.IsAny<CancellationToken>()
+        ), Times.Never);
     }
 }

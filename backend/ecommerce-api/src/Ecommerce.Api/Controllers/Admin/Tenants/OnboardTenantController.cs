@@ -4,29 +4,28 @@ using Ecommerce.Application.Common.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Ecommerce.Api.Controllers.Admin.Tenants
+namespace Ecommerce.Api.Controllers.Admin.Tenants;
+
+[Route("api/admin/onboarding")]
+[Authorize] // authenticated user only
+[SkipTenantResolution]
+public sealed class OnboardTenantController : ApiController
 {
-    [Route("api/admin/onboarding")]
-    [Authorize] // authenticated user only
-    [SkipTenantResolution]
-    public sealed class OnboardTenantController : ApiController
+    private readonly IOnboardingService _service;
+    public OnboardTenantController(IOnboardingService service)
     {
-        private readonly IOnboardingService _service;
-        public OnboardTenantController(IOnboardingService service)
-        {
-            _service = service;
-        }
+        _service = service;
+    }
 
-        [HttpPost("tenant")]
-        public async Task<ActionResult<OnboardingResponse>> HandleAsync(
-          [FromBody] OnboardingRequest request,
-          CancellationToken ct
-        )
-        {
-            var userId = User.GetUserId();
-            var result = await _service.ExecuteAsync(userId, request, ct);
+    [HttpPost("tenant")]
+    public async Task<ActionResult<OnboardingResponse>> HandleAsync(
+      [FromBody] OnboardingRequest request,
+      CancellationToken ct
+    )
+    {
+        var userId = User.GetUserId();
+        var result = await _service.ExecuteAsync(userId, request, ct);
 
-            return HandleResult(result, tenant => Created(string.Empty, tenant));
-        }
+        return HandleResult(result, tenant => Created(string.Empty, tenant));
     }
 }

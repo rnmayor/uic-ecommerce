@@ -1,3 +1,5 @@
+using System.IdentityModel.Tokens.Jwt;
+using Ecommerce.Api;
 using Ecommerce.Api.Errors;
 using Ecommerce.Api.Extensions;
 using Ecommerce.Application;
@@ -5,7 +7,6 @@ using Ecommerce.Application.Common.Authorization.Policies;
 using Ecommerce.Infrastructure;
 using Ecommerce.Infrastructure.Persistence;
 using Serilog;
-using System.IdentityModel.Tokens.Jwt;
 
 // Bootstrap the entire application host and setup configuration, logging, DI, environment detection
 var builder = WebApplication.CreateBuilder(args);

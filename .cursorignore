@@ -1,0 +1,47 @@
+# Secrets & Sensitive Dta
+.env
+.env.*
+secrets.json
+/.clerk/
+*.pem
+*.key
+certs/
+
+# Build Outputs
+.pnp*
+.next/
+out/
+.angular/
+dist/
+build/
+bin/
+obj/
+.eslintcache
+.turbo/
+.vercel/
+*.tsbuildinfo
+cache/
+
+# Dependencies
+node_modules/
+.npm/
+vendor/
+.pnpm-store/
+node_modules/.pnpm/
+
+# IDE & System
+.git/
+.svn/
+.idea/
+.vscode/
+*.vs/
+*.suo
+*.user
+*.useroscache
+*.sln.docstates
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

@@ -17,48 +17,47 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Ecommerce.Infrastructure
+namespace Ecommerce.Infrastructure;
+
+public static class DependencyInjection
 {
-    public static class DependencyInjection
+    /// <summary>
+    /// Registers infrastructure-layer implementation for persistence, identity,
+    /// and tenant-based authorization required by the application layer.
+    /// <item><c>EcommerceDbContext</c>: Configures connection string, strongly-typed options, and database provider.</item>
+    /// <item><c>ITenantMemberAuthorizationService</c>: Performs tenant membership and role checks for authorization policies.</item>
+    /// <item><c>IUserResolver:</c> Resolves the application's internal user identity from external authentication claims.</item>
+    /// <item><c>ITenantOnboardingRepository: </c> Provides persistence abstraction for atomically storing the entities created during tenant onboarding.</item>
+    /// <item><c>IGetMyTenantsRepository: </c> Provides read-only persistence abstraction for querying tenant memberships for a given user, including role-based projections required by application-level queries.</item>
+    /// <item><c>IGetTenantRepository: Provides read-only persistence abstraction for querying tenant details for a given slug.</c></item>
+    /// <item><c>IGetAllStoreBrandsRepository: </c> Provides read-only persistence abstraction for querying store brands.</item>
+    /// <item><c>ITenantRepository: </c> Provides persistence abstraction for storing tenant.</item>
+    /// <item><c>IStoreBrandRepository: </c> Provides persistence abstraction for storing store brand.</item>
+    /// </summary>
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
-        /// <summary>
-        /// Registers infrastructure-layer implementation for persistence, identity,
-        /// and tenant-based authorization required by the application layer.
-        /// <item><c>EcommerceDbContext</c>: Configures connection string, strongly-typed options, and database provider.</item>
-        /// <item><c>ITenantMemberAuthorizationService</c>: Performs tenant membership and role checks for authorization policies.</item>
-        /// <item><c>IUserResolver:</c> Resolves the application's internal user identity from external authentication claims.</item>
-        /// <item><c>ITenantOnboardingRepository: </c> Provides persistence abstraction for atomically storing the entities created during tenant onboarding.</item>
-        /// <item><c>IGetMyTenantsRepository: </c> Provides read-only persistence abstraction for querying tenant memberships for a given user, including role-based projections required by application-level queries.</item>
-        /// <item><c>IGetTenantRepository: Provides read-only persistence abstraction for querying tenant details for a given slug.</c></item>
-        /// <item><c>IGetAllStoreBrandsRepository: </c> Provides read-only persistence abstraction for querying store brands.</item>
-        /// <item><c>ITenantRepository: </c> Provides persistence abstraction for storing tenant.</item>
-        /// <item><c>IStoreBrandRepository: </c> Provides persistence abstraction for storing store brand.</item>
-        /// </summary>
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+        // DbContext
+        services.AddDbContext<EcommerceDbContext>((sp, options) =>
         {
-            // DbContext
-            services.AddDbContext<EcommerceDbContext>((sp, options) =>
-            {
-                var dbOptions = sp.GetRequiredService<IOptions<DatabaseOptions>>().Value;
-                options.UseNpgsql(dbOptions.ConnectionString);
-            });
+            var dbOptions = sp.GetRequiredService<IOptions<DatabaseOptions>>().Value;
+            options.UseNpgsql(dbOptions.ConnectionString);
+        });
 
-            // Tenancy
-            services.AddScoped<ITenantMemberAuthorizationService, TenantMemberAuthorizationService>();
+        // Tenancy
+        services.AddScoped<ITenantMemberAuthorizationService, TenantMemberAuthorizationService>();
 
-            // Identity
-            services.AddScoped<IUserResolver, UserResolver>();
+        // Identity
+        services.AddScoped<IUserResolver, UserResolver>();
 
-            // Use-case specific repositories
-            services.AddScoped<IOnboardingRepository, OnboardingRepository>();
-            services.AddScoped<IGetTenantsForUserRepository, GetTenantsForUserRepository>();
-            services.AddScoped<IGetTenantRepository, GetTenantRepository>();
-            services.AddScoped<IGetAllStoreBrandsRepository, GetAllStoreBrandsRepository>();
+        // Use-case specific repositories
+        services.AddScoped<IOnboardingRepository, OnboardingRepository>();
+        services.AddScoped<IGetTenantsForUserRepository, GetTenantsForUserRepository>();
+        services.AddScoped<IGetTenantRepository, GetTenantRepository>();
+        services.AddScoped<IGetAllStoreBrandsRepository, GetAllStoreBrandsRepository>();
 
-            // Aggregrate repositories
-            services.AddScoped<IStoreBrandRepository, StoreBrandRepository>();
+        // Aggregrate repositories
+        services.AddScoped<IStoreBrandRepository, StoreBrandRepository>();
 
-            return services;
-        }
+        return services;
     }
 }

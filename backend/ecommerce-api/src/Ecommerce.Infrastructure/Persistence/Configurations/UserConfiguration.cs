@@ -2,20 +2,19 @@ using Ecommerce.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Ecommerce.Infrastructure.Persistence.Configurations
+namespace Ecommerce.Infrastructure.Persistence.Configurations;
+
+internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 {
-    internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
+    public void Configure(EntityTypeBuilder<User> builder)
     {
-        public void Configure(EntityTypeBuilder<User> builder)
-        {
-            builder.ToTable("users");
-            builder.HasKey(u => u.Id);
+        builder.ToTable("users");
+        builder.HasKey(u => u.Id);
 
-            builder.Property(u => u.ClerkUserId).IsRequired().HasMaxLength(100);
-            builder.Property(u => u.CreatedAt).IsRequired();
-            builder.Property(u => u.UpdatedAt).IsRequired();
+        builder.Property(u => u.ClerkUserId).IsRequired().HasMaxLength(100);
+        builder.Property(u => u.CreatedAt).IsRequired();
+        builder.Property(u => u.UpdatedAt).IsRequired();
 
-            builder.HasIndex(u => u.ClerkUserId).IsUnique();
-        }
+        builder.HasIndex(u => u.ClerkUserId).IsUnique();
     }
 }
