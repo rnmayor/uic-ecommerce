@@ -8,6 +8,8 @@ WORKDIR /src
 
 # Copy ONLY solution and project files first for layer caching
 COPY ["Ecommerce.slnx", "./"]
+COPY ["Directory.Build.props", "./"]
+COPY ["Directory.Packages.props", "./"]
 
 # Copy all .csproj fiels in their respective folders to allow cached restore
 COPY ["src/Ecommerce.Api/Ecommerce.Api.csproj", "src/Ecommerce.Api/"]
@@ -20,6 +22,7 @@ COPY ["tests/Ecommerce.Api.Tests/Ecommerce.Api.Tests.csproj", "tests/Ecommerce.A
 COPY ["tests/Ecommerce.Application.Tests/Ecommerce.Application.Tests.csproj", "tests/Ecommerce.Application.Tests/"]
 COPY ["tests/Ecommerce.Domain.Tests/Ecommerce.Domain.Tests.csproj", "tests/Ecommerce.Domain.Tests/"]
 COPY ["tests/Ecommerce.TestUtils/Ecommerce.TestUtils.csproj", "tests/Ecommerce.TestUtils/"]
+COPY ["tests/Directory.Build.props", "tests/"]
 
 # Restore using the solution file
 RUN --mount=type=cache,target=/root/.nuget/packages \
