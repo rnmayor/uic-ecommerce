@@ -5,6 +5,9 @@
   <!-- Test projects under tests/ are not packable NuGet artifacts. -->
   <PropertyGroup>
     <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests')) Or $(MSBuildProjectName.Contains('.UnitTests')) Or $(MSBuildProjectName.Contains('.IntegrationTests'))">
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 </Project>
