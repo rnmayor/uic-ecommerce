@@ -1,16 +1,16 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".dockerIgnore" />
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="Dockerfile" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Ecommerce.Api/Ecommerce.Api.csproj" />
     <Project Path="src/Ecommerce.Application/Ecommerce.Application.csproj" />
     <Project Path="src/Ecommerce.Domain/Ecommerce.Domain.csproj" />
     <Project Path="src/Ecommerce.Infrastructure/Ecommerce.Infrastructure.csproj" />
-  </Folder>
-  <Folder Name="/src/Modules/Tenancy/">
-    <Project Path="src/Modules/Tenancy/Ecommerce.Tenancy.Api/Ecommerce.Tenancy.Api.csproj" Id="499ef00d-b329-4595-abbd-01fb732e4924" />
-  </Folder>
-  <Folder Name="/src/Shared/">
-    <Project Path="src/Shared/Ecommerce.Shared.Core/Ecommerce.Shared.Core.csproj" Id="06f9dc73-2f6d-4b7d-8180-4ded146900c7" />
-    <Project Path="src/Shared/Ecommerce.Shared.Infrastructure/Ecommerce.Shared.Infrastructure.csproj" Id="adc31400-c997-43ae-bfcc-177bce758ecf" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Ecommerce.Api.Tests/Ecommerce.Api.Tests.csproj" />

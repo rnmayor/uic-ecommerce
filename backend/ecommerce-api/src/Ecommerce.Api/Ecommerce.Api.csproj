@@ -25,7 +25,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Ecommerce.Application\Ecommerce.Application.csproj" />
     <ProjectReference Include="..\Ecommerce.Infrastructure\Ecommerce.Infrastructure.csproj" />
-    <ProjectReference Include="..\Modules\Tenancy\Ecommerce.Tenancy.Api\Ecommerce.Tenancy.Api.csproj" />
   </ItemGroup>
 
 </Project>

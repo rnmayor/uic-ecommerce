@@ -53,7 +53,6 @@ builder.Services.AddAuthorization(options =>
 
 // Application services (business logic)
 builder.Services.AddApplicationServices();
-builder.Services.AddModules(builder.Configuration);
 
 // Health checks - for monitoring apps and DB connectivity
 builder.Services.AddHealthChecks()
@@ -106,7 +105,5 @@ app.UseAuthorization();
 // Endpoints
 app.MapHealthChecks("/health");
 app.MapControllers();
-
-app.RegisterModules();
 
 app.Run();
